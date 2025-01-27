@@ -1,0 +1,1 @@
+export { HardhatConfig } from "./hardhat";

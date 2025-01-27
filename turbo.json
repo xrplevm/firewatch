@@ -1,0 +1,21 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "tasks": {
+        "transit": {
+            "dependsOn": ["^transit"]
+        },
+        "test": {
+            "dependsOn": ["transit"]
+        },
+        "clean": {
+            "cache": false,
+            "dependsOn": ["transit"]
+        },
+        "lint": {
+            "dependsOn": ["transit"]
+        },
+        "check-types": {
+            "dependsOn": ["transit"]
+        }
+    }
+}
