@@ -2,6 +2,7 @@ import { PrecompileConfig } from "../types/precompile.types";
 
 export type ERC20PrecompileConfig = PrecompileConfig<{
     amount: number;
+    feeFund: number;
 }>;
 
 const erc20PrecompileABI = [
@@ -24,4 +25,5 @@ export const erc20PrecompileConfig: ERC20PrecompileConfig = {
     abi: erc20PrecompileABI,
     contractAddress: "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
     amount: 1,
+    feeFund: 10000000,
 };

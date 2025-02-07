@@ -15,8 +15,10 @@ describe("ERC20", () => {
     let ownerSigner: any;
     let userSigner: any;
 
-    let burnMintAmount: bigint;
+    let testTokenAmount: bigint;
 
+    // Notice: user is acting as a faucet, providing the owner with enough tokens
+    // to cover transaction fees and execute mint, burn, and transferOwnership tests.
     beforeEach(async () => {
         abi = erc20PrecompileConfig.abi;
         contractAddress = erc20PrecompileConfig.contractAddress;
@@ -25,24 +27,45 @@ describe("ERC20", () => {
         ownerContract = new ethers.Contract(contractAddress, abi, ownerSigner);
         userContract = new ethers.Contract(contractAddress, abi, userSigner);
 
-        burnMintAmount = ethers.toBigInt(erc20PrecompileConfig.amount);
+        await (await userContract.transfer(ownerSigner.address, erc20PrecompileConfig.feeFund)).wait();
+
+        testTokenAmount = ethers.toBigInt(erc20PrecompileConfig.amount);
+    });
+
+    // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
+    // Ensures that each test starts with a clean slate for the owner.
+    afterEach(async () => {
+        const currentOwner = await ownerContract.owner();
+        const ownerBalance = await ownerContract.balanceOf(ownerSigner.address);
+
+        const burnGasEstimate = await userContract.approve.estimateGas(ownerSigner.address, ownerBalance);
+
+        const exactApprovalAmount = ownerBalance - burnGasEstimate;
+
+        if (ownerBalance > 0) {
+            await (await ownerContract.approve(userSigner.address, exactApprovalAmount)).wait();
+            await (await userContract.burnFrom(ownerSigner.address, exactApprovalAmount)).wait();
+        }
+        if (currentOwner !== ownerSigner.address) {
+            await (await userContract.transferOwnership(ownerSigner.address)).wait();
+        }
     });
 
     describe("mint coins", () => {
         it("should mint tokens to the owner", async () => {
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
-            const mintReceipt = await (await ownerContract.mint(userSigner.address, burnMintAmount)).wait();
+            const mintReceipt = await (await ownerContract.mint(userSigner.address, testTokenAmount)).wait();
 
             const transferEvent = findEvent(mintReceipt, "Transfer");
             expect(transferEvent).to.not.be.undefined;
 
             const afterBalance = await ownerContract.balanceOf(userSigner.address);
-            expect(afterBalance).to.equal(beforeBalance + burnMintAmount);
+            expect(afterBalance).to.equal(beforeBalance + testTokenAmount);
         });
 
         it("should prevent non-owner from minting tokens", async () => {
-            await expectRevert(userContract.mint(userSigner.address, burnMintAmount), "ERC20: minter is not the owner");
+            await expectRevert(userContract.mint(userSigner.address, testTokenAmount), "ERC20: minter is not the owner");
         });
     });
 
@@ -50,11 +73,11 @@ describe("ERC20", () => {
         it("should burn specified amount", async () => {
             const beforeBalance = await ownerContract.balanceOf(ownerSigner.address);
 
-            const mintReceipt = await (await ownerContract.mint(ownerSigner.address, burnMintAmount)).wait();
+            const mintReceipt = await (await ownerContract.mint(ownerSigner.address, testTokenAmount)).wait();
 
             const mintGasFee = mintReceipt.gasUsed * mintReceipt.gasPrice;
 
-            const burnReceipt = await (await ownerContract.burn(burnMintAmount)).wait();
+            const burnReceipt = await (await ownerContract.burn(testTokenAmount)).wait();
             const burnGasFee = burnReceipt.gasUsed * burnReceipt.gasPrice;
 
             const afterBurnBalance = await ownerContract.balanceOf(ownerSigner.address);
@@ -64,55 +87,83 @@ describe("ERC20", () => {
         });
 
         it("should revert if trying to burn more than balance", async () => {
-            await expectRevert(ownerContract.burn(burnMintAmount), "ERC20: transfer amount exceeds balance");
+            const beforeBalance = await ownerContract.balanceOf(ownerSigner.address);
+            await expectRevert(ownerContract.burn(testTokenAmount + beforeBalance), "ERC20: transfer amount exceeds balance");
         });
     });
 
     describe("burn (owner-only burn)", () => {
         it("should revert if sender is not owner", async () => {
             await expectRevert(
-                userContract["burn(address,uint256)"](ownerSigner.address, burnMintAmount),
+                userContract["burn(address,uint256)"](ownerSigner.address, testTokenAmount),
                 "ERC20: sender is not the owner",
             );
         });
 
         it("should burn coins of spender if sender is owner", async () => {
-            await (await ownerContract.mint(userSigner.address, burnMintAmount)).wait();
+            await (await ownerContract.mint(userSigner.address, testTokenAmount)).wait();
 
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
-            await (await ownerContract["burn(address,uint256)"](userSigner.address, burnMintAmount)).wait();
+            await (await ownerContract["burn(address,uint256)"](userSigner.address, testTokenAmount)).wait();
 
             const afterBalance = await ownerContract.balanceOf(userSigner.address);
 
-            expect(afterBalance).to.equal(beforeBalance - burnMintAmount);
+            expect(afterBalance).to.equal(beforeBalance - testTokenAmount);
         });
     });
 
     describe("burnFrom", () => {
         it("should revert if spender does not have allowance", async () => {
-            await (await ownerContract.mint(userSigner.address, burnMintAmount)).wait();
+            await (await ownerContract.mint(userSigner.address, testTokenAmount)).wait();
 
-            await expectRevert(ownerContract.burnFrom(userSigner.address, burnMintAmount), "ERC20: insufficient allowance");
+            await expectRevert(ownerContract.burnFrom(userSigner.address, testTokenAmount), "ERC20: insufficient allowance");
         });
 
         it("should burn coins if spender has allowance", async () => {
-            await (await ownerContract.mint(ownerSigner.address, burnMintAmount)).wait();
-
-            await (await ownerContract.approve(userSigner.address, burnMintAmount)).wait();
+            await (await ownerContract.approve(userSigner.address, testTokenAmount)).wait();
 
             const initialAllowance = await userContract.allowance(ownerSigner.address, userSigner.address);
-            expect(initialAllowance).to.equal(burnMintAmount);
+            expect(initialAllowance).to.equal(testTokenAmount);
 
             const beforeBalance = await userContract.balanceOf(ownerSigner.address);
 
-            await (await userContract.burnFrom(ownerSigner.address, burnMintAmount)).wait();
+            await (await userContract.burnFrom(ownerSigner.address, testTokenAmount)).wait();
 
             const afterBalance = await userContract.balanceOf(ownerSigner.address);
-            expect(afterBalance).to.equal(beforeBalance - burnMintAmount);
+            expect(afterBalance).to.equal(beforeBalance - testTokenAmount);
 
             const finalAllowance = await userContract.allowance(ownerSigner.address, userSigner.address);
             expect(finalAllowance).to.equal(0);
+        });
+    });
+
+    describe("transferOwnership", () => {
+        describe("transferOwnership", () => {
+            it("should revert if sender is not the owner", async () => {
+                await expectRevert(userContract.transferOwnership(ownerSigner.address), "ERC20: sender is not the owner");
+            });
+
+            it("should transfer ownership if sender is owner", async () => {
+                await (await ownerContract.transferOwnership(userSigner.address)).wait();
+
+                const newOwner = await ownerContract.owner();
+                expect(newOwner).to.equal(userSigner.address);
+            });
+        });
+    });
+
+    describe("increaseAllowance", () => {
+        it("should correctly increase allowance", async () => {
+            const increaseAmount = ethers.toBigInt(erc20PrecompileConfig.amount);
+
+            const initialAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(initialAllowance).to.equal(0);
+
+            await (await ownerContract.increaseAllowance(userSigner.address, increaseAmount)).wait();
+
+            const newAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(newAllowance).to.equal(initialAllowance + increaseAmount);
         });
     });
 });

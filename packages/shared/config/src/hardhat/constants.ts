@@ -5,7 +5,6 @@ export const DEFAULT_HARDHAT_CONFIG: HardhatUserConfig = {
     networks: {
         xrplevm_localnet: {
             url: "http://localhost:8545",
-            // gasPrice: 0,
         },
         xrplevm_devnet: {
             url: "https://rpc.xrplevm.org",
