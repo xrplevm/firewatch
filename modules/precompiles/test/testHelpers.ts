@@ -26,3 +26,23 @@ export const expectRevert = async (tx: Promise<any>, expectedError: string) => {
         expect(error.message).to.contain(expectedError);
     }
 };
+
+// In testHelpers.ts
+export async function resetOwnerState(
+    ownerContract: InstanceType<typeof ethers.Contract>,
+    userContract: InstanceType<typeof ethers.Contract>,
+    ownerSigner: any,
+    userSigner: any,
+) {
+    const currentOwner = await ownerContract.owner();
+    const ownerBalance = await ownerContract.balanceOf(ownerSigner.address);
+    if (ownerBalance > 0) {
+        const burnGasEstimate = await userContract.approve.estimateGas(ownerSigner.address, ownerBalance);
+        const exactApprovalAmount = ownerBalance - burnGasEstimate;
+        await (await ownerContract.approve(userSigner.address, exactApprovalAmount)).wait();
+        await (await userContract.burnFrom(ownerSigner.address, exactApprovalAmount)).wait();
+    }
+    if (currentOwner !== ownerSigner.address) {
+        await (await userContract.transferOwnership(ownerSigner.address)).wait();
+    }
+}

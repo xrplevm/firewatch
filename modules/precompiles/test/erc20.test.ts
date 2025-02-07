@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { erc20PrecompileConfig } from "./erc20.config";
 import { ethers } from "hardhat";
-import { findEvent, expectRevert } from "./testHelpers";
+import { findEvent, expectRevert, resetOwnerState } from "./testHelpers";
 
 // Notice: Using the double await pattern because we are testing on a live blockchain.
 // Transactions are asynchronous, and we must ensure they are fully confirmed on-chain before proceeding.
@@ -35,20 +35,7 @@ describe("ERC20", () => {
     // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
     // Ensures that each test starts with a clean slate for the owner.
     afterEach(async () => {
-        const currentOwner = await ownerContract.owner();
-        const ownerBalance = await ownerContract.balanceOf(ownerSigner.address);
-
-        const burnGasEstimate = await userContract.approve.estimateGas(ownerSigner.address, ownerBalance);
-
-        const exactApprovalAmount = ownerBalance - burnGasEstimate;
-
-        if (ownerBalance > 0) {
-            await (await ownerContract.approve(userSigner.address, exactApprovalAmount)).wait();
-            await (await userContract.burnFrom(ownerSigner.address, exactApprovalAmount)).wait();
-        }
-        if (currentOwner !== ownerSigner.address) {
-            await (await userContract.transferOwnership(ownerSigner.address)).wait();
-        }
+        await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
     });
 
     describe("mint coins", () => {
@@ -80,10 +67,10 @@ describe("ERC20", () => {
             const burnReceipt = await (await ownerContract.burn(testTokenAmount)).wait();
             const burnGasFee = burnReceipt.gasUsed * burnReceipt.gasPrice;
 
-            const afterBurnBalance = await ownerContract.balanceOf(ownerSigner.address);
+            const afterBalance = await ownerContract.balanceOf(ownerSigner.address);
 
             const expectedFinalBalance = beforeBalance - mintGasFee - burnGasFee;
-            expect(afterBurnBalance).to.equal(expectedFinalBalance);
+            expect(afterBalance).to.equal(expectedFinalBalance);
         });
 
         it("should revert if trying to burn more than balance", async () => {
@@ -155,15 +142,13 @@ describe("ERC20", () => {
 
     describe("increaseAllowance", () => {
         it("should correctly increase allowance", async () => {
-            const increaseAmount = ethers.toBigInt(erc20PrecompileConfig.amount);
-
             const initialAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
             expect(initialAllowance).to.equal(0);
 
-            await (await ownerContract.increaseAllowance(userSigner.address, increaseAmount)).wait();
+            await (await ownerContract.increaseAllowance(userSigner.address, testTokenAmount)).wait();
 
             const newAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(newAllowance).to.equal(initialAllowance + increaseAmount);
+            expect(newAllowance).to.equal(initialAllowance + testTokenAmount);
         });
     });
 });
