@@ -1,8 +1,8 @@
-import { PrecompileConfig } from "../types/precompile.types"
+import { PrecompileConfig } from "../types/precompile.types";
 
 export type ERC20PrecompileConfig = PrecompileConfig<{
-    amount: number
-}>
+    amount: number;
+}>;
 
 const erc20PrecompileABI = [
     "function transfer(address to, uint256 amount) external",
@@ -15,13 +15,13 @@ const erc20PrecompileABI = [
     "function burn(address account, uint256 amount) external",
     "function burnFrom(address account, uint256 amount) external",
     "function transferOwnership(address newOwner) external",
-    "function owner() external view returns (address)"
-]
+    "function owner() external view returns (address)",
+    "event Transfer(address indexed from, address indexed to, uint256 value)",
+    "event Approval(address indexed owner, address indexed spender, uint256 value)",
+];
 
 export const erc20PrecompileConfig: ERC20PrecompileConfig = {
     abi: erc20PrecompileABI,
     contractAddress: "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
-    amount: 1
-}
-
-
+    amount: 1,
+};
