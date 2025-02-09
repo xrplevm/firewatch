@@ -1,8 +1,8 @@
 import { expect } from "chai";
-import { erc20PrecompileConfig } from "./erc20.config";
 import { ethers } from "hardhat";
+import { erc20PrecompileConfig } from "../../src/precompiles/config/erc20.config";
 
-describe("ERC20", () => {
+describe("Precompiles/ERC20", () => {
     let abi;
     let contractAddress;
     let ownerContract: InstanceType<typeof ethers.Contract>;

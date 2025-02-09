@@ -1,9 +1,9 @@
 {
-    "name": "precompiles",
+    "name": "@firewatch/evm",
     "version": "1.0.0",
-    "description": "",
+    "description": "EVM module for Firewatch",
     "scripts": {
-        "test-localnet": "hardhat test --network xrplevm_localnet"
+        "test": "hardhat test --network xrplevm_localnet"
     },
     "keywords": [],
     "author": "",
@@ -16,6 +16,7 @@
         "hardhat": "^2.22.18"
     },
     "devDependencies": {
-        "@shared/config": "workspace:*"
+        "@shared/mocha": "workspace:*",
+        "@types/chai": "^5.0.1"
     }
 }
