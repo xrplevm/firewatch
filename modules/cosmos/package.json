@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "lint": "eslint .",
         "test": "ts-node src/bank.ts"
     },
     "keywords": [],
