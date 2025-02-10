@@ -6,7 +6,7 @@ describe("Precompiles/ERC20", () => {
     let abi;
     let contractAddress;
     let ownerContract: InstanceType<typeof ethers.Contract>;
-    let userContract: InstanceType<typeof ethers.Contract>;
+    let _: InstanceType<typeof ethers.Contract>;
 
     let ownerSigner: any;
     let userSigner: any;
@@ -17,7 +17,7 @@ describe("Precompiles/ERC20", () => {
         [ownerSigner, userSigner] = await ethers.getSigners();
 
         ownerContract = new ethers.Contract(contractAddress, abi, ownerSigner);
-        userContract = new ethers.Contract(contractAddress, abi, userSigner);
+        _ = new ethers.Contract(contractAddress, abi, userSigner);
     });
 
     /**

@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "EVM module for Firewatch",
     "scripts": {
+        "lint": "eslint .",
         "test": "hardhat test --network xrplevm_localnet"
     },
     "keywords": [],
@@ -16,6 +17,7 @@
         "hardhat": "^2.22.18"
     },
     "devDependencies": {
+        "@shared/eslint": "workspace:*",
         "@shared/mocha": "workspace:*",
         "@types/chai": "^5.0.1"
     }
