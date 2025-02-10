@@ -27,7 +27,12 @@ export const expectRevert = async (tx: Promise<any>, expectedError: string) => {
     }
 };
 
-// In testHelpers.ts
+/**
+ * @param ownerContract The contract instance connected to the owner signer.
+ * @param userContract The contract instance connected to the user signer.
+ * @param ownerSigner The owner signer object.
+ * @param userSigner The user signer object.
+ */
 export async function resetOwnerState(
     ownerContract: InstanceType<typeof ethers.Contract>,
     userContract: InstanceType<typeof ethers.Contract>,
