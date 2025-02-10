@@ -24,6 +24,40 @@ importers:
         specifier: ^2.1.0
         version: 2.3.3
 
+  modules/axelar:
+    dependencies:
+      '@nomicfoundation/hardhat-ethers':
+        specifier: ^3.0.8
+        version: 3.0.8(ethers@6.13.5)(hardhat@2.22.18(ts-node@10.9.2(@types/node@22.13.1)(typescript@5.7.3))(typescript@5.7.3))
+      '@nomicfoundation/hardhat-toolbox':
+        specifier: ^5.0.0
+        version: 5.0.0(dcjzb3jtzmpar4a6zuo6n2y2pi)
+      chai:
+        specifier: ^4.3.7
+        version: 4.5.0
+      ethers:
+        specifier: ^6.13.5
+        version: 6.13.5
+      hardhat:
+        specifier: ^2.22.18
+        version: 2.22.18(ts-node@10.9.2(@types/node@22.13.1)(typescript@5.7.3))(typescript@5.7.3)
+    devDependencies:
+      '@shared/eslint':
+        specifier: workspace:*
+        version: link:../../packages/shared/eslint
+      '@shared/mocha':
+        specifier: workspace:*
+        version: link:../../packages/shared/mocha
+      '@shared/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/shared/tsconfig
+      '@types/chai':
+        specifier: ^5.0.1
+        version: 5.0.1
+      '@types/mocha':
+        specifier: ^10.0.10
+        version: 10.0.10
+
   modules/cosmos:
     dependencies:
       '@cosmjs/stargate':

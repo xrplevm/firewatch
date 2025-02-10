@@ -31,5 +31,5 @@ docker-data
 .turbo
 .expo
 .cache
-
+**/cache
 
