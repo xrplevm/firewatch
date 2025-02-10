@@ -19,6 +19,7 @@
     "devDependencies": {
         "@shared/eslint": "workspace:*",
         "@shared/mocha": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
         "@types/chai": "^5.0.1"
     }
 }

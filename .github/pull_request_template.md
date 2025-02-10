@@ -2,6 +2,10 @@
 
 ## Changes :hammer_and_wrench:
 
-### app/package
+### modules/<module>
+
+- Change
+
+### packages/<package>
 
 - Change
