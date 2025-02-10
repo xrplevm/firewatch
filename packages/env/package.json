@@ -1,0 +1,16 @@
+{
+    "name": "@firewatch/env",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint ."
+    },
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*"
+    },
+    "exports": {
+        "./types": "./src/types/index.ts"
+    }
+}
