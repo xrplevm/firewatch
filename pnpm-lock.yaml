@@ -63,6 +63,9 @@ importers:
       '@shared/tsconfig':
         specifier: workspace:*
         version: link:../../packages/shared/tsconfig
+      '@shared/utils':
+        specifier: workspace:*
+        version: link:../../packages/shared/utils
       '@testing/hardhat':
         specifier: workspace:*
         version: link:../../packages/testing/hardhat

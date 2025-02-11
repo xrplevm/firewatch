@@ -8,6 +8,12 @@
             "chainId": 100,
             "env": "devnet",
             "type": "evm",
+            "nativeToken": {
+                "symbol": "XRP",
+                "decimals": 18,
+                "name": "XRP",
+                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            },
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
             "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
             "interchainTokenServiceAddress": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
@@ -32,6 +38,16 @@
             "account": {
                 "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
             }
+        },
+        "interchainTransferOptions": {
+            "maxRetries": 20,
+            "retryDelay": 5000,
+            "timeout": 100000
+        },
+        "gmpOptions": {
+            "maxRetries": 20,
+            "retryDelay": 5000,
+            "timeout": 100000
         }
     },
     "hardhat": {

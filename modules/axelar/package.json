@@ -23,6 +23,7 @@
         "@shared/eslint": "workspace:*",
         "@shared/modules": "workspace:*",
         "@shared/tsconfig": "workspace:*",
+        "@shared/utils": "workspace:*",
         "@testing/hardhat": "workspace:*",
         "@testing/mocha": "workspace:*",
         "@types/chai": "^5.0.1",
