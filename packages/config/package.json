@@ -13,10 +13,10 @@
         "@types/node": "^22.13.1"
     },
     "dependencies": {
+        "@firewatch/core": "workspace:*",
         "@aws-sdk/client-appconfigdata": "^3.744.0"
     },
     "exports": {
-        "./types": "./src/types/index.ts",
         "./provider": "./src/provider/index.ts"
     }
 }
