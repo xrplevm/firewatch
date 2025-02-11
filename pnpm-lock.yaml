@@ -117,6 +117,9 @@ importers:
       '@shared/tsconfig':
         specifier: workspace:*
         version: link:../shared/tsconfig
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.13.1
 
   packages/env:
     devDependencies:

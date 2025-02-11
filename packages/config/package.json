@@ -9,7 +9,8 @@
     "license": "ISC",
     "devDependencies": {
         "@shared/eslint": "workspace:*",
-        "@shared/tsconfig": "workspace:*"
+        "@shared/tsconfig": "workspace:*",
+        "@types/node": "^22.13.1"
     },
     "dependencies": {
         "@aws-sdk/client-appconfigdata": "^3.744.0"
