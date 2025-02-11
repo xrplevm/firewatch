@@ -2,5 +2,7 @@ packages:
     - "modules/*"
     - "packages/testing/*"
     - "packages/shared/*"
+    - "packages/bridge"
     - "packages/config"
+    - "packages/core"
     - "packages/env"
