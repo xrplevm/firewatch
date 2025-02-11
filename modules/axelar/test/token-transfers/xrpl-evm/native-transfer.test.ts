@@ -14,7 +14,7 @@ describe("TokenTransfers/NativeTransfer", () => {
     let xrplChainProvider: XrplProvider;
 
     let _evmChainSigner: EthersSigner;
-    let _xrplChainSigner: XrplSigner;
+    let xrplChainSigner: XrplSigner;
 
     let evmJsonProvider: ethers.JsonRpcProvider;
     let xrplClient: Client;
@@ -33,7 +33,7 @@ describe("TokenTransfers/NativeTransfer", () => {
         xrplChainWallet = Wallet.fromSeed(config.axelar.destinationChain.account.privateKey);
 
         _evmChainSigner = new EthersSigner(evmChainWallet, evmChainProvider);
-        _xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
+        xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
     });
 
     describe("from xrpl chain to evm chain - native token", () => {
@@ -44,7 +44,7 @@ describe("TokenTransfers/NativeTransfer", () => {
             // TODO: Add amount to config
             const amount = "1.33";
 
-            await _xrplChainSigner.transfer(
+            await xrplChainSigner.transfer(
                 amount,
                 new Token({} as any),
                 config.axelar.destinationChain.interchainTokenServiceAddress,
