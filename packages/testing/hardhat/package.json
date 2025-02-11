@@ -6,8 +6,6 @@
     "scripts": {
         "lint": "eslint ."
     },
-    "keywords": [],
-    "author": "",
     "license": "ISC",
     "devDependencies": {
         "@firewatch/config": "workspace:*",

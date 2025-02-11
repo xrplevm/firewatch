@@ -7,8 +7,6 @@
         "lint": "eslint .",
         "test": "ts-node src/bank.ts"
     },
-    "keywords": [],
-    "author": "",
     "license": "ISC",
     "dependencies": {
         "@cosmjs/stargate": "^0.33.0",
@@ -16,7 +14,6 @@
     },
     "devDependencies": {
         "@shared/tsconfig": "workspace:*",
-        "@shared/mocha": "workspace:*",
         "@shared/eslint": "workspace:*"
     }
 }
