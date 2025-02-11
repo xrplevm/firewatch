@@ -4,6 +4,9 @@ import { AxelarAmplifierGateway, ERC20, InterchainTokenService } from "@shared/e
 import BigNumber from "bignumber.js";
 import { Token } from "@firewatch/core/token";
 
+/**
+ * @inheritdoc
+ */
 export class EthersProvider implements IEthersProvider {
     constructor(readonly ethersProvider: ethers.Provider) {}
 
@@ -35,6 +38,7 @@ export class EthersProvider implements IEthersProvider {
     }
 
     /**
+     * @inheritdoc
      */
     async getNativeBalance(address: string): Promise<string> {
         const balance = await this.ethersProvider.getBalance(address);

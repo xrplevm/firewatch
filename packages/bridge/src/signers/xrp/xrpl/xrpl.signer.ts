@@ -141,10 +141,10 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
      * @inheritdoc
      */
     async callContract(
-        sourceGatewayAddress: string,
-        destinationChain: Chain,
-        destinationContractAddress: string,
-        payload: string,
+        _sourceGatewayAddress: string,
+        _destinationChain: Chain,
+        _destinationContractAddress: string,
+        _payload: string,
     ): Promise<Unconfirmed<Transaction>> {
         return {} as Unconfirmed<Transaction>;
     }
