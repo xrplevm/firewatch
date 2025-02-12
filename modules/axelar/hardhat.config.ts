@@ -8,7 +8,6 @@ const config: HardhatUserConfig = {
     ...moduleConfig.hardhat,
     mocha: {
         timeout: moduleConfig.axelar.interchainTransferOptions.timeout,
-        // reporter: JsonTestReporter,
     },
 };
 
