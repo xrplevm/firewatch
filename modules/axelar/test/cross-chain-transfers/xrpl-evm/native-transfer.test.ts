@@ -107,7 +107,9 @@ describe("Cross-Chain Native Transfer", () => {
             await polling(
                 async () => {
                     const balance = await erc20.balanceOf(evmChainWallet.address);
-                    return BigNumber(balance.toString()).eq(BigNumber(initialBalance.toString()).plus(amount));
+                    return BigNumber(balance.toString()).eq(
+                        BigNumber(initialBalance.toString()).plus(ethers.parseUnits(amount, 18).toString()),
+                    );
                 },
                 (res) => !res,
                 interchainTransferOptions as PollingOptions,
