@@ -1,0 +1,22 @@
+{
+    "name": "@firewatch/cosmos",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "ts-node src/bank.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@cosmjs/stargate": "^0.33.0",
+        "cosmjs-types": "^0.9.0"
+    },
+    "devDependencies": {
+        "@shared/tsconfig": "workspace:*",
+        "@shared/mocha": "workspace:*",
+        "@shared/eslint": "workspace:*"
+    }
+}

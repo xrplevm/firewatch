@@ -1,8 +1,0 @@
-{
-    "extends": "@shared/tsconfig/package",
-    "compilerOptions": {
-        "outDir": "./dist"
-    },
-    "include": ["src/**/*.mjs"],
-    "exclude": ["dist"]
-}

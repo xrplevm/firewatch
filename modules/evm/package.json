@@ -1,0 +1,25 @@
+{
+    "name": "@firewatch/evm",
+    "version": "1.0.0",
+    "description": "EVM module for Firewatch",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "hardhat test --network xrplevm_localnet"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.8",
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "chai": "^4.3.7",
+        "ethers": "^6.13.5",
+        "hardhat": "^2.22.18"
+    },
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/mocha": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@types/chai": "^5.0.1"
+    }
+}
