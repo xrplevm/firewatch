@@ -6,7 +6,7 @@ import config from "../../../module.config.example.json";
 import { Client, Wallet } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
-import { polling } from "@shared/utils";
+import { polling, PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
 
 describe("TokenTransfers/NativeTransfer", () => {
@@ -60,7 +60,7 @@ describe("TokenTransfers/NativeTransfer", () => {
                     return BigNumber(balance.toString()).eq(BigNumber(initialBalance.toString()).plus(amount));
                 },
                 (res) => !res,
-                config.axelar.interchainTransferOptions,
+                config.axelar.interchainTransferOptions as PollingOptions,
             );
         });
     });
