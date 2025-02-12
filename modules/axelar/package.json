@@ -1,0 +1,28 @@
+{
+    "name": "@firewatch/axelar",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "hardhat test",
+        "clean": "rimraf .turbo dist node_modules"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.8",
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "chai": "^4.3.7",
+        "ethers": "^6.13.5",
+        "hardhat": "^2.22.18"
+    },
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/mocha": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@types/chai": "^5.0.1",
+        "@types/mocha": "^10.0.10"
+    }
+}

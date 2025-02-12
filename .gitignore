@@ -1,5 +1,5 @@
 # Node modules
-node_modules
+**/node_modules
 
 # OS
 .DS_Store
@@ -31,5 +31,5 @@ docker-data
 .turbo
 .expo
 .cache
-
+**/cache
 
