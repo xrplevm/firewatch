@@ -11,16 +11,16 @@ concurrency:
 
 jobs:
     build-cosmos:
-        uses: ./.github/workflows/build-cosmos.yaml
+        uses: ./.github/workflows/build-cosmos.yml
         secrets: inherit
     build-evm:
-        uses: ./.github/workflows/build-evm.yaml
+        uses: ./.github/workflows/build-evm.yml
         secrets: inherit
         with:
             target: integration
             push: false
     build-axelar:
-        uses: ./.github/workflows/build-axelar.yaml
+        uses: ./.github/workflows/build-axelar.yml
         secrets: inherit
         with:
             target: integration
