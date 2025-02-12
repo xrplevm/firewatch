@@ -1,6 +1,5 @@
 import { Transaction, Unconfirmed } from "@shared/modules/blockchain";
 import { Token } from "@firewatch/core/token";
-import { Chain } from "@firewatch/core/chain";
 
 export interface IWalletProviderSigner {
     /**
@@ -29,14 +28,14 @@ export interface IWalletProviderSigner {
     /**
      * Calls a contract on the destination chain.
      * @param sourceGatewayAddress The source gateway address.
-     * @param destinationChain The destination chain.
+     * @param destinationChainId The destination chain id.
      * @param destinationContractAddress The destination contract address.
      * @param payload The payload.
      * @returns The transaction.
      */
     callContract(
         sourceGatewayAddress: string,
-        destinationChain: Chain,
+        destinationChainId: string,
         destinationContractAddress: string,
         payload: string,
     ): Promise<Unconfirmed<Transaction>>;

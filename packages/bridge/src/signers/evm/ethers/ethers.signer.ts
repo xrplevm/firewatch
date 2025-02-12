@@ -9,7 +9,7 @@ import { AxelarAmplifierGateway, ERC20, InterchainTokenService } from "@shared/e
 import { decimalToInt } from "@shared/number";
 import { IEthersSigner } from "./interfaces";
 import { Token } from "@firewatch/core/token";
-import { Chain } from "@firewatch/core/chain";
+import BigNumber from "bignumber.js";
 
 export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSignerProvider> implements IEthersSigner {
     protected signer: ethers.Signer;
@@ -60,7 +60,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
      */
     async approveERC20(address: string, spender: string): Promise<Unconfirmed<Transaction>> {
         const erc20 = this.getERC20Contract(address);
-        const contractTx = await erc20.approve(spender, ethers.constants.MaxUint256);
+        const contractTx = await erc20.approve(spender, ethers.MaxUint256);
 
         return this.transactionParser.parseTransactionResponse(contractTx);
     }
@@ -72,20 +72,20 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         amount: string,
         token: Token,
         doorAddress: string,
-        destinationChain: Chain,
+        destinationChainId: string,
         destinationAddress: string,
     ): Promise<Unconfirmed<Transaction>> {
-        const sendingAmount = ethers.BigNumber.from(decimalToInt(amount, token.decimals));
+        const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
 
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
 
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
-            destinationChain.id,
+            destinationChainId,
             destinationAddress,
-            sendingAmount,
+            sendingAmount.toString(),
             "0x",
-            ethers.BigNumber.from("0"),
+            new BigNumber("0").toString(),
         );
 
         return this.transactionParser.parseTransactionResponse(contractTx);
@@ -96,13 +96,13 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
      */
     async callContract(
         sourceGatewayAddress: string,
-        destinationChain: Chain,
+        destinationChainId: string,
         destinationContractAddress: string,
         payload: string,
     ): Promise<Unconfirmed<Transaction>> {
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
-        const contractTx = await axelarAmplifierGateway.callContract(destinationChain.id, destinationContractAddress, payload);
+        const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload);
 
         return this.transactionParser.parseTransactionResponse(contractTx);
     }
