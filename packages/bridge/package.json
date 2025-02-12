@@ -46,7 +46,7 @@
         "./translators/error": "./src/translators/core/error/index.ts",
         "./translators/interfaces": "./src/translators/core/interfaces/index.ts",
         "./translators/evm/interfaces": "./src/translators/evm/interfaces/index.ts",
-        "./translators/evm": "./src/translators/evm/ethers/index.ts",
+        "./translators/evm": "./src/translators/evm/index.ts",
         "./translators/xrp/interfaces": "./src/translators/xrp/interfaces/index.ts",
         "./translators/xrp": "./src/translators/xrp/index.ts",
         "./automock/providers": "./test/automock/providers.automock.ts",
