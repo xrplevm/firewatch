@@ -51,6 +51,9 @@ importers:
       '@firewatch/bridge':
         specifier: workspace:*
         version: link:../../packages/bridge
+      '@firewatch/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@firewatch/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -78,6 +81,12 @@ importers:
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.13.1
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
 
   modules/cosmos:
     dependencies:
@@ -188,6 +197,21 @@ importers:
       zustand:
         specifier: ^5.0.0-rc.0
         version: 5.0.3(immer@10.0.2)(react@19.0.0)
+
+  packages/cli:
+    devDependencies:
+      '@shared/eslint':
+        specifier: workspace:*
+        version: link:../shared/eslint
+      '@shared/tsconfig':
+        specifier: workspace:*
+        version: link:../shared/tsconfig
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.13.1
+      commander:
+        specifier: ^13.1.0
+        version: 13.1.0
 
   packages/config:
     dependencies:
@@ -431,9 +455,15 @@ importers:
 
   packages/testing/mocha:
     devDependencies:
+      '@firewatch/core':
+        specifier: workspace:*
+        version: link:../../core
       '@shared/eslint':
         specifier: workspace:*
         version: link:../../shared/eslint
+      '@shared/modules':
+        specifier: workspace:*
+        version: link:../../shared/modules
       '@shared/tsconfig':
         specifier: workspace:*
         version: link:../../shared/tsconfig
@@ -2558,6 +2588,10 @@ packages:
     resolution: {integrity: sha512-sH5ZSPr+7UStsloltmDh7Ce5fb8XPlHyoPzTpyyMuYCtervL65+ubVZ6Q61cFtFl62UyJlc8/JwERRbAFPUqgw==}
     engines: {node: '>=8.0.0'}
 
+  commander@13.1.0:
+    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
+    engines: {node: '>=18'}
+
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
@@ -2755,6 +2789,10 @@ packages:
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
+
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -8710,6 +8748,8 @@ snapshots:
       table-layout: 1.0.2
       typical: 5.2.0
 
+  commander@13.1.0: {}
+
   commander@4.1.1: {}
 
   commander@8.3.0: {}
@@ -8887,6 +8927,8 @@ snapshots:
   doctrine@3.0.0:
     dependencies:
       esutils: 2.0.3
+
+  dotenv@16.4.7: {}
 
   dunder-proto@1.0.1:
     dependencies:
