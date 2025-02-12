@@ -1,13 +1,11 @@
 {
-    "name": "@shared/mocha",
+    "name": "@testing/mocha",
     "version": "1.0.0",
     "description": "",
     "scripts": {
         "clean": "rimraf .turbo dist node_modules",
         "lint": "eslint ."
     },
-    "keywords": [],
-    "author": "",
     "license": "ISC",
     "devDependencies": {
         "@shared/eslint": "workspace:*",

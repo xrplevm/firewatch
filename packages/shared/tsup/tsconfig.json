@@ -1,5 +1,5 @@
 {
-    "extends": "@shared/tsconfig/package",
+    "extends": "@shared/tsconfig/base",
     "compilerOptions": {
         "outDir": "./build"
     },

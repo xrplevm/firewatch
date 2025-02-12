@@ -1,3 +1,6 @@
 packages:
     - "modules/*"
+    - "packages/testing/*"
     - "packages/shared/*"
+    - "packages/config"
+    - "packages/env"
