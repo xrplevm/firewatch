@@ -10,7 +10,7 @@ export interface IAxelarAmplifierGateway {
 }
 
 export class AxelarAmplifierGateway extends Contract<IAxelarAmplifierGateway> {
-    constructor(address: string, signerOrProvider: ethers.Signer | ethers.providers.Provider) {
+    constructor(address: string, signerOrProvider: ethers.Signer | ethers.Provider) {
         super(address, axelarAmplifierGatewayAbi, signerOrProvider);
     }
 }
