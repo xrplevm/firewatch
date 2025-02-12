@@ -431,9 +431,15 @@ importers:
 
   packages/testing/mocha:
     devDependencies:
+      '@firewatch/core':
+        specifier: workspace:*
+        version: link:../../core
       '@shared/eslint':
         specifier: workspace:*
         version: link:../../shared/eslint
+      '@shared/modules':
+        specifier: workspace:*
+        version: link:../../shared/modules
       '@shared/tsconfig':
         specifier: workspace:*
         version: link:../../shared/tsconfig
