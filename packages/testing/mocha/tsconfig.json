@@ -1,5 +1,5 @@
 {
-    "extends": "@shared/tsconfig/base",
+    "extends": "@shared/tsconfig/package",
     "compilerOptions": {
         "outDir": "./dist",
         "module": "NodeNext"

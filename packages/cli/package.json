@@ -1,0 +1,21 @@
+{
+    "name": "@firewatch/cli",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint .",
+        "clean": "rimraf node_modules"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "commander": "^13.1.0",
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@types/node": "^22.13.1"
+    },
+    "exports": {
+        ".": "./src/index.ts",
+        "./config": "./src/config/index.ts"
+    }
+}
