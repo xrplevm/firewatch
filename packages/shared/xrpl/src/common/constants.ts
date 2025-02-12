@@ -1,0 +1,4 @@
+export const XRPL_TOKEN_DECIMALS = 15;
+export const XRPL_NATIVE_DECIMALS = 6;
+
+export const MAX_SAFE_IOU_AMOUNT = "9999999999999999";
