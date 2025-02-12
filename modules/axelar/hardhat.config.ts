@@ -3,6 +3,8 @@ import "@nomicfoundation/hardhat-toolbox";
 import { JsonTestReporter } from "@shared/mocha/reporters/json";
 import moduleConfig from "./module.config.example.json";
 
+// TODO: Refactor to use @firewatch/core config.
+// This is only temporary to get the project running.
 const config: HardhatUserConfig = {
     ...moduleConfig.hardhat,
     mocha: {

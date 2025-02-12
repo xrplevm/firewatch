@@ -1,10 +1,11 @@
 {
-    "name": "@firewatch/evm",
+    "name": "@firewatch/axelar",
     "version": "1.0.0",
-    "description": "EVM module for Firewatch",
+    "description": "",
+    "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "test": "hardhat test --network xrplevm_localnet",
+        "test": "hardhat test",
         "clean": "rimraf .turbo dist node_modules"
     },
     "keywords": [],
@@ -21,6 +22,7 @@
         "@shared/eslint": "workspace:*",
         "@shared/mocha": "workspace:*",
         "@shared/tsconfig": "workspace:*",
-        "@types/chai": "^5.0.1"
+        "@types/chai": "^5.0.1",
+        "@types/mocha": "^10.0.10"
     }
 }

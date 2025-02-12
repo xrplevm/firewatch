@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "test": "ts-node src/bank.ts"
+        "test": "ts-node src/bank.ts",
+        "clean": "rimraf .turbo dist node_modules"
     },
     "keywords": [],
     "author": "",
