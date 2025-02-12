@@ -186,4 +186,39 @@ describe("ERC20", () => {
             await expectRevert(ownerContract.transfer(userSigner.address, 0n), "coin 0token amount is not positive");
         });
     });
+
+    // TODO failing test, seems like Approval param owner is set to address.this instead msg.address.
+    describe("approve", () => {
+        it("should set and reset the allowance correctly and emit Approval events", async () => {
+            // Approve the spender (userSigner) for testTokenAmount.
+            const approveTx = await ownerContract.approve(userSigner.address, testTokenAmount);
+            const approveReceipt = await approveTx.wait();
+
+            // Verify the allowance was set correctly.
+            let allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(allowance).to.equal(testTokenAmount);
+
+            // Check the Approval event.
+            const approvalEvent = findEvent(approveReceipt, contractInterface, "Approval");
+            expect(approvalEvent).to.not.be.undefined;
+            expect(approvalEvent![0]).to.equal(ownerSigner.address); // Owner
+            expect(approvalEvent![1]).to.equal(userSigner.address); // Spender
+            expect(approvalEvent![2].toString()).to.equal(testTokenAmount.toString()); // Amount
+
+            // Approve 0 to reset the allowance.
+            const resetApproveTx = await ownerContract.approve(userSigner.address, 0n);
+            const resetApproveReceipt = await resetApproveTx.wait();
+
+            // Verify the allowance was reset.
+            allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(allowance).to.equal(0n);
+
+            // Check the Approval event for resetting the allowance.
+            const resetApprovalEvent = findEvent(resetApproveReceipt, contractInterface, "Approval");
+            expect(resetApprovalEvent).to.not.be.undefined;
+            expect(resetApprovalEvent![0]).to.equal(ownerSigner.address); // Owner
+            expect(resetApprovalEvent![1]).to.equal(userSigner.address); // Spender
+            expect(resetApprovalEvent![2].toString()).to.equal("0"); // Reset Amount
+        });
+    });
 });
