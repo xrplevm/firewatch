@@ -3,6 +3,7 @@ packages:
     - "packages/testing/*"
     - "packages/shared/*"
     - "packages/bridge"
+    - "packages/cli"
     - "packages/config"
     - "packages/core"
     - "packages/env"
