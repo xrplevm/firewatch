@@ -4,7 +4,8 @@
     "description": "EVM module for Firewatch",
     "scripts": {
         "lint": "eslint .",
-        "test": "hardhat test --network xrplevm_localnet"
+        "test": "hardhat test --network xrplevm_localnet",
+        "clean": "rimraf .turbo dist node_modules"
     },
     "keywords": [],
     "author": "",
