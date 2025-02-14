@@ -1,15 +1,5 @@
 import { ethers } from "hardhat";
-import {
-    TransactionReceipt,
-    Log,
-    Interface,
-    LogDescription,
-    Result,
-    TransactionResponse,
-    EventLog,
-    Contract,
-    ContractTransaction,
-} from "ethers";
+import { TransactionReceipt, Log, Interface, LogDescription, TransactionResponse, EventLog, Contract, ContractTransaction } from "ethers";
 import { expect } from "chai";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
