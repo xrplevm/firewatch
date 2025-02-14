@@ -123,9 +123,9 @@ export function expectTransferEvent(
     expect(eventLog, "Transfer event not found").to.not.be.undefined;
 
     const decoded = iface.parseLog(eventLog!);
-    expect(decoded?.args.from).to.equal(expectedFrom);
-    expect(decoded?.args.to).to.equal(expectedTo);
-    expect(decoded?.args.value).to.equal(expectedValue);
+    expect(decoded!.args.from).to.equal(expectedFrom);
+    expect(decoded!.args.to).to.equal(expectedTo);
+    expect(decoded!.args.value).to.equal(expectedValue);
 }
 
 /**
