@@ -3,10 +3,14 @@ import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ethers } from "ethers";
 import config from "../../../module.config.example.json";
 import { PollingOptions } from "@shared/utils";
+import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
+import { AxelarBridgeChain } from "../../../src/models/chain";
 import { CallContract, AxelarAmplifierGateway } from "../../../../../packages/shared/evm/src/contracts";
 import { testMessageUpdate, testEventEmission } from "./call-contract.helpers";
 
 describe("CallContract", () => {
+    const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
+
     let sourceEvmProvider: EthersProvider;
     let destinationEvmProvider: EthersProvider;
 
@@ -24,59 +28,65 @@ describe("CallContract", () => {
     let sourceGatewayContract: AxelarAmplifierGateway;
     let destinationGatewayContract: AxelarAmplifierGateway;
 
-    let srcGateway: string, destGateway: string, srcChain: string, destChain: string, srcCall: string, destCall: string;
-    const pollingOpts = config.axelar.interchainTransferOptions as PollingOptions;
+    let srcGateway: string, destGateway: string, srcChain: string, destChain: string, srcCallContract: string, destCall: string;
+    const pollingOpts = interchainTransferOptions as PollingOptions;
 
     before(async () => {
-        sourceJsonProvider = new ethers.JsonRpcProvider(config.axelar.sourceChain.urls.rpc);
-        destinationJsonProvider = new ethers.JsonRpcProvider(config.axelar.destinationChain.urls.rpc);
+        assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
+        assertChainTypes(["evm"], destinationChain as unknown as AxelarBridgeChain);
+
+        // Destructure frequently used properties
+        const { urls, account, axelarGatewayAddress, callContractAddress, name } = sourceChain;
+        const {
+            urls: destUrls,
+            account: destAccount,
+            axelarGatewayAddress: destAxelarGatewayAddress,
+            callContractAddress: destCallContractAddress,
+            name: destName,
+        } = destinationChain;
+
+        sourceJsonProvider = new ethers.JsonRpcProvider(urls.rpc);
+        destinationJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
 
         sourceEvmProvider = new EthersProvider(sourceJsonProvider);
         destinationEvmProvider = new EthersProvider(destinationJsonProvider);
 
-        sourceWallet = new ethers.Wallet(config.axelar.sourceChain.account.privateKey, sourceJsonProvider);
-        destinationWallet = new ethers.Wallet(config.axelar.destinationChain.account.privateKey, destinationJsonProvider);
+        sourceWallet = new ethers.Wallet(account.privateKey, sourceJsonProvider);
+        destinationWallet = new ethers.Wallet(destAccount.privateKey, destinationJsonProvider);
 
         sourceEvmSigner = new EthersSigner(sourceWallet, sourceEvmProvider);
         destinationEvmSigner = new EthersSigner(destinationWallet, destinationEvmProvider);
 
-        sourceCallContract = new CallContract(config.axelar.sourceChain.callContractAddress, sourceWallet);
-        destinationCallContract = new CallContract(config.axelar.destinationChain.callContractAddress, destinationWallet);
-        sourceGatewayContract = new AxelarAmplifierGateway(config.axelar.sourceChain.axelarGatewayAddress, sourceWallet);
-        destinationGatewayContract = new AxelarAmplifierGateway(config.axelar.destinationChain.axelarGatewayAddress, destinationWallet);
+        sourceCallContract = new CallContract(callContractAddress, sourceWallet);
+        destinationCallContract = new CallContract(destCallContractAddress, destinationWallet);
+        sourceGatewayContract = new AxelarAmplifierGateway(axelarGatewayAddress, sourceWallet);
+        destinationGatewayContract = new AxelarAmplifierGateway(destAxelarGatewayAddress, destinationWallet);
 
-        srcGateway = config.axelar.sourceChain.axelarGatewayAddress;
-        destGateway = config.axelar.destinationChain.axelarGatewayAddress;
-        srcChain = config.axelar.sourceChain.name;
-        destChain = config.axelar.destinationChain.name;
-        srcCall = config.axelar.sourceChain.callContractAddress;
-        destCall = config.axelar.destinationChain.callContractAddress;
+        srcGateway = axelarGatewayAddress;
+        destGateway = destAxelarGatewayAddress;
+        srcChain = name;
+        destChain = destName;
+        srcCallContract = callContractAddress;
+        destCall = destCallContractAddress;
     });
 
-    describe("State Updates", () => {
-        it("should update destination state when a non-empty message is sent (SourceChain → DestinationChain)", async () => {
+    describe("from evm Source chain to evm Destination chain", () => {
+        before(() => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
+        });
+
+        it("should update destination state when a non-empty message is sent", async () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
             await testMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
         });
 
-        it("should update destination state when an empty message is sent (SourceChain → DestinationChain)", async () => {
+        it("should update destination state when an empty message is sent", async () => {
             const msgText = "";
             await testMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
         });
 
-        it("should update source state when a non-empty message is sent (DestinationChain → SourceChain)", async () => {
-            const msgText = `Hello from the destination chain! ${Date.now()}`;
-            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCall, msgText, pollingOpts);
-        });
-
-        it("should update source state when an empty message is sent (DestinationChain → SourceChain)", async () => {
-            const msgText = "";
-            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCall, msgText, pollingOpts);
-        });
-    });
-
-    describe("Event Emission", () => {
-        it("should emit ContractCall and Executed events when sending a message (SourceChain → DestinationChain)", async () => {
+        it("should emit ContractCall and Executed events when sending a message", async () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
             await testEventEmission(
                 sourceEvmSigner,
@@ -90,15 +100,32 @@ describe("CallContract", () => {
                 pollingOpts,
             );
         });
+    });
 
-        it("should emit ContractCall and Executed events when sending a message (DestinationChain → SourceChain)", async () => {
+    describe("from evm Destination chain to evm Source chain", () => {
+        before(() => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
+        });
+
+        it("should update source state when a non-empty message is sent", async () => {
+            const msgText = `Hello from the destination chain! ${Date.now()}`;
+            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCallContract, msgText, pollingOpts);
+        });
+
+        it("should update source state when an empty message is sent", async () => {
+            const msgText = "";
+            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCallContract, msgText, pollingOpts);
+        });
+
+        it("should emit ContractCall and Executed events when sending a message", async () => {
             const msgText = `Hello from the destination chain! ${Date.now()}`;
             await testEventEmission(
                 destinationEvmSigner,
                 destGateway,
                 srcChain,
                 sourceCallContract,
-                srcCall,
+                srcCallContract,
                 destinationGatewayContract,
                 msgText,
                 destinationWallet.address,
