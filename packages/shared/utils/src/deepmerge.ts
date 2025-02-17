@@ -1,3 +1,8 @@
+/**
+ * Checks if the item is a plain object.
+ * @param item The item to check.
+ * @returns True if the item is a plain object, false otherwise.
+ */
 export function isPlainObject(item: unknown): item is Record<keyof any, unknown> {
     return item !== null && typeof item === "object" && item?.constructor === Object;
 }
@@ -6,6 +11,13 @@ export interface DeepmergeOptions {
     clone?: boolean;
 }
 
+/**
+ * Deep merges two objects.
+ * @param target The target object.
+ * @param source The source object.
+ * @param options The options.
+ * @returns The merged object.
+ */
 export function deepmerge<T, Q>(target: T, source: Q, options: DeepmergeOptions = { clone: true }): T & Q {
     const output = (options.clone ? { ...target } : target) as T & Q;
 

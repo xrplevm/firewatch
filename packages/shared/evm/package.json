@@ -1,0 +1,33 @@
+{
+    "name": "@shared/evm",
+    "author": "Peersyst",
+    "version": "0.0.0",
+    "license": "UNLICENSED",
+    "scripts": {
+        "dev": "tsup --watch",
+        "build": "tsup",
+        "clean": "rimraf .turbo dist node_modules",
+        "lint": "eslint .",
+        "check-types": "npx tsc --noEmit",
+        "dist": "pnpm run build && node ../../../scripts/prebuild-exports.cjs"
+    },
+    "exports": {
+        ".": "./src/common/index.ts",
+        "./contracts": "./src/contracts/index.ts",
+        "./automock/contracts": "./test/automock/contracts.automock.ts",
+        "./mocks/contracts": "./test/mocks/contracts/index.ts",
+        "./mocks/ethers": "./test/mocks/ethers/index.ts"
+    },
+    "peerDependencies": {
+        "ethers": "^6.13.5"
+    },
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@types/jest": "^29.5.12",
+        "@shared/tsconfig": "workspace:*",
+        "@shared/tsup": "workspace:*",
+        "@types/node": "latest",
+        "ethers": "^6.13.5",
+        "typescript": "latest"
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "name": "@firewatch/axelar",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "cli": "ts-node src/cli/main.ts",
+        "lint": "eslint .",
+        "test": "hardhat test"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.8",
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "bignumber.js": "^9.1.2",
+        "chai": "^4.3.7",
+        "ethers": "^6.13.5",
+        "hardhat": "^2.22.18",
+        "xrpl": "3.0.0"
+    },
+    "devDependencies": {
+        "@firewatch/bridge": "workspace:*",
+        "@firewatch/cli": "workspace:*",
+        "@firewatch/core": "workspace:*",
+        "@shared/eslint": "workspace:*",
+        "@shared/modules": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@shared/utils": "workspace:*",
+        "@testing/hardhat": "workspace:*",
+        "@testing/mocha": "workspace:*",
+        "@types/chai": "^5.0.1",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.13.1",
+        "dotenv": "^16.4.7"
+    }
+}
