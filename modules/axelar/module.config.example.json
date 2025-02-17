@@ -4,16 +4,20 @@
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
         "sourceChain": {
+            "id": "xrpl-evm-devnet",
             "name": "xrpl-evm-devnet",
             "chainId": 100,
             "env": "devnet",
             "type": "evm",
+            "symbol": "XRP",
             "nativeToken": {
+                "id": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
                 "symbol": "XRP",
                 "decimals": 18,
                 "name": "XRP",
                 "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
             },
+            "door": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
             "axelarGatewayAddress": "0x6850335DA5b6E960eB509B7ec4D159ebA8e89eFd",
             "axelarGasServiceAddress": "0x8b4Cc5Fb89B68aE93aDfa67990419144e7395Dd1",
@@ -55,9 +59,9 @@
             "timeout": 300000
         },
         "gmpOptions": {
-            "maxRetries": 20,
-            "retryDelay": 5000,
-            "timeout": 100000
+            "maxRetries": 50,
+            "retryDelay": 10000,
+            "timeout": 500000
         }
     },
     "hardhat": {
