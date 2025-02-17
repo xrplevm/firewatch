@@ -54,8 +54,8 @@ describe("Cross-Chain Native Transfer", () => {
 
     describe("from evm chain to xrpl chain", () => {
         before(() => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
         });
 
         it("should transfer the token", async () => {
