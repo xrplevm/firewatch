@@ -15,7 +15,7 @@ export interface IAxelarAmplifierGateway {
             destinationChain?: string | null,
             destinationContractAddress?: string | null,
             payloadHash?: string | null,
-        ): ethers.ContractEventName;
+        ): ethers.EventFilter;
     };
 }
 
