@@ -16,7 +16,7 @@ export interface ICallContract {
     sourceAddress(): Promise<string>;
 
     filters: {
-        Executed(commandId?: string | null, _from?: string | null, _message?: string | null): ethers.ContractEventName;
+        Executed(commandId?: string | null, _from?: string | null, _message?: string | null): ethers.EventFilter;
     };
 }
 
