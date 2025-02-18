@@ -74,9 +74,7 @@ describe("Cross-Chain Native Transfer", () => {
             );
 
             const receipt = await tx.wait();
-            const gasUsed = receipt.gasUsed;
-            const gasPrice = receipt.gasPrice;
-            const gasCost = gasUsed * gasPrice;
+            const gasCost = receipt.gasUsed * receipt.gasPrice;
 
             const finalSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
 
@@ -127,7 +125,7 @@ describe("Cross-Chain Native Transfer", () => {
 
             const amount = interchainTransferOptions.amount;
 
-            const receipt = await xrplChainSigner.transfer(
+            const tx = await xrplChainSigner.transfer(
                 amount,
                 new Token({} as any),
                 destinationChain.interchainTokenServiceAddress,
@@ -135,7 +133,7 @@ describe("Cross-Chain Native Transfer", () => {
                 xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
             );
 
-            const fee = (await receipt.wait()).fee;
+            const fee = (await tx.wait()).fee;
 
             await polling(
                 async () => {

@@ -2,10 +2,9 @@ import { SubmittableTransaction, SubmitTransactionResponse, TxResponseResult } f
 import { IXrplTransactionParserProvider } from "./interfaces/i-xrpl-transaction-parser.provider";
 import { MAX_VALIDATION_TRIES, VALIDATION_POLLING_INTERVAL } from "./xrpl.transaction-parser.constants";
 import { XrplTransactionParserOptions } from "./xrpl.transaction-parser.types";
-import { Confirmed, Unconfirmed } from "@shared/modules/blockchain";
+import { Confirmed, Transaction, Unconfirmed } from "@shared/modules/blockchain";
 import { TransactionParserError } from "../../core/error/transaction-parser.error";
 import { XrplTransactionParserErrors } from "./xrpl.transaction-parser.errors";
-import { XrplTransaction } from "../../../signers/xrp/xrpl/xrpl.types";
 
 export class XrplTransactionParser {
     private readonly options: XrplTransactionParserOptions;
@@ -32,7 +31,7 @@ export class XrplTransactionParser {
     parseSubmitTransactionResponse<T extends SubmittableTransaction, TData = {}>(
         submitTxResponse: SubmitTransactionResponse<T>,
         extraValidatedData?: (txResponse: TxResponseResult<T>) => TData,
-    ): Unconfirmed<XrplTransaction> {
+    ): Unconfirmed<Transaction & TData> {
         const hash = submitTxResponse.result.tx_json.hash;
 
         if (!hash) throw new TransactionParserError(XrplTransactionParserErrors.SUBMITTED_TRANSACTION_CONTAINS_NO_HASH);
@@ -45,14 +44,12 @@ export class XrplTransactionParser {
                     validationPollingInterval: this.options.validationPollingInterval,
                     maxValidationTries: this.options.maxValidationTries,
                 });
-                const fee = txResponse.Fee;
 
                 return {
                     hash: txResponse.hash,
                     confirmed: true,
-                    fee: fee,
                     ...extraValidatedData?.(txResponse),
-                } as Confirmed<XrplTransaction>;
+                } as Confirmed<Transaction & TData>;
             },
         };
     }

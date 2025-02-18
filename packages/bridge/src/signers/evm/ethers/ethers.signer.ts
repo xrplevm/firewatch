@@ -89,7 +89,10 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             new BigNumber("0").toString(),
         );
 
-        return this.transactionParser.parseTransactionResponse(contractTx);
+        return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
+            gasUsed: txReceipt!.gasUsed,
+            gasPrice: txReceipt!.gasPrice,
+        }));
     }
 
     /**
