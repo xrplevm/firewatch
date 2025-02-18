@@ -1,7 +1,10 @@
 import { PrecompileConfig } from "../types/precompile.types";
+import { Interface } from "ethers";
 
 export type ERC20PrecompileConfig = PrecompileConfig<{
-    amount: number;
+    interface: Interface;
+    amount: string;
+    feeFund: string;
 }>;
 
 const erc20PrecompileABI = [
@@ -16,10 +19,14 @@ const erc20PrecompileABI = [
     "function burnFrom(address account, uint256 amount) external",
     "function transferOwnership(address newOwner) external",
     "function owner() external view returns (address)",
+    "event Transfer(address indexed from, address indexed to, uint256 value)",
+    "event Approval(address indexed owner, address indexed spender, uint256 value)",
 ];
 
 export const erc20PrecompileConfig: ERC20PrecompileConfig = {
     abi: erc20PrecompileABI,
+    interface: new Interface(erc20PrecompileABI),
     contractAddress: "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
-    amount: 1,
+    amount: "1",
+    feeFund: "10000000",
 };
