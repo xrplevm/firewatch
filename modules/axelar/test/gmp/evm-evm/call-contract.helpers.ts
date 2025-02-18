@@ -1,41 +1,39 @@
 import { polling, PollingOptions } from "@shared/utils";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ethers, AbiCoder, Contract } from "ethers";
-import { CallContract, AxelarAmplifierGateway } from "../../../../../packages/shared/evm/src/contracts";
-import { getDecodedEvents } from "../../../../../packages/shared/evm/src/utils/event-helpers";
+import { CallContract, AxelarAmplifierGateway } from "@shared/evm/contracts";
+import { getContractDecodedEvents } from "@shared/evm/utils";
 
 /**
- * Sends a message via callContract and then polls the target contract’s state until it equals the sent message.
+ * Sends a message via callContract and then polls the destination contract’s state until it equals the sent message.
  * This works for any message—including an empty one.
  *
- * @param signer The EthersSigner to use for sending the call.
- * @param sourceCallContract The CallContract instance whose state will be polled.
- * @param gatewayAddress The gateway address to which the call is sent.
- * @param targetChain The chain name (as used in the call) for the target.
- * @param targetAddress The target contract address.
+ * @param sourceSigner The EthersSigner to use for sending the call.
+ * @param destinationCallContract The CallContract instance whose state will be polled.
+ * @param sourceGatewayAddress The gateway address to which the call is sent.
+ * @param destinationChain The chain name (as used in the call) for the destination.
+ * @param destinationAddress The destination contract address.
  * @param message The message to send (can be empty).
  * @param pollingOptions Polling options.
  */
-export async function testMessageUpdate(
-    signer: EthersSigner,
-    sourceCallContract: CallContract,
-    gatewayAddress: string,
-    targetChain: string,
-    targetAddress: string,
+export async function expectMessageUpdate(
+    sourceSigner: EthersSigner,
+    destinationCallContract: CallContract,
+    sourceGatewayAddress: string,
+    destinationChain: string,
+    destinationAddress: string,
     message: string,
     pollingOptions: PollingOptions,
 ): Promise<void> {
     const abiCoder = new AbiCoder();
     const payload = abiCoder.encode(["string"], [message]);
 
-    // Send the call.
-    await signer.callContract(gatewayAddress, targetChain, targetAddress, payload);
+    await sourceSigner.callContract(sourceGatewayAddress, destinationChain, destinationAddress, payload);
 
-    // Poll until the contract's stored message equals the expected message.
     let finalMessage: string;
     await polling(
         async () => {
-            finalMessage = await sourceCallContract.message();
+            finalMessage = await destinationCallContract.message();
             return finalMessage === message;
         },
         (result) => !result,
@@ -47,25 +45,25 @@ export async function testMessageUpdate(
  * Helper for event emission tests.
  * Sends a message via callContract then polls for:
  *   - A "ContractCall" event on the provided gateway contract.
- *   - An "Executed" event on the target call contract.
+ *   - An "Executed" event on the destination call contract.
  *
- * @param signer The signer to use for sending the call.
- * @param gatewayAddr The gateway address to which the call is sent.
- * @param targetChain The target chain name (as used in the call).
- * @param targetCallContract The target CallContract instance (whose .address is used in filtering).
- * @param targetAddress The target contract address.
- * @param gwContract The AxelarAmplifierGateway instance to query for "ContractCall" events.
+ * @param sourceSigner The signer to use for sending the call.
+ * @param sourceGatewayAddr The gateway address to which the call is sent.
+ * @param destinationChain The destination chain name (as used in the call).
+ * @param destinationCallContract The destination CallContract instance (whose .address is used in filtering).
+ * @param destinationAddress The destination contract address.
+ * @param sourceGwContract The AxelarAmplifierGateway instance to query for "ContractCall" events.
  * @param message The message to send (can be empty).
  * @param expectedFrom The expected sender address in the "Executed" event.
  * @param pollingOpts Polling options.
  */
-export async function testEventEmission(
-    signer: EthersSigner,
-    gatewayAddr: string,
-    targetChain: string,
-    targetCallContract: CallContract,
-    targetAddress: string,
-    gwContract: AxelarAmplifierGateway,
+export async function expectEventEmission(
+    sourceSigner: EthersSigner,
+    sourceGatewayAddr: string,
+    destinationChain: string,
+    destinationCallContract: CallContract,
+    destinationAddress: string,
+    sourceGwContract: AxelarAmplifierGateway,
     message: string,
     expectedFrom: string,
     pollingOpts: PollingOptions,
@@ -75,16 +73,16 @@ export async function testEventEmission(
     const payloadHash = ethers.keccak256(payload);
 
     // Send the call.
-    await signer.callContract(gatewayAddr, targetChain, targetAddress, payload);
+    await sourceSigner.callContract(sourceGatewayAddr, destinationChain, destinationAddress, payload);
 
     await polling(
         async () => {
-            const decodedEvents = await getDecodedEvents(gwContract as unknown as Contract, "ContractCall", -1);
+            const decodedEvents = await getContractDecodedEvents(sourceGwContract as unknown as Contract, "ContractCall", -1);
             const match = decodedEvents.find(
                 (decoded) =>
                     decoded.args.payloadHash === payloadHash &&
-                    decoded.args.destinationChain === targetChain &&
-                    decoded.args.destinationContractAddress === targetAddress,
+                    decoded.args.destinationChain === destinationChain &&
+                    decoded.args.destinationContractAddress === destinationAddress,
             );
             return Boolean(match);
         },
@@ -94,7 +92,7 @@ export async function testEventEmission(
 
     await polling(
         async () => {
-            const decodedEvents = await getDecodedEvents(targetCallContract as unknown as Contract, "Executed", -1);
+            const decodedEvents = await getContractDecodedEvents(destinationCallContract as unknown as Contract, "Executed", -1);
             const match = decodedEvents.find((decoded) => decoded.args._message === message && decoded.args._from === expectedFrom);
             return Boolean(match);
         },

@@ -5,8 +5,8 @@ import config from "../../../module.config.example.json";
 import { PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
-import { CallContract, AxelarAmplifierGateway } from "../../../../../packages/shared/evm/src/contracts";
-import { testMessageUpdate, testEventEmission } from "./call-contract.helpers";
+import { CallContract, AxelarAmplifierGateway } from "@shared/evm/contracts";
+import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
 
 describe("CallContract", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -28,7 +28,13 @@ describe("CallContract", () => {
     let sourceGatewayContract: AxelarAmplifierGateway;
     let destinationGatewayContract: AxelarAmplifierGateway;
 
-    let srcGateway: string, destGateway: string, srcChain: string, destChain: string, srcCallContract: string, destCall: string;
+    let srcGateway: string;
+    let destGateway: string;
+    let srcChain: string;
+    let destChain: string;
+    let srcCallContract: string;
+    let destCall: string;
+
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
     before(async () => {
@@ -78,17 +84,17 @@ describe("CallContract", () => {
 
         it("should update destination state when a non-empty message is sent", async () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
-            await testMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
+            await expectMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
         });
 
         it("should update destination state when an empty message is sent", async () => {
             const msgText = "";
-            await testMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
+            await expectMessageUpdate(sourceEvmSigner, destinationCallContract, srcGateway, destChain, destCall, msgText, pollingOpts);
         });
 
         it("should emit ContractCall and Executed events when sending a message", async () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
-            await testEventEmission(
+            await expectEventEmission(
                 sourceEvmSigner,
                 srcGateway,
                 destChain,
@@ -110,17 +116,33 @@ describe("CallContract", () => {
 
         it("should update source state when a non-empty message is sent", async () => {
             const msgText = `Hello from the destination chain! ${Date.now()}`;
-            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCallContract, msgText, pollingOpts);
+            await expectMessageUpdate(
+                destinationEvmSigner,
+                sourceCallContract,
+                destGateway,
+                srcChain,
+                srcCallContract,
+                msgText,
+                pollingOpts,
+            );
         });
 
         it("should update source state when an empty message is sent", async () => {
             const msgText = "";
-            await testMessageUpdate(destinationEvmSigner, sourceCallContract, destGateway, srcChain, srcCallContract, msgText, pollingOpts);
+            await expectMessageUpdate(
+                destinationEvmSigner,
+                sourceCallContract,
+                destGateway,
+                srcChain,
+                srcCallContract,
+                msgText,
+                pollingOpts,
+            );
         });
 
         it("should emit ContractCall and Executed events when sending a message", async () => {
             const msgText = `Hello from the destination chain! ${Date.now()}`;
-            await testEventEmission(
+            await expectEventEmission(
                 destinationEvmSigner,
                 destGateway,
                 srcChain,
