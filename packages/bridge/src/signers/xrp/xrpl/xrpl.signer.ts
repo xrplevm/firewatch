@@ -9,6 +9,7 @@ import { convertCurrencyCode } from "@shared/xrpl/currency-code";
 import { MAX_SAFE_IOU_AMOUNT } from "@shared/xrpl";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { Token } from "@firewatch/core/token";
+import { XrplTransaction } from "./xrpl.types";
 
 export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvider> implements IXrplSigner {
     protected readonly transactionParser: XrplTransactionParser;
@@ -93,7 +94,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
         doorAddress: string,
         destinationChainId: string,
         destinationAddress: string,
-    ): Promise<Unconfirmed<Transaction>> {
+    ): Promise<Unconfirmed<XrplTransaction>> {
         try {
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
                 TransactionType: "Payment",

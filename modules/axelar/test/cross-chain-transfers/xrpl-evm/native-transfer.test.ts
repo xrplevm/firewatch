@@ -13,7 +13,6 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-// import { AssertionErrors } from "../../../../../packages/testing/mocha/src/assertions/errors";
 import { AssertionErrors } from "@testing/mocha/assertions";
 
 describe("Cross-Chain Native Transfer", () => {
