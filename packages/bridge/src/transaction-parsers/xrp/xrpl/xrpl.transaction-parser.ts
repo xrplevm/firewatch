@@ -31,7 +31,7 @@ export class XrplTransactionParser {
     parseSubmitTransactionResponse<T extends SubmittableTransaction, TData = {}>(
         submitTxResponse: SubmitTransactionResponse<T>,
         extraValidatedData?: (txResponse: TxResponseResult<T>) => TData,
-    ): Unconfirmed<Transaction & TData> {
+    ): Unconfirmed<Transaction & TData & { fee: string }> {
         const hash = submitTxResponse.result.tx_json.hash;
 
         if (!hash) throw new TransactionParserError(XrplTransactionParserErrors.SUBMITTED_TRANSACTION_CONTAINS_NO_HASH);
@@ -44,12 +44,14 @@ export class XrplTransactionParser {
                     validationPollingInterval: this.options.validationPollingInterval,
                     maxValidationTries: this.options.maxValidationTries,
                 });
+                const fee = txResponse.Fee;
 
                 return {
                     hash: txResponse.hash,
                     confirmed: true,
+                    fee: fee,
                     ...extraValidatedData?.(txResponse),
-                } as Confirmed<Transaction & TData>;
+                } as Confirmed<Transaction & TData & { fee: string }>;
             },
         };
     }
