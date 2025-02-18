@@ -77,7 +77,7 @@ describe("Cross-Chain Native Transfer", () => {
             const receipt = await tx.wait();
             const gasUsed = receipt.gasUsed;
             const gasPrice = receipt.gasPrice;
-            const gasCost = gasUsed! * gasPrice!;
+            const gasCost = gasUsed * gasPrice;
 
             const finalSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
 
