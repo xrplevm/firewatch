@@ -53,9 +53,10 @@
                 "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
             }
         },
-        "interchainTransferOptions": {
-            "maxRetries": 30,
-            "retryDelay": 7000,
+        "interchainTransferOptions": {+
+            "amount": "1.33",
+            "maxRetries": 50,
+            "retryDelay": 10000,
             "timeout": 300000
         },
         "gmpOptions": {
