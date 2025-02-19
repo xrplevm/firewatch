@@ -6,7 +6,7 @@ export const axelarAmplifierGatewayAbi = [
 ];
 
 export interface IAxelarAmplifierGateway {
-    callContract(destinationChain: string, destinationContractAddress: string, payload: string): Promise<ethers.ContractTransaction>;
+    callContract(destinationChain: string, destinationContractAddress: string, payload: string): Promise<ethers.TransactionResponse>;
 }
 
 export class AxelarAmplifierGateway extends Contract<IAxelarAmplifierGateway> {
