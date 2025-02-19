@@ -7,7 +7,6 @@ import { getContractDecodedEvents } from "@shared/evm/utils";
 /**
  * Sends a message via callContract and then polls the destination contract’s state until it equals the sent message.
  * This works for any message—including an empty one.
- *
  * @param sourceSigner The EthersSigner to use for sending the call.
  * @param destinationCallContract The CallContract instance whose state will be polled.
  * @param sourceGatewayAddress The gateway address to which the call is sent.
@@ -46,7 +45,6 @@ export async function expectMessageUpdate(
  * Sends a message via callContract then polls for:
  *   - A "ContractCall" event on the provided gateway contract.
  *   - An "Executed" event on the destination call contract.
- *
  * @param sourceSigner The signer to use for sending the call.
  * @param sourceGatewayAddr The gateway address to which the call is sent.
  * @param destinationChain The destination chain name (as used in the call).
