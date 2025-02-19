@@ -120,7 +120,7 @@ export function expectTransferEvent(
     const eventSig = ethers.id("Transfer(address,address,uint256)");
 
     const eventLog = receipt.logs.find((log: Log) => log.topics[0] === eventSig);
-    expect(eventLog, "Transfer event not found").to.not.be.undefined;
+    expect(eventLog, "Transfer event not found").to.not.eq(undefined);
 
     const decoded = iface.parseLog(eventLog!);
     expect(decoded!.args.from).to.equal(expectedFrom);
