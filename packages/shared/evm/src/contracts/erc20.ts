@@ -9,7 +9,7 @@ export const erc20Abi = [
 
 export interface IERC20 {
     balanceOf(account: string): Promise<ethers.BigNumberish>;
-    approve(account: string, amount: ethers.BigNumberish): Promise<ethers.ContractTransaction>;
+    approve(account: string, amount: ethers.BigNumberish): Promise<ethers.TransactionResponse>;
     allowance(owner: string, spender: string): Promise<ethers.BigNumberish>;
 }
 

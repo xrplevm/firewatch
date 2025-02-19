@@ -17,7 +17,7 @@ export interface IInterchainTokenService {
             gasLimit?: number;
             value?: ethers.BigNumberish;
         },
-    ): Promise<ethers.ContractTransaction>;
+    ): Promise<ethers.TransactionResponse>;
 }
 
 export class InterchainTokenService extends Contract<IInterchainTokenService> {
