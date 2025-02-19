@@ -1,6 +1,8 @@
 import { HardhatConfig } from "hardhat/types";
-import { Network, Account, Config } from "@firewatch/config/types";
+import { ModuleConfig } from "@firewatch/core/module";
+import { Chain } from "@firewatch/core/chain";
+import { Account } from "@firewatch/core/account";
 
-export type HardhatModuleConfig<N extends Network, A extends Account> = {
+export type HardhatModuleConfig<N extends Chain, A extends Account> = {
     hardhat: HardhatConfig;
-} & Config<N, A>;
+} & ModuleConfig<N, A>;

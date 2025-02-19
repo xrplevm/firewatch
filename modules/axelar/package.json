@@ -12,14 +12,21 @@
     "dependencies": {
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
         "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "bignumber.js": "^9.1.2",
         "chai": "^4.3.7",
         "ethers": "^6.13.5",
-        "hardhat": "^2.22.18"
+        "hardhat": "^2.22.18",
+        "xrpl": "3.0.0"
     },
     "devDependencies": {
-        "@testing/mocha": "workspace:*",
+        "@firewatch/bridge": "workspace:*",
+        "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
+        "@shared/modules": "workspace:*",
         "@shared/tsconfig": "workspace:*",
+        "@shared/utils": "workspace:*",
+        "@testing/hardhat": "workspace:*",
+        "@testing/mocha": "workspace:*",
         "@types/chai": "^5.0.1",
         "@types/mocha": "^10.0.10"
     }

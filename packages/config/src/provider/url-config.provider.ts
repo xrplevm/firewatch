@@ -1,9 +1,11 @@
-import { Account, Config, Network } from "../types";
+import { Chain } from "@firewatch/core/chain";
+import { Account } from "@firewatch/core/account";
+import { ModuleConfig } from "@firewatch/core/module";
 
 /**
  * Implementation of IConfigProvider using a URL pointing to a JSON file.
  */
-export class URLConfigProvider<T extends Config<N, A>, N extends Network, A extends Account> {
+export class URLConfigProvider<T extends ModuleConfig<N, A>, N extends Chain, A extends Account> {
     private readonly url: string;
     private _config: T | null = null;
 
