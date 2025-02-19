@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "cli": "ts-node src/cli/main.ts",
         "lint": "eslint .",
         "test": "hardhat test",
         "clean": "rimraf .turbo dist node_modules"
@@ -20,6 +21,7 @@
     },
     "devDependencies": {
         "@firewatch/bridge": "workspace:*",
+        "@firewatch/cli": "workspace:*",
         "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/modules": "workspace:*",
@@ -28,6 +30,8 @@
         "@testing/hardhat": "workspace:*",
         "@testing/mocha": "workspace:*",
         "@types/chai": "^5.0.1",
-        "@types/mocha": "^10.0.10"
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.13.1",
+        "dotenv": "^16.4.7"
     }
 }
