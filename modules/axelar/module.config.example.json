@@ -54,8 +54,9 @@
             }
         },
         "interchainTransferOptions": {
-            "maxRetries": 30,
-            "retryDelay": 7000,
+            "amount": "1.33",
+            "maxRetries": 50,
+            "retryDelay": 10000,
             "timeout": 300000
         },
         "gmpOptions": {
