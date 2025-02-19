@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import { erc20PrecompileConfig } from "../../src/precompiles/config/erc20.config";
 import { ethers } from "hardhat";
-import { expectRevert, resetOwnerState, getEventArgs, expectTransferEvent, executeTx } from "./evm-test.helper";
+import { resetOwnerState, expectTransferEvent } from "./erc20-test.helper";
 import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../src/precompiles/erc20.errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { expectRevert, executeTx, getEventArgs } from "@testing/hardhat/utils";
 
 /**
  * Test Context:
