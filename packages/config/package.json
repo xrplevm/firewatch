@@ -1,0 +1,22 @@
+{
+    "name": "@firewatch/config",
+    "version": "1.0.0",
+    "description": "Config package for Firewatch",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint ."
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@types/node": "^22.13.1"
+    },
+    "dependencies": {
+        "@aws-sdk/client-appconfigdata": "^3.744.0"
+    },
+    "exports": {
+        "./types": "./src/types/index.ts",
+        "./provider": "./src/provider/index.ts"
+    }
+}
