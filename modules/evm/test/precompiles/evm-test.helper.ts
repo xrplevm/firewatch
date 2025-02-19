@@ -18,6 +18,7 @@ export async function expectRevert(tx: Promise<ContractTransaction>, expectedErr
 }
 
 /**
+ * Resets the owner's contract state by burning tokens and restoring ownership if necessary.
  * @param ownerContract The contract instance connected to the owner signer.
  * @param userContract The contract instance connected to the user signer.
  * @param ownerSigner The owner signer object.
@@ -54,12 +55,10 @@ export interface ExtendedEventLog<T = unknown> extends EventLog {
 }
 
 /**
- * Finds and decodes an event with a specified name from the transaction receipt logs,
- * returning an instance of your custom EventLog (augmented with a `decodedArgs` property).
- *
- * @param receipt - The transaction receipt containing logs.
- * @param iface - An ethers Interface instance for the contract.
- * @param eventName - The name of the event to find.
+ * Finds and decodes an event with a specified name from the transaction receipt logs.
+ * @param receipt The transaction receipt containing logs.
+ * @param iface An ethers Interface instance for the contract.
+ * @param eventName The name of the event to find.
  * @returns An ExtendedEventLog for the matching event, or undefined if not found.
  */
 export function findEvent<T = unknown>(receipt: TransactionReceipt, iface: Interface, eventName: string): ExtendedEventLog<T> | undefined {
@@ -84,23 +83,21 @@ export function findEvent<T = unknown>(receipt: TransactionReceipt, iface: Inter
 
 /**
  * Returns the decoded event arguments for the first log matching the specified event name.
- * @param receipt - The transaction receipt containing logs.
- * @param iface - An ethers Interface instance for the contract.
- * @param eventName - The name of the event to look for.
+ * @param receipt The transaction receipt containing logs.
+ * @param iface An ethers Interface instance for the contract.
+ * @param eventName The name of the event to look for.
  * @returns The event arguments (with keys for parameter names), or undefined if not found.
  */
 export function getEventArgs(receipt: TransactionReceipt, iface: Interface, eventName: string): LogDescription | undefined {
     for (const log of receipt.logs) {
-        for (const log of receipt.logs) {
-            try {
-                const parsedLog = iface.parseLog(log);
-                if (parsedLog !== null && parsedLog.name === eventName) {
-                    return parsedLog;
-                }
-            } catch {}
-        }
-        return undefined;
+        try {
+            const parsedLog = iface.parseLog(log);
+            if (parsedLog !== null && parsedLog.name === eventName) {
+                return parsedLog;
+            }
+        } catch {}
     }
+    return undefined;
 }
 /**
  * Asserts that a Transfer event was emitted with the expected parameters.
@@ -120,7 +117,7 @@ export function expectTransferEvent(
     const eventSig = ethers.id("Transfer(address,address,uint256)");
 
     const eventLog = receipt.logs.find((log: Log) => log.topics[0] === eventSig);
-    expect(eventLog, "Transfer event not found").to.not.be.undefined;
+    expect(eventLog, "Transfer event not found").to.not.be.an("undefined");
 
     const decoded = iface.parseLog(eventLog!);
     expect(decoded!.args.from).to.equal(expectedFrom);
