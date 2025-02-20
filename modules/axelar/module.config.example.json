@@ -4,6 +4,22 @@
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
         "sourceChain": {
+            "id": "xrpl-dev",
+            "name": "xrpl-dev",
+            "chainId": 100,
+            "env": "devnet",
+            "type": "xrp",
+            "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
+            "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
+            "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
+            "urls": {
+                "ws": "wss://s.devnet.rippletest.net:51233"
+            },
+            "account": {
+                "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+            }
+        },
+        "destinationChain": {
             "id": "xrpl-evm-devnet",
             "name": "xrpl-evm-devnet",
             "chainId": 100,
@@ -29,40 +45,16 @@
                 "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
             }
         },
-        "destinationChain": {
-            "name": "avalanche-fuji",
-            "chainId": 43113,
-            "env": "devnet",
-            "type": "evm",
-            "nativeToken": {
-                "symbol": "XRP",
-                "decimals": 18,
-                "name": "XRP",
-                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-            },
-            "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-            "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
-            "interchainTokenServiceAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
-            "axelarGasServiceAddress": "0x1179d44e69ba5252B7478a8602617d5EEeb2F377",
-            "callContractAddress": "0x1cd15e16400214bee948417f58ba1b3badb7dd7e",
-            "urls": {
-                "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
-                "ws": "https://api.avax-test.network/ext/bc/C/rpc"
-            },
-            "account": {
-                "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
-            }
-        },
         "interchainTransferOptions": {
             "amount": "1.33",
             "maxRetries": 50,
             "retryDelay": 10000,
-            "timeout": 300000
+            "timeout": 150000
         },
         "gmpOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
-            "timeout": 500000
+            "timeout": 300000
         }
     },
     "hardhat": {

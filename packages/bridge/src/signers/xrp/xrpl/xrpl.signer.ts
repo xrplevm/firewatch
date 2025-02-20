@@ -10,6 +10,7 @@ import { MAX_SAFE_IOU_AMOUNT } from "@shared/xrpl";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { Token } from "@firewatch/core/token";
 import { XrplTransaction, ExtendedXrplTxResponse } from "./xrpl.types";
+import { keccak256 } from "ethers";
 
 export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvider> implements IXrplSigner {
     protected readonly transactionParser: XrplTransactionParser;
@@ -122,12 +123,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                             MemoData: convertStringToHex(destinationChainId),
                         },
                     },
-                    // {
-                    //     Memo: {
-                    //         MemoType: "7061796C6F61645F68617368", // hex(payload_hash)
-                    //         MemoData: "0000000000000000000000000000000000000000000000000000000000000000",
-                    //     },
-                    // },
                 ],
             });
 
@@ -143,11 +138,89 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
      * @inheritdoc
      */
     async callContract(
+        amount: string,
+        token: Token,
         _sourceGatewayAddress: string,
         _destinationChainId: string,
         _destinationContractAddress: string,
         _payload: string,
     ): Promise<Unconfirmed<Transaction>> {
-        return {} as Unconfirmed<Transaction>;
+        try {
+            const cleanPayload = _payload.startsWith("0x") ? _payload.slice(2).toUpperCase() : _payload.toUpperCase();
+            const payloadHash = keccak256(_payload); // This gives you a 0x-prefixed hash
+            const cleanPayloadHash = payloadHash.slice(2).toUpperCase();
+
+            console.log("🔹 Preparing Cross-Chain Transaction...");
+            console.log("🔸 Sender Address:", this.wallet.address);
+            console.log("🔸 Destination Gateway Address:", _sourceGatewayAddress);
+            console.log("🔸 Destination Chain ID:", _destinationChainId);
+            console.log("🔸 Destination Contract Address:", _destinationContractAddress);
+            console.log("🔸 Token:", token.symbol);
+            console.log("🔸 Amount:", amount);
+
+            console.log("🔹 Encoded Payload Details:");
+            console.log("🔸 Payload (Raw):", _payload);
+            console.log("🔸 Payload Hash:", payloadHash);
+
+            console.log("🔹 Constructing Memos...");
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: Buffer.from("destination_address").toString("hex").toUpperCase(),
+                        MemoData: _destinationContractAddress,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("destination_chain").toString("hex").toUpperCase(),
+                        MemoData: convertStringToHex(_destinationChainId), // ✅ Use convertStringToHex
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("payload_hash").toString("hex").toUpperCase(),
+                        MemoData: cleanPayloadHash,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("payload").toString("hex").toUpperCase(),
+                        MemoData: cleanPayload,
+                    },
+                },
+            ];
+
+            console.log("🔹 Final Memos Sent:");
+            console.table(
+                memos.map((memo) => ({
+                    MemoType: memo.Memo.MemoType,
+                    MemoData: memo.Memo.MemoData,
+                })),
+            );
+
+            console.log("🚀 Sending XRPL Transaction...");
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
+                TransactionType: "Payment",
+                Account: this.wallet.address,
+                Amount: token.isNative()
+                    ? xrpToDrops(amount)
+                    : {
+                          currency: convertCurrencyCode(token.symbol),
+                          value: amount,
+                          issuer: token.address!,
+                      },
+                Destination: _sourceGatewayAddress,
+                Flags: 0,
+                Fee: "12",
+                Memos: memos,
+            });
+
+            console.log("✅ Transaction Submitted:", submitTxResponse);
+
+            return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse);
+        } catch (e) {
+            console.error("❌ Transaction Failed:", e);
+            return this.handleError(e);
+        }
     }
 }
