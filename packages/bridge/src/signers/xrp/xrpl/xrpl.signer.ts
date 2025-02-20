@@ -167,6 +167,12 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 },
                 {
                     Memo: {
+                        MemoType: Buffer.from("gas_fee_amount").toString("hex").toLowerCase(),
+                        MemoData: "00",
+                    },
+                },
+                {
+                    Memo: {
                         MemoType: Buffer.from("payload").toString("hex").toLowerCase(),
                         MemoData: cleanPayload,
                     },
