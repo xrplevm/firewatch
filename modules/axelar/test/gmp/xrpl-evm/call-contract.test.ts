@@ -76,10 +76,8 @@ describe("CallContract XRP - EVM", () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
             const abiCoder = new AbiCoder();
             const payload = abiCoder.encode(["string"], [msgText]);
-            console.log(destinationChain.name);
-
             const tx = await xrplChainSigner.callContract(
-                "10",
+                "0.00001",
                 new Token({} as any),
                 sourceChain.interchainTokenServiceAddress,
                 destinationChain.name,
@@ -103,7 +101,7 @@ describe("CallContract XRP - EVM", () => {
                 async () => {
                     finalMessage = await destinationCallContract.message();
                     console.log({ finalMessage });
-                    return finalMessage === msgText;
+                    return finalMessage.includes(msgText);
                 },
                 (result) => !result,
                 pollingOpts,

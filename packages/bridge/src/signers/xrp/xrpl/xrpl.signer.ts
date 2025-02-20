@@ -147,58 +147,32 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
     ): Promise<Unconfirmed<Transaction>> {
         try {
             const cleanPayload = _payload.startsWith("0x") ? _payload.slice(2).toUpperCase() : _payload.toUpperCase();
-            const payloadHash = keccak256(_payload); // This gives you a 0x-prefixed hash
-            const cleanPayloadHash = payloadHash.slice(2).toUpperCase();
+            const destinationChainHex = convertStringToHex(_destinationChainId);
+            const cleanDestinationAddress = _destinationContractAddress.startsWith("0x")
+                ? _destinationContractAddress.slice(2)
+                : _destinationContractAddress;
 
-            console.log("🔹 Preparing Cross-Chain Transaction...");
-            console.log("🔸 Sender Address:", this.wallet.address);
-            console.log("🔸 Destination Gateway Address:", _sourceGatewayAddress);
-            console.log("🔸 Destination Chain ID:", _destinationChainId);
-            console.log("🔸 Destination Contract Address:", _destinationContractAddress);
-            console.log("🔸 Token:", token.symbol);
-            console.log("🔸 Amount:", amount);
-
-            console.log("🔹 Encoded Payload Details:");
-            console.log("🔸 Payload (Raw):", _payload);
-            console.log("🔸 Payload Hash:", payloadHash);
-
-            console.log("🔹 Constructing Memos...");
             const memos = [
                 {
                     Memo: {
-                        MemoType: Buffer.from("destination_address").toString("hex").toUpperCase(),
-                        MemoData: _destinationContractAddress,
+                        MemoType: Buffer.from("destination_address").toString("hex").toLowerCase(),
+                        MemoData: cleanDestinationAddress,
                     },
                 },
                 {
                     Memo: {
-                        MemoType: Buffer.from("destination_chain").toString("hex").toUpperCase(),
-                        MemoData: convertStringToHex(_destinationChainId), // ✅ Use convertStringToHex
+                        MemoType: Buffer.from("destination_chain").toString("hex").toLowerCase(),
+                        MemoData: destinationChainHex,
                     },
                 },
                 {
                     Memo: {
-                        MemoType: Buffer.from("payload_hash").toString("hex").toUpperCase(),
-                        MemoData: cleanPayloadHash,
-                    },
-                },
-                {
-                    Memo: {
-                        MemoType: Buffer.from("payload").toString("hex").toUpperCase(),
+                        MemoType: Buffer.from("payload").toString("hex").toLowerCase(),
                         MemoData: cleanPayload,
                     },
                 },
             ];
 
-            console.log("🔹 Final Memos Sent:");
-            console.table(
-                memos.map((memo) => ({
-                    MemoType: memo.Memo.MemoType,
-                    MemoData: memo.Memo.MemoData,
-                })),
-            );
-
-            console.log("🚀 Sending XRPL Transaction...");
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
                 TransactionType: "Payment",
                 Account: this.wallet.address,
@@ -215,11 +189,8 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 Memos: memos,
             });
 
-            console.log("✅ Transaction Submitted:", submitTxResponse);
-
             return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse);
         } catch (e) {
-            console.error("❌ Transaction Failed:", e);
             return this.handleError(e);
         }
     }
