@@ -10,14 +10,16 @@
     "dependencies": {
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
         "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-        "chai": "^4.3.7",
+        "chai": "^4.5.0",
         "ethers": "^6.13.5",
         "hardhat": "^2.22.18"
     },
     "devDependencies": {
         "@shared/eslint": "workspace:*",
-        "@testing/mocha": "workspace:*",
         "@shared/tsconfig": "workspace:*",
+        "@shared/evm": "workspace:*",
+        "@testing/mocha": "workspace:*",
+        "@testing/hardhat": "workspace:*",
         "@types/chai": "^5.0.1"
     }
 }

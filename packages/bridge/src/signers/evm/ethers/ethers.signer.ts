@@ -10,6 +10,7 @@ import { decimalToInt } from "@shared/number";
 import { IEthersSigner } from "./interfaces";
 import { Token } from "@firewatch/core/token";
 import BigNumber from "bignumber.js";
+import { EthersTransaction } from "./ethers.types";
 
 export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSignerProvider> implements IEthersSigner {
     protected signer: ethers.Signer;
@@ -74,7 +75,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         doorAddress: string,
         destinationChainId: string,
         destinationAddress: string,
-    ): Promise<Unconfirmed<Transaction>> {
+    ): Promise<Unconfirmed<EthersTransaction>> {
         const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
 
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
@@ -88,7 +89,10 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             new BigNumber("0").toString(),
         );
 
-        return this.transactionParser.parseTransactionResponse(contractTx);
+        return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
+            gasUsed: txReceipt!.gasUsed,
+            gasPrice: txReceipt!.gasPrice,
+        }));
     }
 
     /**
