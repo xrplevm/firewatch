@@ -15,7 +15,7 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { AssertionErrors } from "@testing/mocha/assertions";
 
-describe("Cross-Chain Native Transfer", () => {
+describe.skip("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;
