@@ -10,6 +10,7 @@ import { MAX_SAFE_IOU_AMOUNT } from "@shared/xrpl";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { Token } from "@firewatch/core/token";
 import { XrplTransaction, ExtendedXrplTxResponse } from "./xrpl.types";
+import { keccak256 } from "ethers";
 
 export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvider> implements IXrplSigner {
     protected readonly transactionParser: XrplTransactionParser;
@@ -122,12 +123,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                             MemoData: convertStringToHex(destinationChainId),
                         },
                     },
-                    // {
-                    //     Memo: {
-                    //         MemoType: "7061796C6F61645F68617368", // hex(payload_hash)
-                    //         MemoData: "0000000000000000000000000000000000000000000000000000000000000000",
-                    //     },
-                    // },
                 ],
             });
 
@@ -143,11 +138,66 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
      * @inheritdoc
      */
     async callContract(
+        amount: string,
+        token: Token,
         _sourceGatewayAddress: string,
         _destinationChainId: string,
         _destinationContractAddress: string,
         _payload: string,
     ): Promise<Unconfirmed<Transaction>> {
-        return {} as Unconfirmed<Transaction>;
+        try {
+            const cleanPayload = _payload.startsWith("0x") ? _payload.slice(2).toUpperCase() : _payload.toUpperCase();
+            const destinationChainHex = convertStringToHex(_destinationChainId);
+            const cleanDestinationAddress = _destinationContractAddress.startsWith("0x")
+                ? _destinationContractAddress.slice(2)
+                : _destinationContractAddress;
+
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: Buffer.from("destination_address").toString("hex").toLowerCase(),
+                        MemoData: cleanDestinationAddress,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("destination_chain").toString("hex").toLowerCase(),
+                        MemoData: destinationChainHex,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("gas_fee_amount").toString("hex").toLowerCase(),
+                        MemoData: "00",
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: Buffer.from("payload").toString("hex").toLowerCase(),
+                        MemoData: cleanPayload,
+                    },
+                },
+            ];
+
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
+                TransactionType: "Payment",
+                Account: this.wallet.address,
+                Amount: token.isNative()
+                    ? xrpToDrops(amount)
+                    : {
+                          currency: convertCurrencyCode(token.symbol),
+                          value: amount,
+                          issuer: token.address!,
+                      },
+                Destination: _sourceGatewayAddress,
+                Flags: 0,
+                Fee: "12",
+                Memos: memos,
+            });
+
+            return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse);
+        } catch (e) {
+            return this.handleError(e);
+        }
     }
 }

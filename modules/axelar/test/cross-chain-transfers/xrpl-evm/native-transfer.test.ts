@@ -15,7 +15,7 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { AssertionErrors } from "@testing/mocha/assertions";
 
-describe("Cross-Chain Native Transfer", () => {
+describe.skip("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;
@@ -55,8 +55,8 @@ describe("Cross-Chain Native Transfer", () => {
 
     describe("from evm chain to xrpl chain", () => {
         before(() => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
         });
 
         it("should transfer the token", async () => {

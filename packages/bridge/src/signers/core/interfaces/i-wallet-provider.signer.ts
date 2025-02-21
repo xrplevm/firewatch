@@ -34,6 +34,8 @@ export interface IWalletProviderSigner {
      * @returns The transaction.
      */
     callContract(
+        amount: string,
+        token: Token,
         sourceGatewayAddress: string,
         destinationChainId: string,
         destinationContractAddress: string,
