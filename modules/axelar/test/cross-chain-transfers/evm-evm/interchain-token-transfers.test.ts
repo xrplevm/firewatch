@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import config from "../../../module.config.example.json";
 import { PollingOptions, polling } from "@shared/utils";
-import { assertChainTypes } from "@testing/mocha/assertions";
+import { assertChainTypes, AssertionErrors, assertRevert } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken } from "@shared/evm/contracts";
 
@@ -102,6 +102,16 @@ describe("Interchain Token Transfers", () => {
                 );
             }
         });
+
+        it("should revert when attempting to transfer 0 tokens", async () => {
+            const transferAmount = ethers.parseUnits("0", 18);
+            const recipientBytes = ethers.zeroPadBytes(destinationWallet.address, 20);
+
+            await assertRevert(
+                sourceInterchainToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x"),
+                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+            );
+        });
     });
 
     describe("from evm Destination chain to evm Source chain", () => {
@@ -138,6 +148,16 @@ describe("Interchain Token Transfers", () => {
                     `Source balance mismatch! Expected: ${expectedSourceBalance.toString()}, Actual: ${finalSourceBalance.toString()}`,
                 );
             }
+        });
+
+        it("should revert when attempting to transfer 0 tokens", async () => {
+            const transferAmount = ethers.parseUnits("0", 18);
+            const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
+
+            await assertRevert(
+                destinationInterchainToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
+                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+            );
         });
     });
 });
