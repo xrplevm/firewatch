@@ -4,22 +4,6 @@
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
         "sourceChain": {
-            "id": "xrpl-dev",
-            "name": "xrpl-dev",
-            "chainId": 100,
-            "env": "devnet",
-            "type": "xrp",
-            "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-            "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
-            "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
-            "urls": {
-                "ws": "wss://s.devnet.rippletest.net:51233"
-            },
-            "account": {
-                "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
-            }
-        },
-        "destinationChain": {
             "id": "xrpl-evm-devnet",
             "name": "xrpl-evm-devnet",
             "chainId": 100,
@@ -35,7 +19,11 @@
             },
             "door": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-            "axelarGatewayAddress": "S",
+            "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
+            "interchainTokenFactory": "0xD08cd727E13FAA39F4041C2f5d4D3FF89A519d5b",
+            "interchainTokenServiceAddress": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
+            "interchainTokenDeployedAddress": "0xbFD5BFCD1088328F8B9865Bfc8a9c7c11e2f960B",
+            "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
             "axelarGasServiceAddress": "0x8b4Cc5Fb89B68aE93aDfa67990419144e7395Dd1",
             "callContractAddress": "0xec4bd13fcc8b9580ebd44f6e6a4bd12ee468414a",
             "urls": {
@@ -58,7 +46,10 @@
             },
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
             "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
-            "interchainTokenServiceAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
+            "interchainTokenFactory": "0xD08cd727E13FAA39F4041C2f5d4D3FF89A519d5b",
+            "saltTokenFactory": "ITS Factory v1.0.0 consensus devnet-amplifier2",
+            "interchainTokenServiceAddress": "0x77883201091c08570D55000AB32645b88cB96324",
+            "interchainTokenDeployedAddress": "0x2B67d21fFfDc7f7f6FB48C86b2714cf32713a3b6",
             "axelarGasServiceAddress": "0x1179d44e69ba5252B7478a8602617d5EEeb2F377",
             "callContractAddress": "0x1cd15e16400214bee948417f58ba1b3badb7dd7e",
             "urls": {
