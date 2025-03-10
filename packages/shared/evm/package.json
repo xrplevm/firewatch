@@ -27,6 +27,7 @@
         "@types/jest": "^29.5.12",
         "@shared/tsconfig": "workspace:*",
         "@shared/tsup": "workspace:*",
+        "@shared/utils": "workspace:*",
         "@types/node": "latest",
         "ethers": "^6.13.5",
         "typescript": "latest"
