@@ -1,0 +1,9 @@
+{
+    "extends": "@shared/tsconfig/package",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "module": "NodeNext"
+    },
+    "include": ["*/**/*.ts"],
+    "exclude": ["dist"]
+}

@@ -1,0 +1,23 @@
+{
+    "name": "@testing/mocha",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "clean": "rimraf .turbo dist node_modules",
+        "lint": "eslint ."
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@shared/modules": "workspace:*",
+        "@firewatch/core": "workspace:*",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.13.1",
+        "mocha": "^11.1.0"
+    },
+    "exports": {
+        "./reporters/json": "./src/reporters/json/index.ts",
+        "./assertions": "./src/assertions/index.ts"
+    }
+}
