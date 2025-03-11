@@ -1,4 +1,4 @@
-import { TransactionReceipt, Log, Interface, LogDescription, TransactionResponse, EventLog, Contract, ContractTransaction } from "ethers";
+import { TransactionReceipt, TransactionResponse, ContractTransaction } from "ethers";
 import { expect } from "chai";
 import { HardhatErrors } from "../constants";
 
