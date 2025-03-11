@@ -4,7 +4,8 @@
     "description": "EVM module for Firewatch",
     "scripts": {
         "lint": "eslint .",
-        "test": "hardhat test"
+        "test": "hardhat test",
+        "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
     "dependencies": {

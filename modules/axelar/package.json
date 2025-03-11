@@ -6,7 +6,8 @@
     "scripts": {
         "cli": "ts-node src/cli/main.ts",
         "lint": "eslint .",
-        "test": "hardhat test"
+        "test": "hardhat test",
+        "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
     "dependencies": {
