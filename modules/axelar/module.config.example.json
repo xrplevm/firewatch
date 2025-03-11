@@ -48,12 +48,12 @@
             "amount": "1.33",
             "maxRetries": 50,
             "retryDelay": 10000,
-            "timeout": 300000
+            "timeout": 1000000
         },
         "gmpOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
-            "timeout": 500000
+            "timeout": 1000000
         }
     },
     "hardhat": {

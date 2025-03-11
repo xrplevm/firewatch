@@ -1,6 +1,6 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
-import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
+import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
 import config from "../../../module.config.example.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
@@ -13,7 +13,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-import { AssertionErrors } from "@testing/mocha/assertions";
+import { HardhatErrors } from "@testing/hardhat/errors";
 
 describe("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -107,7 +107,7 @@ describe("Cross-Chain Native Transfer", () => {
                     destinationChain.name,
                     evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
                 ),
-                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                HardhatErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
     });
@@ -163,7 +163,7 @@ describe("Cross-Chain Native Transfer", () => {
                     sourceChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
                 ),
-                AssertionErrors.TRANSACTION_SUBMISSION_FAILED,
+                XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
             );
         });
     });
