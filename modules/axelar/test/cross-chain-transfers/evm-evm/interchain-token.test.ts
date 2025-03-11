@@ -20,7 +20,6 @@ describe("Interchain Token Deployment EVM - EVM", () => {
     let destinationInterchainTokenFactory: InterchainTokenFactory;
     let sourceInterchainTokenService: InterchainTokenService;
     let destinationInterchainTokenService: InterchainTokenService;
-    let destinationInterchainTokenServiceEvent: InterchainTokenService;
 
     let deployedTokenAddressSource: string;
     let deployedTokenAddressDestination: string;
@@ -45,7 +44,6 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             urls: destUrls,
             account: destAccount,
             interchainTokenServiceAddress: destTokenServiceAddress,
-            interchainTokenServiceAddressEvent: destTokenServiceAddressEvent,
             interchainTokenFactory: destFactoryAddress,
         } = destinationChain;
 
@@ -60,7 +58,6 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
         sourceInterchainTokenService = new InterchainTokenService(sourceTokenServiceAddress, sourceWallet);
         destinationInterchainTokenService = new InterchainTokenService(destTokenServiceAddress, destinationWallet);
-        destinationInterchainTokenServiceEvent = new InterchainTokenService(destTokenServiceAddressEvent, destinationWallet);
 
         nonce = Date.now();
         saltSource = `${sourceChain.saltTokenFactory}_${nonce}`;
@@ -69,8 +66,6 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         saltDestination = `${destinationChain.saltTokenFactory}_${nonce}`;
         saltDestination = ethers.id(saltDestination);
 
-        // srcChainName = sourceName;
-        // destChainName = destName;
         gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
     });
 
@@ -244,7 +239,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             );
 
             const tokenDeployedEvent = await pollForEvent(
-                destinationInterchainTokenServiceEvent as unknown as Contract, // TODO: notice the usage of a different InterchainTokenService, meaning Avalanche-fuji has its InterchainTokenFactory connected to an old InterchainTokenService
+                destinationInterchainTokenService as unknown as Contract,
                 "InterchainTokenDeployed",
                 (decoded) => {
                     const { tokenId, name, symbol } = decoded.args;
