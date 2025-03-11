@@ -1,11 +1,11 @@
 import { expect } from "chai";
-import { erc20PrecompileConfig } from "../../src/precompiles/config/erc20.config";
 import { ethers } from "hardhat";
-import { resetOwnerState, expectTransferEvent } from "./erc20-test.helper";
+import { resetOwnerState, expectTransferEvent } from "./utils/helpers";
 import { Interface, toBigInt, Contract } from "ethers";
-import { ERC20Errors } from "../../src/precompiles/erc20.errors";
+import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx, getEventArgs } from "@testing/hardhat/utils";
+import moduleConfig from "../../../module.config.example.json";
 
 /**
  * Test Context:
@@ -30,20 +30,22 @@ describe("ERC20", () => {
 
     let tokenAmount: bigint;
 
+    const { erc20 } = moduleConfig;
+
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership tests.
     beforeEach(async () => {
-        abi = erc20PrecompileConfig.abi;
-        contractInterface = erc20PrecompileConfig.interface;
-        contractAddress = erc20PrecompileConfig.contractAddress;
+        abi = erc20.abi;
+        contractInterface = new Interface(erc20.abi);
+        contractAddress = erc20.contractAddress;
         [ownerSigner, userSigner] = await ethers.getSigners();
 
         ownerContract = new ethers.Contract(contractAddress, abi, ownerSigner);
         userContract = new ethers.Contract(contractAddress, abi, userSigner);
 
-        await executeTx(userContract.transfer(ownerSigner.address, erc20PrecompileConfig.feeFund));
+        await executeTx(userContract.transfer(ownerSigner.address, erc20.feeFund));
 
-        tokenAmount = toBigInt(erc20PrecompileConfig.amount);
+        tokenAmount = toBigInt(erc20.amount);
     });
 
     // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
@@ -211,7 +213,7 @@ describe("ERC20", () => {
             const resetApprovalEvent = getEventArgs(resetApproveReceipt, contractInterface, "Approval");
 
             expect(resetApprovalEvent).to.not.eq(undefined);
-            expect(resetApprovalEvent!.args.owner).to.equal(ownerSigner.address);
+            expect(resetApprovalEvent!.args.owner).to.equal(erc20.contractAddress);
             expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
             expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
         });

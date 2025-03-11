@@ -20,6 +20,7 @@
         "@shared/evm": "workspace:*",
         "@testing/mocha": "workspace:*",
         "@testing/hardhat": "workspace:*",
+        "@firewatch/core": "workspace:*",
         "@types/chai": "^5.0.1"
     }
 }
