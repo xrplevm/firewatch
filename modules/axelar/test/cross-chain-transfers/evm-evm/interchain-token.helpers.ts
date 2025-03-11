@@ -2,6 +2,15 @@ import { InterchainToken } from "@shared/evm/contracts";
 import { polling, PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
 
+/**
+ * Polls the token contract’s balance for a given address until the balance increases by the expected delta.
+ * Throws an error if the final balance does not match the expected value.
+ * @param token The InterchainToken instance.
+ * @param address The address whose balance is to be checked.
+ * @param initialBalance The starting balance as a BigNumber.
+ * @param delta The expected balance increase as a BigNumber.
+ * @param pollingOpts Polling options.
+ */
 export async function assertInterchainBalanceUpdate(
     token: InterchainToken,
     address: string,
