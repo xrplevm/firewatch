@@ -19,7 +19,8 @@
     },
     "exports": {
         "./config": "./src/config/index.ts",
-        "./utils": "./src/utils/index.ts"
+        "./utils": "./src/utils/index.ts",
+        "./errors": "./src/errors/index.ts"
     },
     "dependencies": {
         "ethers": "^6.13.5"
