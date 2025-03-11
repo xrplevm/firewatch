@@ -200,7 +200,7 @@ describe("ERC20", () => {
             const approvalEvent = getEventArgs(approveReceipt, contractInterface, "Approval");
 
             expect(approvalEvent).to.not.eq(undefined);
-            expect(approvalEvent!.args.owner).to.equal(ownerSigner.address);
+            expect(approvalEvent!.args.owner).to.equal(erc20.contractAddress);
             expect(approvalEvent!.args.spender).to.equal(userSigner.address);
             expect(approvalEvent!.args.value.toString()).to.equal(tokenAmount.toString());
 
