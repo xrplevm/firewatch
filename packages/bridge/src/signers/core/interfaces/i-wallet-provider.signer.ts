@@ -27,6 +27,8 @@ export interface IWalletProviderSigner {
 
     /**
      * Calls a contract on the destination chain.
+     * @param amount The amount of tokens to include in the call.
+     * @param token The token used for the call.
      * @param sourceGatewayAddress The source gateway address.
      * @param destinationChainId The destination chain id.
      * @param destinationContractAddress The destination contract address.

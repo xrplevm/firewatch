@@ -2,12 +2,11 @@ import { Contract, BlockTag, LogDescription } from "ethers";
 import { PollingOptions, polling } from "@shared/utils";
 
 /**
- * Queries the given contract for an event
- *
- * @param contract - An ethers.js Contract instance.
- * @param eventName - The name of the event to query.
- * @param fromBlock - (Optional) The block number/tag to start from.
- * @param toBlock - (Optional) The block number/tag to end at.
+ * Queries the given contract for an event.
+ * @param contract An ethers.js Contract instance.
+ * @param eventName The name of the event to query.
+ * @param fromBlock The block number/tag to start from (Optional).
+ * @param toBlock The block number/tag to end at (Optional).
  * @returns A promise that resolves to an array of decoded events (LogDescription).
  */
 export async function getContractDecodedEvents(
@@ -23,13 +22,12 @@ export async function getContractDecodedEvents(
 
 /**
  * Polls for a specific event on a contract using a filter function.
- *
- * @param contract - An ethers.js Contract instance.
- * @param eventName - The name of the event to query.
- * @param fromBlock - The starting block tag.
- * @param toBlock - The ending block tag.
- * @param filterFn - A predicate function used to identify the desired event.
- * @param pollingOpts - Polling options.
+ * @param contract An ethers.js Contract instance.
+ * @param eventName The name of the event to query.
+ * @param filterFn A predicate function used to identify the desired event.
+ * @param pollingOpts Polling options.
+ * @param fromBlock The starting block tag (Optional).
+ * @param toBlock The ending block tag (Optional).
  * @returns A promise that resolves to the found event or undefined if not found.
  */
 export async function pollForEvent<T extends LogDescription>(

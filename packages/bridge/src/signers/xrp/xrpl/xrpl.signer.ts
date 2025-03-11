@@ -10,7 +10,6 @@ import { MAX_SAFE_IOU_AMOUNT } from "@shared/xrpl";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { Token } from "@firewatch/core/token";
 import { XrplTransaction, ExtendedXrplTxResponse } from "./xrpl.types";
-import { keccak256 } from "ethers";
 
 export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvider> implements IXrplSigner {
     protected readonly transactionParser: XrplTransactionParser;
