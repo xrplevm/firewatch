@@ -19,8 +19,13 @@
             },
             "door": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-            "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
+            "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
+            "interchainTokenFactory": "0xECd104DDf368d016ecf5C4c7de60Bdc90565D81a",
             "interchainTokenServiceAddress": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
+            "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
+            "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
+            "axelarGasServiceAddress": "0x8b4Cc5Fb89B68aE93aDfa67990419144e7395Dd1",
+            "callContractAddress": "0xec4bd13fcc8b9580ebd44f6e6a4bd12ee468414a",
             "urls": {
                 "rpc": "https://rpc.xrplevm.org"
             },
@@ -29,26 +34,38 @@
             }
         },
         "destinationChain": {
-            "id": "xrpl-dev",
-            "name": "xrpl-dev",
-            "chainId": 100,
+            "name": "avalanche-fuji",
+            "chainId": 43113,
             "env": "devnet",
-            "type": "xrp",
+            "type": "evm",
+            "nativeToken": {
+                "symbol": "XRP",
+                "decimals": 18,
+                "name": "XRP",
+                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            },
             "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-            "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
-            "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
+            "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
+            "interchainTokenFactory": "0xdB7d6A5B8d37a4f34BC1e7ce0d0B8a9DDA124871",
+            "saltTokenFactory": "ITS Factory v1.0.0 consensus devnet-amplifier2",
+            "interchainTokenServiceAddress": "0x2269B93c8D8D4AfcE9786d2940F5Fcd4386Db7ff",
+            "interchainTokenDeployedAddress": "0x3F529fB73B168c260fc6ccEF73B909cfb8FCC155",
+            "axelarGasServiceAddress": "0x1179d44e69ba5252B7478a8602617d5EEeb2F377",
+            "callContractAddress": "0x1cd15e16400214bee948417f58ba1b3badb7dd7e",
             "urls": {
-                "ws": "wss://s.devnet.rippletest.net:51233"
+                "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
+                "ws": "https://api.avax-test.network/ext/bc/C/rpc"
             },
             "account": {
-                "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+                "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
             }
         },
         "interchainTransferOptions": {
             "amount": "1.33",
+            "gasValue": "0.05",
             "maxRetries": 50,
             "retryDelay": 10000,
-            "timeout": 1000000
+            "timeout": 500000
         },
         "gmpOptions": {
             "maxRetries": 50,
