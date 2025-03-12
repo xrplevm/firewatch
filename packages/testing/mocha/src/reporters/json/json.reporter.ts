@@ -29,6 +29,9 @@ export class JsonTestReporter extends reporters.Base {
             .on("end", this.onEnd.bind(this));
     }
 
+    /**
+     * Resets the test results.
+     */
     private onStart(): void {
         this.testResults.numTotalTests = 0;
         this.testResults.numPassedTests = 0;
@@ -36,16 +39,28 @@ export class JsonTestReporter extends reporters.Base {
         this.testResults.testResults = [];
     }
 
+    /**
+     * Sets the current suite.
+     * @param suite The suite to set.
+     */
     private onSuite(suite: MochaSuite): void {
         if (suite.title) {
             this.currentSuite = suite.title;
         }
     }
 
+    /**
+     * Increments the total number of tests.
+     * @param _ The test to increment.
+     */
     private onTest(_: MochaTest): void {
         this.testResults.numTotalTests++;
     }
 
+    /**
+     * Increments the number of passed tests.
+     * @param test The test to increment.
+     */
     private onPass(test: MochaTest): void {
         this.testResults.numPassedTests++;
 
@@ -59,6 +74,11 @@ export class JsonTestReporter extends reporters.Base {
         this.testResults.testResults.push(testResult);
     }
 
+    /**
+     * Increments the number of failed tests.
+     * @param test The test to increment.
+     * @param err The error to set.
+     */
     private onFail(test: MochaTest, err: Error): void {
         this.testResults.numFailedTests++;
 
@@ -74,6 +94,9 @@ export class JsonTestReporter extends reporters.Base {
         this.testResults.testResults.push(testResult);
     }
 
+    /**
+     * Sets the end time and success status of the test results.
+     */
     private onEnd(): void {
         this.testResults.endTime = new Date().getTime();
         this.testResults.success = this.testResults.numFailedTests === 0;

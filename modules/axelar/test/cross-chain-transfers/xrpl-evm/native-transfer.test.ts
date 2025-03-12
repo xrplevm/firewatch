@@ -8,12 +8,13 @@ import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
 import { polling, PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
-import { assertChainEnvironments, assertChainTypes, assertRevert } from "@testing/mocha/assertions";
+import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
+import { expectRevert } from "@testing/hardhat/utils";
 
 describe("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -99,7 +100,7 @@ describe("Cross-Chain Native Transfer", () => {
         });
 
         it("should revert when transferring 0 tokens", async () => {
-            await assertRevert(
+            await expectRevert(
                 evmChainSigner.transfer(
                     "0",
                     sourceChain.nativeToken as Token,
@@ -155,7 +156,7 @@ describe("Cross-Chain Native Transfer", () => {
         });
 
         it("should revert when transferring 0 tokens", async () => {
-            await assertRevert(
+            await expectRevert(
                 xrplChainSigner.transfer(
                     "0",
                     new Token({} as any),
