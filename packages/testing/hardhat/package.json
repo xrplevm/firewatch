@@ -9,14 +9,20 @@
     "license": "ISC",
     "devDependencies": {
         "@firewatch/core": "workspace:*",
-        "@shared/eslint": "workspace:*",
-        "@shared/tsconfig": "workspace:*",
         "@nomiclabs/hardhat-ethers": "^2.2.2",
         "@nomiclabs/hardhat-waffle": "^2.0.3",
-        "chai": "^4.3.7",
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@shared/evm": "workspace:*",
+        "chai": "^4.5.0",
         "hardhat": "^2.12.7"
     },
     "exports": {
-        "./config": "./src/config/index.ts"
+        "./config": "./src/config/index.ts",
+        "./utils": "./src/utils/index.ts",
+        "./errors": "./src/errors/index.ts"
+    },
+    "dependencies": {
+        "ethers": "^6.13.5"
     }
 }
