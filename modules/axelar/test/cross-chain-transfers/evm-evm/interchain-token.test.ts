@@ -30,6 +30,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
     let nonce: number;
     let gasValue: bigint;
+    let gasLimit: number;
 
     before(async () => {
         assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
@@ -68,6 +69,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         saltDestination = ethers.id(saltDestination);
 
         gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
+        gasLimit = 300000;
     });
 
     describe("from evm Source chain to evm Destination chain", () => {
@@ -110,6 +112,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             await executeTx(
                 sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
                     value: gasValue,
+                    gasLimit: gasLimit,
                 }),
             );
 
@@ -149,6 +152,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             await assertRevert(
                 sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
                     value: gasValue,
+                    gasLimit: gasLimit,
                 }),
                 AssertionErrors.UNKNOWN_CUSTOM_ERROR,
             );
@@ -178,7 +182,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 await executeTx(
                     sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
+                        gasLimit: gasLimit,
                     }),
                 );
 
@@ -196,9 +200,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
                 await assertRevert(
-                    sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
-                    }),
+                    sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
                     AssertionErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
@@ -214,7 +216,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 await executeTx(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
+                        gasLimit: gasLimit,
                     }),
                 );
 
@@ -232,9 +234,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
                 await assertRevert(
-                    destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
-                    }),
+                    destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
                     AssertionErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
@@ -281,6 +281,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             await executeTx(
                 destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
                     value: gasValue,
+                    gasLimit: gasLimit,
                 }),
             );
 
@@ -320,6 +321,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             await assertRevert(
                 destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
                     value: gasValue,
+                    gasLimit: gasLimit,
                 }),
                 AssertionErrors.UNKNOWN_CUSTOM_ERROR,
             );
@@ -349,7 +351,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 await executeTx(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
+                        gasLimit: gasLimit,
                     }),
                 );
 
@@ -367,9 +369,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
                 await assertRevert(
-                    destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
-                    }),
+                    destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
                     AssertionErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
@@ -385,7 +385,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 await executeTx(
                     sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
+                        gasLimit: gasLimit,
                     }),
                 );
 
@@ -403,9 +403,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
                 await assertRevert(
-                    sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
-                        value: gasValue,
-                    }),
+                    sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
                     AssertionErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
