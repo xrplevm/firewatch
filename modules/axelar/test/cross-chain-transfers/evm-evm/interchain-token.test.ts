@@ -1,13 +1,14 @@
 import { ethers, Contract } from "ethers";
 import config from "../../../module.config.example.json";
 import { PollingOptions } from "@shared/utils";
-import { assertChainEnvironments, assertChainTypes, AssertionErrors, assertRevert } from "@testing/mocha/assertions";
-import { executeTx } from "@testing/hardhat/utils";
+import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
+import { executeTx, expectRevert } from "@testing/hardhat/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken, InterchainTokenFactory, InterchainTokenService } from "@shared/evm/contracts";
 import { pollForEvent } from "@shared/evm/utils";
 import BigNumber from "bignumber.js";
 import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
+import { HardhatErrors } from "@testing/hardhat/errors";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -135,7 +136,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         });
 
         it("should revert when deploying an interchain token with the same salt value", async () => {
-            await assertRevert(
+            await expectRevert(
                 sourceInterchainTokenFactory.deployInterchainToken(
                     saltSource,
                     "TestToken",
@@ -144,17 +145,17 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                     ethers.parseUnits("1000", 18),
                     sourceWallet.address,
                 ),
-                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                HardhatErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
 
         it("should revert when deploying a remote interchain token with the same salt value", async () => {
-            await assertRevert(
+            await expectRevert(
                 sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
                     value: gasValue,
                     gasLimit: gasLimit,
                 }),
-                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                HardhatErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
 
@@ -199,9 +200,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const transferAmount = ethers.parseUnits("0", 18);
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await assertRevert(
+                await expectRevert(
                     sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
-                    AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                    HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
 
@@ -233,9 +234,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const transferAmount = ethers.parseUnits("0", 18);
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await assertRevert(
+                await expectRevert(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
-                    AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                    HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
         });
@@ -304,7 +305,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         });
 
         it("should revert when deploying an interchain token with the same salt value", async () => {
-            await assertRevert(
+            await expectRevert(
                 destinationInterchainTokenFactory.deployInterchainToken(
                     saltDestination,
                     "TestToken",
@@ -313,17 +314,17 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                     ethers.parseUnits("1000", 18),
                     destinationWallet.address,
                 ),
-                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                HardhatErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
 
         it("should revert when deploying a remote interchain token with the same salt value", async () => {
-            await assertRevert(
+            await expectRevert(
                 destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
                     value: gasValue,
                     gasLimit: gasLimit,
                 }),
-                AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                HardhatErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
 
@@ -368,9 +369,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const transferAmount = ethers.parseUnits("0", 18);
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await assertRevert(
+                await expectRevert(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
-                    AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                    HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
 
@@ -402,9 +403,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 const transferAmount = ethers.parseUnits("0", 18);
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await assertRevert(
+                await expectRevert(
                     sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
-                    AssertionErrors.UNKNOWN_CUSTOM_ERROR,
+                    HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                 );
             });
         });

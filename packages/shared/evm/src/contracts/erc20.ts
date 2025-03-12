@@ -10,14 +10,10 @@ export const erc20Abi = [
     "function allowance(address owner, address spender) external view returns (uint256)",
 
     "event Transfer(address indexed from, address indexed to, uint256 value)",
-    "event Mint(address indexed account, uint256 value)",
-    "event Burn(address indexed account, uint256 value)",
 ];
 
 export type IERC20Filters = {
     Transfer(from?: string | null, to?: string | null, value?: ethers.BigNumberish | null): ethers.EventFilter;
-    Mint(account?: string | null, value?: ethers.BigNumberish | null): ethers.EventFilter;
-    Burn(account?: string | null, value?: ethers.BigNumberish | null): ethers.EventFilter;
 };
 
 export interface IERC20 extends ContractWithFilters<IERC20Filters> {
