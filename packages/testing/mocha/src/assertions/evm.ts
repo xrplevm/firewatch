@@ -11,7 +11,8 @@ type TxPromise = Promise<Unconfirmed<Transaction>> | Promise<ethers.ContractTran
  */
 export async function assertRevert(tx: TxPromise, expectedError: string): Promise<void> {
     try {
-        await tx;
+        const txResponse = await tx;
+        await txResponse.wait();
         throw new Error(`Expected transaction to revert with '${expectedError}', but it did not.`);
     } catch (error: unknown) {
         const errMsg = error instanceof Error ? error.message : String(error);

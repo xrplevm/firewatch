@@ -62,7 +62,7 @@
         },
         "interchainTransferOptions": {
             "amount": "1.33",
-            "gasValue": "0.05",
+            "gasValue": "0.01",
             "maxRetries": 50,
             "retryDelay": 10000,
             "timeout": 500000
