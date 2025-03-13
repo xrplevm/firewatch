@@ -26,10 +26,21 @@
             "function transferOwnership(address newOwner) external",
             "function owner() external view returns (address)",
             "event Transfer(address indexed from, address indexed to, uint256 value)",
-            "event Approval(address indexed owner, address indexed spender, uint256 value)"
+            "event Approval(address indexed owner, address indexed spender, uint256 value)",
+            "function name() external view returns (string memory)",
+            "function symbol() external view returns (string memory)",
+            "function decimals() external view returns (uint8)",
+            "function totalSupply() external view returns (uint256)"
         ],
         "contractAddress": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
         "amount": "1",
         "feeFund": "10000000"
+    },
+    "erc20factory": {
+        "abi": [
+            "function create(uint8 tokenPairType, bytes32 salt, string memory name, string memory symbol, uint8 decimals) external returns (address)",
+            "function calculateAddress(uint8 tokenPairType, bytes32 salt) external view returns (address)"
+        ],
+        "precompileAddress": "0x0000000000000000000000000000000000000900"
     }
 }
