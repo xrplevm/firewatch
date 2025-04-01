@@ -24,13 +24,14 @@ export function loadModuleConfig(moduleDir: string = process.cwd()): any {
         throw new Error(ConfigError.EnvNotSet);
     }
 
-    const configFilePath = path.join(moduleDir, `${env}.config.json`);
+    const configFilePath = path.join(moduleDir, "config", `${env}.config.json`);
     if (!fs.existsSync(configFilePath)) {
         throw new Error(ConfigError.ConfigFileNotFound);
     }
 
     try {
         const configData = fs.readFileSync(configFilePath, "utf8");
+
         return JSON.parse(configData);
     } catch (error) {
         throw new Error(ConfigError.ConfigParseError);
