@@ -1,0 +1,19 @@
+{
+    "hardhat": {
+        "defaultNetwork": "xrplevm_<chian>",
+        "networks": {
+            "xrplevm_devnet": {
+                "url": "https://rpc.dev.xrplevm.org",
+                "accounts": []
+            }
+        }
+    },
+    "contracts": {
+        "erc20": {
+            "abi": [],
+            "contractAddress": "",
+            "amount": "1",
+            "feeFund": "10000000"
+        }
+    }
+}

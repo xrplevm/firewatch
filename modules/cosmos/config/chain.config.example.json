@@ -1,7 +1,7 @@
 {
     "cosmos": {
         "chainId": "<chain-id>",
-        "env": "mainnet",
+        "env": "<devnet/testnet...>",
         "type": "cosmos",
         "denom": "<staking-bond-denom>",
         "rpcUrl": "<cosmos-rpc-url>",

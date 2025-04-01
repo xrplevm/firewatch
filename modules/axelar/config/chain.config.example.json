@@ -7,7 +7,7 @@
             "id": "<chain-id>",
             "name": "<chain-name>",
             "chainId": 0,
-            "env": "mainnet",
+            "env": "<mainnet/testnet...>",
             "type": "<chain-type>",
             "symbol": "<native-symbol>",
             "nativeToken": {
