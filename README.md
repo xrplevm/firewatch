@@ -1,6 +1,18 @@
 # E2E test suite
 
-This project aims to create an e2e test suite for the XRPL EVM Sidechain across all its environments.
+This project aims to create an end-to-end (e2e) test suite for the XRPL EVM Sidechain across all its environments. It verifies not only the sidechain’s functionality but also its communication with other modules such as Axelar and Cosmos.
+
+---
+
+## Configuration Files and Environment Setup
+
+Each module will have its own `.env` file and a configuration file following the `<chain-env>.config.json` naming convention (e.g., `testnet.config.example.json`, `mainnet.config.example.json`).
+
+- **.env File:**  
+  Stores environment variables such as API keys, secrets, and the current environment indicator (e.g., `ENV=devnet`).
+
+- **Configuration Files:**  
+  Contain chain-specific, static settings for tests and deployment. The application loads the appropriate config file based on the `ENV` value from the `.env` file (e.g., if `ENV=devnet`, it loads `devnet.config.json`).
 
 ---
 
