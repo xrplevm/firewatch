@@ -16,7 +16,7 @@ Each module will have its own `.env` file and a configuration file following the
 
 ---
 
-## Devnet and Testnet
+## Devnet and Testnet Testsuite
 
 The following checklist outlines the core tests that should be performed across both Devnet and Testnet environments. It covers Cosmos, Axelar, and EVM components to ensure interoperability, token behavior, and validator setup are consistent and reliable across deployments.
 
