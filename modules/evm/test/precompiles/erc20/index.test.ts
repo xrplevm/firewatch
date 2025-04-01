@@ -5,7 +5,7 @@ import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx, getEventArgs } from "@testing/hardhat/utils";
-import moduleConfig from "../../../module.config.example.json";
+import { loadModuleConfig } from "@shared/modules/config";
 
 /**
  * Test Context:
@@ -30,7 +30,9 @@ describe("ERC20", () => {
 
     let tokenAmount: bigint;
 
-    const { erc20 } = moduleConfig;
+    const config = loadModuleConfig();
+
+    const { erc20 } = config.contracts;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership tests.

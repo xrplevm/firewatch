@@ -137,6 +137,9 @@ importers:
       '@shared/evm':
         specifier: workspace:*
         version: link:../../packages/shared/evm
+      '@shared/modules':
+        specifier: workspace:*
+        version: link:../../packages/shared/modules
       '@shared/tsconfig':
         specifier: workspace:*
         version: link:../../packages/shared/tsconfig
