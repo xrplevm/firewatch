@@ -1,0 +1,38 @@
+{
+    "cosmos": {
+        "chainId": "<chain-id>",
+        "env": "devnet",
+        "type": "cosmos",
+        "denom": "<staking-bond-denom>",
+        "rpcUrl": "<cosmos-rpc-url>",
+        "restUrl": "<cosmos-rest-api-url>",
+        "faucetUrl": "<optional-faucet-url>",
+        "validators": [
+            {
+                "moniker": "<validator-name>",
+                "address": "<valoper-address>",
+                "selfDelegation": "<amount>",
+                "stakeDenom": "<denom>"
+            }
+        ],
+        "accounts": [
+            {
+                "name": "<key-name>",
+                "address": "<cosmos-address>",
+                "mnemonic": "<mnemonic-or-private-key>"
+            }
+        ],
+        "erc20Bridge": {
+            "moduleAddress": "<erc20-module-address>",
+            "params": {
+                "mintEnabled": true,
+                "burnEnabled": true
+            }
+        },
+        "slashingParams": {
+            "signedBlocksWindow": 100,
+            "minSignedPerWindow": "0.05",
+            "downtimeJailDuration": "600s"
+        }
+    }
+}
