@@ -2,7 +2,7 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import { loadModuleConfig } from "@shared/modules/config";
+import config from "../../../config/devnet.config.example.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
@@ -17,7 +17,6 @@ import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
 
 describe("Cross-Chain Native Transfer", () => {
-    const config = loadModuleConfig();
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;
@@ -70,7 +69,7 @@ describe("Cross-Chain Native Transfer", () => {
             const tx = await evmChainSigner.transfer(
                 amount,
                 sourceChain.nativeToken as Token,
-                sourceChain.interchainTokenServiceAddress,
+                sourceChain.contractAddresses.interchainTokenServiceAddress,
                 destinationChain.name,
                 evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
             );
@@ -105,7 +104,7 @@ describe("Cross-Chain Native Transfer", () => {
                 evmChainSigner.transfer(
                     "0",
                     sourceChain.nativeToken as Token,
-                    sourceChain.interchainTokenServiceAddress,
+                    sourceChain.contractAddresses.interchainTokenServiceAddress,
                     destinationChain.name,
                     evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
                 ),
@@ -130,7 +129,7 @@ describe("Cross-Chain Native Transfer", () => {
             const tx = await xrplChainSigner.transfer(
                 amount,
                 new Token({} as any),
-                destinationChain.interchainTokenServiceAddress,
+                destinationChain.contractAddresses.interchainTokenServiceAddress,
                 sourceChain.name,
                 xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
             );
@@ -161,7 +160,7 @@ describe("Cross-Chain Native Transfer", () => {
                 xrplChainSigner.transfer(
                     "0",
                     new Token({} as any),
-                    destinationChain.interchainTokenServiceAddress,
+                    destinationChain.contractAddresses.interchainTokenServiceAddress,
                     sourceChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
                 ),

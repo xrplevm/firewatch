@@ -22,7 +22,6 @@
         "@testing/mocha": "workspace:*",
         "@testing/hardhat": "workspace:*",
         "@firewatch/core": "workspace:*",
-        "@shared/modules": "workspace:*",
         "@types/chai": "^5.0.1"
     }
 }

@@ -1,5 +1,5 @@
 import { ethers, Contract } from "ethers";
-import { loadModuleConfig } from "@shared/modules/config";
+import config from "../../../config/devnet.config.example.json";
 import { PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";
@@ -11,8 +11,6 @@ import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
-    const config = loadModuleConfig();
-
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
@@ -42,14 +40,13 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         const {
             urls: sourceUrls,
             account: sourceAccount,
-            interchainTokenFactory: sourceFactoryAddress,
-            interchainTokenServiceAddress: sourceTokenServiceAddress,
+            contractAddresses: { interchainTokenFactory: sourceFactoryAddress, interchainTokenServiceAddress: sourceTokenServiceAddress },
         } = sourceChain;
+
         const {
             urls: destUrls,
             account: destAccount,
-            interchainTokenServiceAddress: destTokenServiceAddress,
-            interchainTokenFactory: destFactoryAddress,
+            contractAddresses: { interchainTokenFactory: destFactoryAddress, interchainTokenServiceAddress: destTokenServiceAddress },
         } = destinationChain;
 
         sourceJsonProvider = new ethers.JsonRpcProvider(sourceUrls.rpc);
@@ -65,10 +62,10 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         destinationInterchainTokenService = new InterchainTokenService(destTokenServiceAddress, destinationWallet);
 
         nonce = Date.now();
-        saltSource = `${sourceChain.saltTokenFactory}_${nonce}`;
+        saltSource = `${sourceChain.metadata.saltTokenFactory}_${nonce}`;
         saltSource = ethers.id(saltSource);
 
-        saltDestination = `${destinationChain.saltTokenFactory}_${nonce}`;
+        saltDestination = `${destinationChain.metadata.saltTokenFactory}_${nonce}`;
         saltDestination = ethers.id(saltDestination);
 
         gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");

@@ -15,7 +15,6 @@
         "./blockchain": "./src/blockchain/index.ts",
         "./chain": "./src/chain/index.ts",
         "./health": "./src/health/index.ts",
-        "./config": "./src/config/index.ts",
         "./network": "./src/network/index.ts"
     },
     "devDependencies": {
@@ -24,8 +23,5 @@
         "@shared/tsup": "workspace:*",
         "@types/node": "^22.13.16",
         "typescript": "latest"
-    },
-    "dependencies": {
-        "dotenv": "^16.4.7"
     }
 }

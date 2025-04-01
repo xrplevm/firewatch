@@ -1,8 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import { loadModuleConfig } from "@shared/modules/config";
-
-const moduleConfig = loadModuleConfig();
+import moduleConfig from "./config/local.config.example.json";
 
 const config: HardhatUserConfig = {
     ...moduleConfig.hardhat,

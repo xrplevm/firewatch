@@ -5,7 +5,7 @@ import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx, getEventArgs } from "@testing/hardhat/utils";
-import { loadModuleConfig } from "@shared/modules/config";
+import config from "../../../config/local.config.example.json";
 
 /**
  * Test Context:
@@ -29,8 +29,6 @@ describe("ERC20", () => {
     let userSigner: HardhatEthersSigner;
 
     let tokenAmount: bigint;
-
-    const config = loadModuleConfig();
 
     const { erc20 } = config.contracts;
 
