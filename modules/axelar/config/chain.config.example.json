@@ -48,6 +48,10 @@
             "contractAddresses": {
                 "<contract-name>": "<contract-address>"
             },
+            "metadata": {
+                "tokenId": "<token-id>",
+                "saltTokenFactory": "<salt-string>"
+            },
             "urls": {
                 "rpc": "<rpc-url>",
                 "ws": "<ws-url>"
