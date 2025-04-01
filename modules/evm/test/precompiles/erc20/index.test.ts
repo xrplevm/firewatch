@@ -4,8 +4,9 @@ import { resetOwnerState, expectTransferEvent } from "./utils/helpers";
 import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { expectRevert, executeTx, getEventArgs } from "@testing/hardhat/utils";
+import { expectRevert, executeTx } from "@testing/hardhat/utils";
 import moduleConfig from "../../../module.config.example.json";
+import { getEventArgs } from "@shared/evm/utils";
 
 /**
  * Test Context:
@@ -52,6 +53,29 @@ describe("ERC20", () => {
     // Ensures that each test starts with a clean slate for the owner.
     afterEach(async () => {
         await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
+    });
+
+    describe("get functions", () => {
+        it("should return the correct owner", async () => {
+            const currentOwner = await ownerContract.owner();
+            expect(currentOwner).to.equal(ownerSigner.address);
+        });
+
+        it("should return the correct total supply", async () => {
+            const totalSupply = await ownerContract.totalSupply();
+            expect(totalSupply).to.equal(1000000000000000000000000002n);
+        });
+
+        it("should check that allowance is 0 ", async () => {
+            await executeTx(ownerContract.approve(userSigner.address, 0n));
+            const allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(allowance).to.equal(0n);
+        });
+
+        it("should get owner's balance", async () => {
+            const ownerBalance = await userContract.balanceOf(ownerSigner.address);
+            expect(ownerBalance).to.equal(erc20.feeFund);
+        });
     });
 
     describe("mint coins", () => {
@@ -185,6 +209,42 @@ describe("ERC20", () => {
 
         it("should revert when attempting to transfer 0 tokens", async () => {
             await expectRevert(ownerContract.transfer(userSigner.address, 0n), ERC20Errors.ZERO_TOKEN_AMOUNT_NOT_POSITIVE);
+        });
+    });
+
+    describe("transferFrom", () => {
+        it("should successfully transfer tokens using transferFrom", async () => {
+            await executeTx(ownerContract.approve(userSigner.address, tokenAmount));
+            const ownerBeforeBalance = await ownerContract.balanceOf(ownerSigner.address);
+            const recipientBeforeBalance = await ownerContract.balanceOf(userSigner.address);
+
+            const { gasCost: transferFromGasFee } = await executeTx(
+                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenAmount),
+            );
+
+            const ownerAfterBalance = await ownerContract.balanceOf(ownerSigner.address);
+            const recipientAfterBalance = await ownerContract.balanceOf(userSigner.address);
+
+            expect(ownerBeforeBalance - tokenAmount).to.equal(ownerAfterBalance);
+            expect(recipientBeforeBalance + tokenAmount - transferFromGasFee).to.equal(recipientAfterBalance);
+        });
+
+        it("should revert if allowance is insufficient", async () => {
+            // Approve an amount smaller than tokenAmount.
+            const approvedAmount = tokenAmount - 1n;
+            await executeTx(ownerContract.approve(userSigner.address, approvedAmount));
+            await expectRevert(
+                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenAmount),
+                ERC20Errors.INSUFFICIENT_ALLOWANCE,
+            );
+        });
+
+        it("should revert when attempting to transfer 0 tokens", async () => {
+            await executeTx(ownerContract.approve(userSigner.address, tokenAmount));
+            await expectRevert(
+                userContract.transferFrom(ownerSigner.address, userSigner.address, 0n),
+                ERC20Errors.ZERO_TOKEN_AMOUNT_NOT_POSITIVE,
+            );
         });
     });
 
