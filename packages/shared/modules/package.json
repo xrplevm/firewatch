@@ -21,7 +21,6 @@
         "@shared/eslint": "workspace:*",
         "@shared/tsconfig": "workspace:*",
         "@shared/tsup": "workspace:*",
-        "@types/node": "^22.13.16",
         "typescript": "latest"
     }
 }
