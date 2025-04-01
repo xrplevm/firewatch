@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import moduleConfig from "./module.config.example.json";
+import { loadModuleConfig } from "@shared/modules/config";
+
+const moduleConfig = loadModuleConfig();
 
 // TODO: Refactor to use @firewatch/core config.
 // This is only temporary to get the project running.

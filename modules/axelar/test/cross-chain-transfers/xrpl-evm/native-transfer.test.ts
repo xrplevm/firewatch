@@ -2,7 +2,7 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import config from "../../../module.config.example.json";
+import { loadModuleConfig } from "@shared/modules/config";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
@@ -17,6 +17,7 @@ import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
 
 describe("Cross-Chain Native Transfer", () => {
+    const config = loadModuleConfig();
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;

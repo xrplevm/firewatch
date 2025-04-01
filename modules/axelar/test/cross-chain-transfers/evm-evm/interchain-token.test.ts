@@ -1,5 +1,5 @@
 import { ethers, Contract } from "ethers";
-import config from "../../../module.config.example.json";
+import { loadModuleConfig } from "@shared/modules/config";
 import { PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";
@@ -11,6 +11,8 @@ import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
+    const config = loadModuleConfig();
+
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
