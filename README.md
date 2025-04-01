@@ -9,10 +9,10 @@ This project aims to create an end-to-end (e2e) test suite for the XRPL EVM Side
 Each module will have its own `.env` file and a configuration file following the `<chain-env>.config.json` naming convention (e.g., `testnet.config.example.json`, `mainnet.config.example.json`).
 
 - **.env File:**  
-  Stores environment variables such as API keys, secrets, and the current environment indicator (e.g., `ENV=devnet`).
+  Stores environment variables such as API keys, secrets, and the current environment indicator (e.g., `NETWORK=devnet`).
 
 - **Configuration Files:**  
-  Contain chain-specific, static settings for tests and deployment. The application loads the appropriate config file based on the `ENV` value from the `.env` file (e.g., if `ENV=devnet`, it loads `devnet.config.json`).
+  Contain chain-specific, static settings for tests and deployment. The application loads the appropriate config file based on the `ENV` value from the `.env` file (e.g., if `NETWORK=devnet`, it loads `devnet.config.json`).
 
 ---
 

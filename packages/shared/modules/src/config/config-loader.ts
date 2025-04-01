@@ -19,7 +19,7 @@ export function loadModuleConfig(moduleDir: string = process.cwd()): any {
         throw new Error(ConfigError.FailedToLoadEnv);
     }
 
-    const env = process.env.ENV;
+    const env = process.env.NETWORK;
     if (!env) {
         throw new Error(ConfigError.EnvNotSet);
     }
