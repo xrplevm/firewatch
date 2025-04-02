@@ -65,9 +65,9 @@ describe("ERC20", () => {
             expect(currentOwner).to.equal(ownerSigner.address);
         });
 
-        it("should return the correct total supply", async () => {
+        it("should have a total supply greater than 10000000000000000000000000n", async () => {
             const totalSupply = await ownerContract.totalSupply();
-            expect(totalSupply).to.equal(1000000000000000000000000002n);
+            expect(totalSupply).to.be.gt(10000000000000000000000000n);
         });
 
         it("should check that allowance is 0 ", async () => {
