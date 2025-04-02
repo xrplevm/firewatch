@@ -12,17 +12,6 @@
             }
         }
     },
-    "chain": {
-        "id": "xrplevm_localnet",
-        "name": "xrplevm_localnet",
-        "chainId": 100,
-        "env": "localnet",
-        "type": "evm",
-        "symbol": "XRP",
-        "nativeToken": {
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-        }
-    },
     "contracts": {
         "erc20": {
             "abi": [
@@ -49,6 +38,17 @@
             "owner": "0x9159C650e1D7E10a17c450eb3D50778aBA593D61",
             "amount": "1",
             "feeFund": "10000000"
+        }
+    },
+    "chain": {
+        "id": "xrplevm_localnet",
+        "name": "xrplevm_localnet",
+        "chainId": 100,
+        "env": "localnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
         }
     }
 }

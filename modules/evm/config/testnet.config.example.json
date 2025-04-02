@@ -5,26 +5,11 @@
         "networks": {
             "xrplevm_testnet": {
                 "url": "https://rpc.testnet.xrplevm.org",
-                "chainId": 1449000,
                 "accounts": [
                     "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9",
                     "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100"
                 ]
             }
-        }
-    },
-    "chain": {
-        "id": "xrpl-evm",
-        "name": "xrpl-evm",
-        "chainId": 100,
-        "env": "testnet",
-        "type": "evm",
-        "symbol": "XRP",
-        "nativeToken": {
-            "symbol": "XRP",
-            "decimals": 18,
-            "name": "XRP",
-            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         }
     },
     "contracts": {
@@ -53,6 +38,20 @@
             "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
             "amount": "1",
             "feeFund": "10000000"
+        }
+    },
+    "chain": {
+        "id": "xrpl-evm",
+        "name": "xrpl-evm",
+        "chainId": 1449000,
+        "env": "testnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         }
     }
 }
