@@ -23,7 +23,7 @@
                 "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
                 "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
                 "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-                "callContractAddress": "0xec4bd13fcc8b9580ebd44f6e6a4bd12ee468414a"
+                "callContractAddress": "0x9e1c3c15175fe67ea967ab0f637f9f99ee372f18"
             },
             "metadata": {
                 "saltTokenFactory": "ITS v2.1.0"
