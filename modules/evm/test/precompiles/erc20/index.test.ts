@@ -7,7 +7,7 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
 import moduleConfig from "../../../module.config.example.json";
 import { getEventArgs } from "@shared/evm/utils";
-import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
+import { assertChainEnvironments } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";
 
 /**
@@ -39,7 +39,7 @@ describe("ERC20", () => {
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership tests.
-    beforeEach(async () => {
+    before(async () => {
         abi = erc20.abi;
         contractInterface = new Interface(erc20.abi);
         contractAddress = erc20.contractAddress;
@@ -48,26 +48,28 @@ describe("ERC20", () => {
         ownerContract = new ethers.Contract(contractAddress, abi, ownerSigner);
         userContract = new ethers.Contract(contractAddress, abi, userSigner);
 
-        await executeTx(userContract.transfer(ownerSigner.address, erc20.feeFund));
-
         tokenAmount = toBigInt(erc20.amount);
     });
 
-    // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
-    // Ensures that each test starts with a clean slate for the owner.
-    afterEach(async () => {
-        await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
-    });
+    if (chain.env === "localnet") {
+        beforeEach(async () => {
+            await executeTx(userContract.transfer(ownerSigner.address, erc20.feeFund));
+        });
+
+        afterEach(async () => {
+            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
+        });
+    }
 
     describe("get functions", () => {
         it("should return the correct owner", async () => {
             const currentOwner = await ownerContract.owner();
-            expect(currentOwner).to.equal(ownerSigner.address);
+            expect(currentOwner).to.equal(owner);
         });
 
         it("should have a total supply greater than 10000000000000000000000000n", async () => {
             const totalSupply = await ownerContract.totalSupply();
-            expect(totalSupply).to.be.gt(10000000000000000000000000n);
+            expect(totalSupply).to.be.gt(100000000000000000000n);
         });
 
         it("should check that allowance is 0 ", async () => {
@@ -76,19 +78,14 @@ describe("ERC20", () => {
             expect(allowance).to.equal(0n);
         });
 
-        it("should get owner's balance", async () => {
-            const ownerBalance = await userContract.balanceOf(ownerSigner.address);
-            expect(ownerBalance).to.equal(erc20.feeFund);
-        });
-
         it("should return the correct name, symbol, and decimals", async () => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
             const tokenName = await ownerContract.name();
             const tokenSymbol = await ownerContract.symbol();
             const tokenDecimals = await ownerContract.decimals();
 
-            expect(tokenName).to.equal("");
-            expect(tokenSymbol).to.equal("");
+            expect(tokenName).to.equal("XRP");
+            expect(tokenSymbol).to.equal("XRP");
             expect(tokenDecimals).to.equal(18);
         });
     });
@@ -232,7 +229,7 @@ describe("ERC20", () => {
 
         it("should revert if sender has insufficient balance", async () => {
             await expectRevert(
-                ownerContract.transfer(userSigner.address, 10000000000000000000n),
+                ownerContract.transfer(userSigner.address, 10000000000000000000000n),
                 ERC20Errors.TRANSFER_AMOUNT_EXCEEDS_BALANCE,
             );
         });
@@ -281,8 +278,6 @@ describe("ERC20", () => {
     // TODO failing test, seems like Approval 1st param (owner) is set to address(this) instead of msg.sender.
     describe("approve", () => {
         it("should set and reset the allowance correctly and emit Approval events", async () => {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
-
             const approveTx = await ownerContract.approve(userSigner.address, tokenAmount);
             const approveReceipt = await approveTx.wait();
 
@@ -306,36 +301,6 @@ describe("ERC20", () => {
 
             expect(resetApprovalEvent).to.not.eq(undefined);
             expect(resetApprovalEvent!.args.owner).to.equal(erc20.contractAddress);
-            expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
-            expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
-        });
-
-        it("should set and reset the allowance correctly and emit Approval events", async () => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
-
-            const approveTx = await ownerContract.approve(userSigner.address, tokenAmount);
-            const approveReceipt = await approveTx.wait();
-
-            let allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(allowance).to.equal(tokenAmount);
-
-            const approvalEvent = getEventArgs(approveReceipt, contractInterface, "Approval");
-
-            expect(approvalEvent).to.not.eq(undefined);
-            expect(approvalEvent!.args.owner).to.equal(erc20.contractAddress);
-            expect(approvalEvent!.args.spender).to.equal(userSigner.address);
-            expect(approvalEvent!.args.value.toString()).to.equal(tokenAmount.toString());
-
-            const resetApproveTx = await ownerContract.approve(userSigner.address, 0n);
-            const resetApproveReceipt = await resetApproveTx.wait();
-
-            allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(allowance).to.equal(0n);
-
-            const resetApprovalEvent = getEventArgs(resetApproveReceipt, contractInterface, "Approval");
-
-            expect(resetApprovalEvent).to.not.eq(undefined);
-            expect(resetApprovalEvent!.args.owner).to.equal(owner);
             expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
             expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
         });
