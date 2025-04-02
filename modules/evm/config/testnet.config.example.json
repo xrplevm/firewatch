@@ -3,8 +3,9 @@
         "defaultNetwork": "xrpl-evm",
         "solidity": "0.8.20",
         "networks": {
-            "xrplevm_localnet": {
+            "xrplevm_testnet": {
                 "url": "https://rpc.testnet.xrplevm.org",
+                "chainId": 1449000,
                 "accounts": [
                     "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9",
                     "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100"
