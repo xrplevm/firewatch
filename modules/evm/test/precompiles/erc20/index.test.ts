@@ -31,7 +31,7 @@ describe("ERC20", () => {
 
     let tokenAmount: bigint;
 
-    const { erc20 } = moduleConfig;
+    const { erc20 } = moduleConfig.contracts;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership tests.
@@ -52,7 +52,7 @@ describe("ERC20", () => {
     // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
     // Ensures that each test starts with a clean slate for the owner.
     afterEach(async () => {
-        await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
+        // await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
     });
 
     describe("get functions", () => {
@@ -75,6 +75,15 @@ describe("ERC20", () => {
         it("should get owner's balance", async () => {
             const ownerBalance = await userContract.balanceOf(ownerSigner.address);
             expect(ownerBalance).to.equal(erc20.feeFund);
+        });
+        it("should return the correct name, symbol, and decimals", async () => {
+            const tokenName = await ownerContract.name();
+            const tokenSymbol = await ownerContract.symbol();
+            const tokenDecimals = await ownerContract.decimals();
+
+            expect(tokenName).to.equal("XRP");
+            expect(tokenSymbol).to.equal("XRP");
+            expect(tokenDecimals).to.equal(18);
         });
     });
 
