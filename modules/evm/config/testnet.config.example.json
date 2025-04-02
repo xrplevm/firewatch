@@ -13,10 +13,25 @@
             }
         }
     },
+    "chain": {
+        "id": "xrpl-evm",
+        "name": "xrpl-evm",
+        "chainId": 100,
+        "env": "testnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        }
+    },
     "contracts": {
         "erc20": {
             "abi": [
                 "function transfer(address to, uint256 amount) external",
+                "function transferFrom(address from, address to, uint256 amount) external returns (bool)",
                 "function mint(address to, uint256 amount) external",
                 "function approve(address spender, uint256 amount) external returns (bool)",
                 "function balanceOf(address account) external view returns (uint256)",
