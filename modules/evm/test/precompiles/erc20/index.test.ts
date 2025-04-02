@@ -7,6 +7,8 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
 import moduleConfig from "../../../module.config.example.json";
 import { getEventArgs } from "@shared/evm/utils";
+import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
+import { Chain } from "@firewatch/core/chain";
 
 /**
  * Test Context:
@@ -32,7 +34,7 @@ describe("ERC20", () => {
     let tokenAmount: bigint;
 
     const { erc20 } = moduleConfig.contracts;
-    const { defaultNetwork } = moduleConfig.hardhat;
+    const chain = moduleConfig.chain;
     const { owner } = moduleConfig.contracts.erc20;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
@@ -60,7 +62,7 @@ describe("ERC20", () => {
     describe("get functions", () => {
         it("should return the correct owner", async () => {
             const currentOwner = await ownerContract.owner();
-            expect(currentOwner).to.equal(owner);
+            expect(currentOwner).to.equal(ownerSigner.address);
         });
 
         it("should return the correct total supply", async () => {
@@ -79,7 +81,8 @@ describe("ERC20", () => {
             expect(ownerBalance).to.equal(erc20.feeFund);
         });
 
-        (defaultNetwork === "xrplevm_localnet" ? it.skip : it)("should return the correct name, symbol, and decimals", async () => {
+        it("should return the correct name, symbol, and decimals", async () => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
             const tokenName = await ownerContract.name();
             const tokenSymbol = await ownerContract.symbol();
             const tokenDecimals = await ownerContract.decimals();
@@ -90,7 +93,10 @@ describe("ERC20", () => {
         });
     });
 
-    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("mint coins", () => {
+    describe("mint coins", () => {
+        before(function () {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+        });
         it("should mint tokens to the user", async () => {
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
@@ -111,7 +117,10 @@ describe("ERC20", () => {
         });
     });
 
-    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burn coins", () => {
+    describe("burn coins", () => {
+        before(function () {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+        });
         it("should burn specified amount", async () => {
             const beforeBalance = await ownerContract.balanceOf(ownerSigner.address);
 
@@ -133,7 +142,10 @@ describe("ERC20", () => {
         });
     });
 
-    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burn (owner-only burn)", () => {
+    describe("burn (owner-only burn)", () => {
+        before(function () {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+        });
         it("should revert if sender is not owner", async () => {
             await expectRevert(userContract["burn(address,uint256)"](ownerSigner.address, tokenAmount), ERC20Errors.SENDER_IS_NOT_OWNER);
         });
@@ -149,7 +161,10 @@ describe("ERC20", () => {
         });
     });
 
-    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burnFrom", () => {
+    describe("burnFrom", () => {
+        before(function () {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+        });
         it("should revert if spender does not have allowance", async () => {
             await executeTx(ownerContract.mint(userSigner.address, tokenAmount));
 
@@ -174,7 +189,10 @@ describe("ERC20", () => {
         });
     });
 
-    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("transferOwnership", () => {
+    describe("transferOwnership", () => {
+        before(function () {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+        });
         it("should revert if sender is not the owner", async () => {
             await expectRevert(userContract.transferOwnership(ownerSigner.address), ERC20Errors.SENDER_IS_NOT_OWNER);
         });
@@ -263,6 +281,8 @@ describe("ERC20", () => {
     // TODO failing test, seems like Approval 1st param (owner) is set to address(this) instead of msg.sender.
     describe("approve", () => {
         it("should set and reset the allowance correctly and emit Approval events", async () => {
+            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+
             const approveTx = await ownerContract.approve(userSigner.address, tokenAmount);
             const approveReceipt = await approveTx.wait();
 
@@ -286,6 +306,36 @@ describe("ERC20", () => {
 
             expect(resetApprovalEvent).to.not.eq(undefined);
             expect(resetApprovalEvent!.args.owner).to.equal(erc20.contractAddress);
+            expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
+            expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
+        });
+
+        it("should set and reset the allowance correctly and emit Approval events", async () => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
+
+            const approveTx = await ownerContract.approve(userSigner.address, tokenAmount);
+            const approveReceipt = await approveTx.wait();
+
+            let allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(allowance).to.equal(tokenAmount);
+
+            const approvalEvent = getEventArgs(approveReceipt, contractInterface, "Approval");
+
+            expect(approvalEvent).to.not.eq(undefined);
+            expect(approvalEvent!.args.owner).to.equal(erc20.contractAddress);
+            expect(approvalEvent!.args.spender).to.equal(userSigner.address);
+            expect(approvalEvent!.args.value.toString()).to.equal(tokenAmount.toString());
+
+            const resetApproveTx = await ownerContract.approve(userSigner.address, 0n);
+            const resetApproveReceipt = await resetApproveTx.wait();
+
+            allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+            expect(allowance).to.equal(0n);
+
+            const resetApprovalEvent = getEventArgs(resetApproveReceipt, contractInterface, "Approval");
+
+            expect(resetApprovalEvent).to.not.eq(undefined);
+            expect(resetApprovalEvent!.args.owner).to.equal(owner);
             expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
             expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
         });

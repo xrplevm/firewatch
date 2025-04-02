@@ -12,10 +12,26 @@
             }
         }
     },
+    "chain": {
+        "id": "xrplevm_localnet",
+        "name": "xrplevm_localnet",
+        "chainId": 100,
+        "env": "localnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "id": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+        }
+    },
     "contracts": {
         "erc20": {
             "abi": [
                 "function transfer(address to, uint256 amount) external",
+                "function transferFrom(address from, address to, uint256 amount) external returns (bool)",
                 "function mint(address to, uint256 amount) external",
                 "function approve(address spender, uint256 amount) external returns (bool)",
                 "function balanceOf(address account) external view returns (uint256)",
