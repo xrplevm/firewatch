@@ -35,6 +35,7 @@
                 "event Approval(address indexed owner, address indexed spender, uint256 value)"
             ],
             "contractAddress": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
+            "owner": "0x324Be08EF8154963DC9641Eb23239bC981394064",
             "amount": "1",
             "feeFund": "10000000"
         }
