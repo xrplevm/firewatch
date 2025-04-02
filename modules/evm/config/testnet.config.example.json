@@ -1,6 +1,6 @@
 {
     "hardhat": {
-        "defaultNetwork": "xrpl-evm",
+        "defaultNetwork": "xrplevm_testnet",
         "solidity": "0.8.20",
         "networks": {
             "xrplevm_testnet": {
@@ -27,6 +27,10 @@
                 "function burnFrom(address account, uint256 amount) external",
                 "function transferOwnership(address newOwner) external",
                 "function owner() external view returns (address)",
+                "function totalSupply() external view returns (uint256)",
+                "function name() external view returns (string)",
+                "function symbol() external view returns (string)",
+                "function decimals() external view returns (uint8)",
                 "event Transfer(address indexed from, address indexed to, uint256 value)",
                 "event Approval(address indexed owner, address indexed spender, uint256 value)"
             ],
