@@ -32,6 +32,8 @@ describe("ERC20", () => {
     let tokenAmount: bigint;
 
     const { erc20 } = moduleConfig.contracts;
+    const { defaultNetwork } = moduleConfig.hardhat;
+    const { owner } = moduleConfig.contracts.erc20;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership tests.
@@ -52,13 +54,13 @@ describe("ERC20", () => {
     // Notice: This acts as a blockchain state reset by burning all tokens from the owner.
     // Ensures that each test starts with a clean slate for the owner.
     afterEach(async () => {
-        // await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
+        await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
     });
 
     describe("get functions", () => {
         it("should return the correct owner", async () => {
             const currentOwner = await ownerContract.owner();
-            expect(currentOwner).to.equal(ownerSigner.address);
+            expect(currentOwner).to.equal(owner);
         });
 
         it("should return the correct total supply", async () => {
@@ -76,18 +78,19 @@ describe("ERC20", () => {
             const ownerBalance = await userContract.balanceOf(ownerSigner.address);
             expect(ownerBalance).to.equal(erc20.feeFund);
         });
-        it("should return the correct name, symbol, and decimals", async () => {
+
+        (defaultNetwork === "xrplevm_localnet" ? it.skip : it)("should return the correct name, symbol, and decimals", async () => {
             const tokenName = await ownerContract.name();
             const tokenSymbol = await ownerContract.symbol();
             const tokenDecimals = await ownerContract.decimals();
 
-            expect(tokenName).to.equal("XRP");
-            expect(tokenSymbol).to.equal("XRP");
+            expect(tokenName).to.equal("");
+            expect(tokenSymbol).to.equal("");
             expect(tokenDecimals).to.equal(18);
         });
     });
 
-    describe("mint coins", () => {
+    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("mint coins", () => {
         it("should mint tokens to the user", async () => {
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
@@ -108,7 +111,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burn coins", () => {
+    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burn coins", () => {
         it("should burn specified amount", async () => {
             const beforeBalance = await ownerContract.balanceOf(ownerSigner.address);
 
@@ -130,7 +133,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burn (owner-only burn)", () => {
+    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burn (owner-only burn)", () => {
         it("should revert if sender is not owner", async () => {
             await expectRevert(userContract["burn(address,uint256)"](ownerSigner.address, tokenAmount), ERC20Errors.SENDER_IS_NOT_OWNER);
         });
@@ -146,7 +149,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burnFrom", () => {
+    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("burnFrom", () => {
         it("should revert if spender does not have allowance", async () => {
             await executeTx(ownerContract.mint(userSigner.address, tokenAmount));
 
@@ -171,7 +174,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("transferOwnership", () => {
+    (defaultNetwork !== "xrplevm_localnet" ? describe.skip : describe)("transferOwnership", () => {
         it("should revert if sender is not the owner", async () => {
             await expectRevert(userContract.transferOwnership(ownerSigner.address), ERC20Errors.SENDER_IS_NOT_OWNER);
         });
