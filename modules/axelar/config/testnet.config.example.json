@@ -7,7 +7,7 @@
             "id": "xrpl-evm",
             "name": "xrpl-evm",
             "chainId": 1449000,
-            "env": "devnet",
+            "env": "testnet",
             "type": "evm",
             "symbol": "XRP",
             "nativeToken": {
@@ -23,7 +23,7 @@
                 "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
                 "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
                 "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-                "callContractAddress": "0x9e1c3c15175fe67ea967ab0f637f9f99ee372f18"
+                "callContractAddress": "0xbd753c4bec615d7840698a0d2bdd3d62241afdfa"
             },
             "metadata": {
                 "saltTokenFactory": "ITS v2.1.0"
@@ -38,7 +38,7 @@
         "destinationChain": {
             "name": "avalanche-fuji",
             "chainId": 43113,
-            "env": "devnet",
+            "env": "testnet",
             "type": "evm",
             "nativeToken": {
                 "symbol": "XRP",
