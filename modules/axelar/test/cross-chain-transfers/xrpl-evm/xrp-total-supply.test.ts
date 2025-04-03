@@ -33,13 +33,15 @@ describe("Total Supply, Sidechain-EVM native token vs XRPL.gateWay", () => {
         tokenContract = evmChainProvider.getERC20Contract(sourceChain.nativeToken.address);
     });
 
-    describe("from evm chain to xrpl chain", () => {
+    describe("from xrpl-evm (source) chain to xrpl (destination) chain", () => {
         before(() => {
             // In devnet, tokens were minted on Sidechain-EVM, it doesn't make sense to make the test.
             assertChainEnvironments(["testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
+            assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
+            assertChainTypes(["xrp"], destinationChain as unknown as AxelarBridgeChain);
         });
-        it("should have gateway balance >= total native token supply on source chain", async () => {
+        it("should have gateway balance from XRPL >= total native token supply on xrpl-evm", async () => {
             const totalSupplyRaw = await tokenContract.totalSupply();
             const totalSupplyToken = ethers.formatUnits(totalSupplyRaw, 18);
 
