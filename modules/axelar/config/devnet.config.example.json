@@ -44,7 +44,7 @@
             "env": "devnet",
             "type": "xrp",
             "contractAddresses": {
-                "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
+                "axelarAmplifierGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
                 "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC"
             },
             "metadata": {
