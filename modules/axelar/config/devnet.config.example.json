@@ -15,7 +15,7 @@
                 "symbol": "XRP",
                 "decimals": 18,
                 "name": "XRP",
-                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+                "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
             },
             "contractAddresses": {
                 "door": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
@@ -43,8 +43,14 @@
             "chainId": 100,
             "env": "devnet",
             "type": "xrp",
+            "nativeToken": {
+                "symbol": "XRP",
+                "decimals": 18,
+                "name": "XRP",
+                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            },
             "contractAddresses": {
-                "axelarAmplifierGatewayAddress": "0x0000000000000000000000000000000000000000",
+                "axelarAmplifierGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
                 "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC"
             },
             "metadata": {
