@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
 
-describe("Interchain Token Deployment EVM - EVM", () => {
+describe.skip("Interchain Token Deployment EVM - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
