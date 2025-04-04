@@ -33,7 +33,24 @@ export interface IWalletProviderSigner {
      * @param payload The payload.
      * @returns The transaction.
      */
-    callContract(
+    // callContract(
+    //     sourceGatewayAddress: string,
+    //     destinationChainId: string,
+    //     destinationContractAddress: string,
+    //     payload: string,
+    // ): Promise<Unconfirmed<Transaction>>;
+
+    /**
+     * Calls a contract on the destination chain with token payment.
+     * @param amount The amount (as a string) to be used as payment (in token units).
+     * @param token The token being used (must have a `decimals` property).
+     * @param sourceGatewayAddress The source gateway address.
+     * @param destinationChainId The destination chain id.
+     * @param destinationContractAddress The destination contract address.
+     * @param payload The payload.
+     * @returns A promise that resolves to an unconfirmed transaction.
+     */
+    callContractWithToken(
         amount: string,
         token: Token,
         sourceGatewayAddress: string,

@@ -137,7 +137,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
     /**
      * @inheritdoc
      */
-    async callContract(
+    async callContractWithToken(
         amount: string,
         token: Token,
         _sourceGatewayAddress: string,
@@ -155,20 +155,27 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
             const memos = [
                 {
                     Memo: {
-                        MemoType: Buffer.from("destination_address").toString("hex").toLowerCase(),
-                        MemoData: cleanDestinationAddress,
+                        MemoData: Buffer.from("interchain_transfer").toString("hex").toUpperCase(),
+                        MemoType: Buffer.from("type").toString("hex").toUpperCase(),
                     },
                 },
                 {
                     Memo: {
-                        MemoType: Buffer.from("destination_chain").toString("hex").toLowerCase(),
-                        MemoData: destinationChainHex,
+                        MemoData: Buffer.from(cleanDestinationAddress).toString("hex").toUpperCase(),
+                        MemoType: Buffer.from("destination_address").toString("hex").toUpperCase(),
                     },
                 },
                 {
                     Memo: {
-                        MemoType: Buffer.from("gas_fee_amount").toString("hex").toLowerCase(),
-                        MemoData: "00",
+                        // Here we assume the testnet bridge chain is "xrpl-evm-testnet"
+                        MemoData: Buffer.from(_destinationChainId).toString("hex").toUpperCase(),
+                        MemoType: Buffer.from("destination_chain").toString("hex").toUpperCase(),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoData: Buffer.from("1000000").toString("hex").toUpperCase(),
+                        MemoType: Buffer.from("gas_fee_amount").toString("hex").toUpperCase(),
                     },
                 },
                 {

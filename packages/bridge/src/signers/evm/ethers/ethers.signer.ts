@@ -107,7 +107,36 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
         const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload);
+        console.log({ contractTx });
+        return this.transactionParser.parseTransactionResponse(contractTx as unknown as ethers.TransactionResponse);
+    }
 
-        return this.transactionParser.parseTransactionResponse(contractTx);
+    async callContractWithToken(
+        amount: string,
+        token: Token,
+        sourceGatewayAddress: string,
+        destinationChainId: string,
+        destinationContractAddress: string,
+        payload: string,
+    ): Promise<Unconfirmed<Transaction>> {
+        // Get the Axelar Amplifier Gateway contract instance.
+        const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
+
+        // Convert the amount from token units to the smallest unit using token.decimals.
+        // Ensure that your Token type has a decimals property.
+        const value = ethers.parseUnits(amount, token.decimals);
+
+        // Call the contract's callContract method.
+        // We assume the gateway contract's callContract method accepts an optional overrides parameter for value.
+        const contractTx = await axelarAmplifierGateway.callContractWithToken(
+            destinationChainId,
+            destinationContractAddress,
+            payload,
+            token.symbol,
+            value,
+        );
+
+        // Parse and return the transaction.
+        return this.transactionParser.parseTransactionResponse(contractTx as unknown as ethers.TransactionResponse);
     }
 }

@@ -41,7 +41,7 @@ describe("CallContract XRP - EVM", () => {
         assertChainTypes(["xrp"], sourceChain as unknown as AxelarBridgeChain);
         assertChainTypes(["evm"], destinationChain as unknown as AxelarBridgeChain);
 
-        const { urls: destUrls, callContractAddress: destCallContractAddress } = destinationChain;
+        const { urls: destUrls, callContractWithTokenAddress: destCallContractAddress } = destinationChain;
 
         xrplClient = new Client(sourceChain.urls.ws);
         evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
@@ -51,8 +51,10 @@ describe("CallContract XRP - EVM", () => {
 
         xrplChainWallet = Wallet.fromSeed(sourceChain.account.privateKey);
         evmChainWallet = new ethers.Wallet(destinationChain.account.privateKey, evmJsonProvider);
+        console.log({ evmChainWallet });
 
         evmChainSigner = new EthersSigner(evmChainWallet, evmChainProvider);
+        console.log(await evmChainSigner.getAddress());
         xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
         evmChainTranslator = new EvmTranslator();
@@ -76,12 +78,13 @@ describe("CallContract XRP - EVM", () => {
             const msgText = `Hello from the source chain! ${Date.now()}`;
             const abiCoder = new AbiCoder();
             const payload = abiCoder.encode(["string"], [msgText]);
-            const tx = await xrplChainSigner.callContract(
+            console.log({ xrplChainWallet });
+            const tx = await xrplChainSigner.callContractWithToken(
                 "0.00001",
                 new Token({} as any),
                 sourceChain.interchainTokenServiceAddress,
                 destinationChain.name,
-                xrplChainTranslator.translate(ChainType.EVM, destinationChain.callContractAddress),
+                xrplChainTranslator.translate(ChainType.EVM, destinationChain.callContractWithTokenAddress),
                 payload,
             );
             const confirmedTx = await tx.wait();

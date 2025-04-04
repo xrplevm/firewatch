@@ -3,6 +3,7 @@ import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ethers, AbiCoder, Contract } from "ethers";
 import { CallContract, AxelarAmplifierGateway } from "@shared/evm/contracts";
 import { getContractDecodedEvents } from "@shared/evm/utils";
+import { Token } from "@firewatch/core/token";
 
 /**
  * Sends a message via callContract and then polls the destination contract’s state until it equals the sent message.
