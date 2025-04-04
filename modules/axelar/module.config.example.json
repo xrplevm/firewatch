@@ -40,7 +40,7 @@
             "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
             "callContractAddress": "0xbd753c4bec615d7840698a0d2bdd3d62241afdfa",
             "urls": {
-                "rpc": "https://rpc.xrplevm.org"
+                "rpc": "https://rpc.testnet.xrplevm.org"
             },
             "account": {
                 "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
