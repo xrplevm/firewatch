@@ -61,31 +61,48 @@ describe("ERC20", () => {
         });
     }
 
-    describe("get functions", () => {
+    describe("owner", () => {
         it("should return the correct owner", async () => {
             const currentOwner = await ownerContract.owner();
             expect(currentOwner).to.equal(owner);
         });
+    });
 
+    describe("totalSupply", () => {
         it("should have a total supply greater than 10000000000000000000000000n", async () => {
             const totalSupply = await ownerContract.totalSupply();
             expect(totalSupply).to.be.gt(100000000000000000000n);
         });
+    });
 
-        it("should check that allowance is 0 ", async () => {
+    describe("allowance", () => {
+        it("should check that allowance is 0", async () => {
             await executeTx(ownerContract.approve(userSigner.address, 0n));
             const allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
             expect(allowance).to.equal(0n);
         });
+    });
 
-        it("should return the correct name, symbol, and decimals", async () => {
+    describe("name", () => {
+        it("should return the correct name", async () => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
             const tokenName = await ownerContract.name();
-            const tokenSymbol = await ownerContract.symbol();
-            const tokenDecimals = await ownerContract.decimals();
-
             expect(tokenName).to.equal("XRP");
+        });
+    });
+
+    describe("symbol", () => {
+        it("should return the correct symbol", async () => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
+            const tokenSymbol = await ownerContract.symbol();
             expect(tokenSymbol).to.equal("XRP");
+        });
+    });
+
+    describe("decimals", () => {
+        it("should return the correct decimals", async () => {
+            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
+            const tokenDecimals = await ownerContract.decimals();
             expect(tokenDecimals).to.equal(18);
         });
     });
