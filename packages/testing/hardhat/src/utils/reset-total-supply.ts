@@ -49,11 +49,11 @@ export async function resetTotalSupply(
         let tx: Unconfirmed<EthersTransaction> | Unconfirmed<XrplTransaction>;
 
         if (signer instanceof EthersSigner) {
-            const xrplChainTranslator = new XrpTranslator();
-            destinationAddress = xrplChainTranslator.translate(xrplEvmChain.type, xrplEvmWalletAddress);
+            destinationAddress = xrplEvmWalletAddress;
             tx = await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress);
         } else if (signer instanceof XrplSigner) {
-            destinationAddress = xrplEvmWalletAddress;
+            const xrplChainTranslator = new XrpTranslator();
+            destinationAddress = xrplChainTranslator.translate(xrplEvmChain.type, xrplEvmWalletAddress);
             tx = await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress);
         } else {
             throw new Error(SignerErrors.UNRECOGNIZED_SIGNER_TYPE);

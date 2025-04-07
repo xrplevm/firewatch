@@ -59,28 +59,28 @@ describe("Cross-Chain Native Transfer", () => {
         xrplChainTranslator = new XrpTranslator();
 
         tokenContract = evmChainProvider.getERC20Contract(sourceChain.nativeToken.address);
+
+        const totalSupplyRaw = await tokenContract.totalSupply();
+        initialTotalSupply = totalSupplyRaw.toString();
+    });
+
+    after(async () => {
+        await resetTotalSupply(
+            new Token({} as any),
+            destinationChain.interchainTokenServiceAddress,
+            sourceChain as unknown as Chain,
+            initialTotalSupply,
+            tokenContract,
+            xrplChainSigner,
+            evmChainWallet.address,
+            interchainTransferOptions,
+        );
     });
 
     describe("from evm chain to xrpl chain", () => {
         before(async () => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
-
-            const totalSupplyRaw = await tokenContract.totalSupply();
-            initialTotalSupply = totalSupplyRaw.toString();
-        });
-
-        after(async () => {
-            await resetTotalSupply(
-                sourceChain.nativeToken as Token,
-                sourceChain.door,
-                sourceChain as unknown as Chain,
-                initialTotalSupply,
-                tokenContract,
-                evmChainSigner,
-                evmChainWallet.address,
-                interchainTransferOptions,
-            );
         });
 
         it("should transfer the token", async () => {
