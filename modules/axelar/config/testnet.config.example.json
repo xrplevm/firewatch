@@ -11,7 +11,7 @@
             "type": "evm",
             "symbol": "XRP",
             "nativeToken": {
-                "id": "",
+                "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
                 "symbol": "XRP",
                 "decimals": 18,
                 "name": "XRP",
@@ -44,6 +44,16 @@
             "contractAddresses": {
                 "axelarAmplifierGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
                 "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2"
+                "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
+                "interchainTokenFactory": "0xdB7d6A5B8d37a4f34BC1e7ce0d0B8a9DDA124871",
+                "interchainTokenServiceAddress": "0x2269B93c8D8D4AfcE9786d2940F5Fcd4386Db7ff",
+                "interchainTokenDeployedAddress": "0x3F529fB73B168c260fc6ccEF73B909cfb8FCC155",
+                "axelarGasServiceAddress": "0x1179d44e69ba5252B7478a8602617d5EEeb2F377",
+                "callContractAddress": "0x1cd15e16400214bee948417f58ba1b3badb7dd7e"
+            },
+            "metadata": {
+                "tokenId": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
+                "saltTokenFactory": "ITS Factory v1.0.0 consensus devnet-amplifier2"
             },
             "metadata": {},
             "urls": {
