@@ -48,7 +48,7 @@ export async function resetTotalSupply(
 
         let destinationAddress: string;
         let tx: Unconfirmed<EthersTransaction> | Unconfirmed<XrplTransaction>;
-        const amountToBridgeIn = ethers.formatUnits(amountToBridgeInRaw.toString(), token.decimals);
+        const amountToBridgeIn = ethers.formatUnits(amountToBridgeInRaw.toString(), 18);
 
         if (signer instanceof EthersSigner) {
             destinationAddress = xrplEvmWalletAddress;
