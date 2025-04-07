@@ -9,6 +9,7 @@ import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { SignerErrors } from "@firewatch/bridge/signers/error";
 import { polling, PollingOptions } from "@shared/utils";
 import { HardhatErrors } from "../errors";
+import { ethers } from "ethers";
 
 /**
  * Resets the total token supply on a blockchain by bridging in the missing tokens.
@@ -39,14 +40,15 @@ export async function resetTotalSupply(
 
         const currentTotalSupply = new BigNumber(totalSupplyRaw.toString());
         const initSupply = new BigNumber(initialTotalSupply);
-        const amountToBridgeIn = initSupply.minus(currentTotalSupply);
+        const amountToBridgeInRaw = initSupply.minus(currentTotalSupply);
 
-        if (amountToBridgeIn.lte(0)) {
+        if (amountToBridgeInRaw.lte(0)) {
             return;
         }
 
         let destinationAddress: string;
         let tx: Unconfirmed<EthersTransaction> | Unconfirmed<XrplTransaction>;
+        const amountToBridgeIn = ethers.formatUnits(amountToBridgeInRaw.toString(), token.decimals);
 
         if (signer instanceof EthersSigner) {
             destinationAddress = xrplEvmWalletAddress;
