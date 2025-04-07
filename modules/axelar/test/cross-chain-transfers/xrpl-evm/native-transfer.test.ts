@@ -66,7 +66,7 @@ describe("Cross-Chain Native Transfer", () => {
 
     after(async () => {
         await resetTotalSupply(
-            destinationChain.nativeToken as Token,
+            new Token({} as any),
             destinationChain.interchainTokenServiceAddress,
             sourceChain as unknown as Chain,
             initialTotalSupply,
