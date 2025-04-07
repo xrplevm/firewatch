@@ -1,14 +1,16 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
+import { dropsToXrp } from "xrpl";
+
 import { ethers } from "ethers";
 import config from "../../../config/testnet.config.example.json";
 import { Client } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { ERC20 } from "@shared/evm/contracts";
 import BigNumber from "bignumber.js";
-import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
+import { assertChainEnvironments, assertChainTypes, AssertionErrors } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 
-describe("Total Supply, Sidechain-EVM native token vs XRPL.gateWay", () => {
+describe("Total Supply", () => {
     const { sourceChain, destinationChain } = config.axelar;
     const gatewayAddress = destinationChain.contractAddresses.axelarAmplifierGatewayAddress;
 
@@ -35,7 +37,6 @@ describe("Total Supply, Sidechain-EVM native token vs XRPL.gateWay", () => {
 
     describe("from xrpl-evm (source) chain to xrpl (destination) chain", () => {
         before(() => {
-            // In devnet, tokens were minted on Sidechain-EVM, it doesn't make sense to make the test.
             assertChainEnvironments(["testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
             assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
@@ -46,10 +47,10 @@ describe("Total Supply, Sidechain-EVM native token vs XRPL.gateWay", () => {
             const totalSupplyToken = ethers.formatUnits(totalSupplyRaw, 18);
 
             const gatewayBalanceRaw = await xrplChainProvider.getNativeBalance(gatewayAddress);
-            const gatewayBalanceToken = ethers.formatUnits(gatewayBalanceRaw, 6);
+            const gatewayBalanceToken = dropsToXrp(gatewayBalanceRaw);
 
             if (!BigNumber(gatewayBalanceToken).isGreaterThanOrEqualTo(BigNumber(totalSupplyToken))) {
-                throw new Error("Gateway balance is less than the total supply of native token");
+                throw new Error(AssertionErrors.GATEWAY_BALANCE_LESS_THAN_TOTAL_SUPPLY);
             }
         });
     });
