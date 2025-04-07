@@ -14,8 +14,9 @@ import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
-import { expectRevert } from "@testing/hardhat/utils";
+import { expectRevert, resetTotalSupply } from "@testing/hardhat/utils";
 import { ERC20 } from "@shared/evm/contracts";
+import { Chain } from "@firewatch/core/chain";
 
 describe("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -35,6 +36,8 @@ describe("Cross-Chain Native Transfer", () => {
     let evmChainTranslator: EvmTranslator;
     let xrplChainTranslator: XrpTranslator;
     let tokenContract: ERC20;
+
+    let initialTotalSupply: string;
 
     before(async () => {
         assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
@@ -59,15 +62,28 @@ describe("Cross-Chain Native Transfer", () => {
     });
 
     describe("from evm chain to xrpl chain", () => {
-        before(() => {
+        before(async () => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain);
+
+            const totalSupplyRaw = await tokenContract.totalSupply();
+            initialTotalSupply = totalSupplyRaw.toString();
+        });
+
+        after(async () => {
+            await resetTotalSupply(
+                sourceChain.nativeToken as Token,
+                sourceChain.door,
+                sourceChain as unknown as Chain,
+                initialTotalSupply,
+                tokenContract,
+                evmChainSigner,
+                evmChainWallet.address,
+                interchainTransferOptions,
+            );
         });
 
         it("should transfer the token", async () => {
-            const totalSupplyRaw = await tokenContract.totalSupply();
-            console.log({ totalSupplyRaw });
-
             const initialSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
             const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
@@ -104,9 +120,6 @@ describe("Cross-Chain Native Transfer", () => {
                 (res) => !res,
                 interchainTransferOptions as PollingOptions,
             );
-
-            const totalSupplyRawafter = await tokenContract.totalSupply();
-            console.log({ totalSupplyRawafter });
         });
 
         it("should revert when transferring 0 tokens", async () => {

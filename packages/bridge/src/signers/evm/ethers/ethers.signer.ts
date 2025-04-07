@@ -79,6 +79,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
 
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
+        const gasValue: ethers.BigNumberish = ethers.parseUnits("0.5", "ether");
 
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
@@ -86,7 +87,8 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             destinationAddress,
             sendingAmount.toString(),
             "0x",
-            new BigNumber("0").toString(),
+            gasValue, // BigNumberish value for gasValue
+            // { gasLimit: 300000, value: gasValue }, // and also using it for value
         );
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
