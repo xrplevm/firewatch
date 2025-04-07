@@ -116,17 +116,15 @@ describe("ERC20", () => {
 
     describe("burn coins", () => {
         before(function () {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+            assertChainEnvironments(["localnet", "devnet", "testnet"], chain as unknown as Chain);
         });
         it("should burn specified amount", async () => {
             const beforeBalance = await ownerContract.balanceOf(ownerSigner.address);
 
-            const { gasCost: mintGasFee } = await executeTx(ownerContract.mint(ownerSigner.address, tokenAmount));
-
             const { gasCost: burnGasFee } = await executeTx(ownerContract.burn(tokenAmount));
 
             const afterBalance = await ownerContract.balanceOf(ownerSigner.address);
-            const expectedFinalBalance = beforeBalance - mintGasFee - burnGasFee;
+            const expectedFinalBalance = beforeBalance - tokenAmount - burnGasFee;
             expect(afterBalance).to.equal(expectedFinalBalance);
         });
 
@@ -148,7 +146,6 @@ describe("ERC20", () => {
         });
 
         it("should burn coins of spender if sender is owner", async () => {
-            await executeTx(ownerContract.mint(userSigner.address, tokenAmount));
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
             await executeTx(ownerContract["burn(address,uint256)"](userSigner.address, tokenAmount));
@@ -160,11 +157,9 @@ describe("ERC20", () => {
 
     describe("burnFrom", () => {
         before(function () {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
+            assertChainEnvironments(["localnet", "devnet", "testnet"], chain as unknown as Chain);
         });
         it("should revert if spender does not have allowance", async () => {
-            await executeTx(ownerContract.mint(userSigner.address, tokenAmount));
-
             await expectRevert(ownerContract.burnFrom(userSigner.address, tokenAmount), ERC20Errors.INSUFFICIENT_ALLOWANCE);
         });
 
