@@ -58,8 +58,7 @@ describe("ERC20", () => {
     afterEach(async () => {
         if (chain.env === "localnet") {
             await resetLocalnetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
-        }
-        {
+        } else {
             await resetLivenetOwnerState(ownerContract, userContract, ownerSigner, userSigner, erc20.gasPrice);
         }
     });

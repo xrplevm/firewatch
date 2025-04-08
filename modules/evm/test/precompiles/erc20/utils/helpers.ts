@@ -25,7 +25,7 @@ export async function resetLocalnetOwnerState(
         const exactApprovalAmount: bigint = ownerBalance - burnGasEstimate;
 
         await executeTx(ownerContract.approve(userSigner.address, exactApprovalAmount));
-        await executeTx(userContract.burnFrom(ownerSigner.address, exactApprovalAmount));
+        await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, exactApprovalAmount));
 
         const ownerBalanceAfterBurn: bigint = await ownerContract.balanceOf(ownerSigner.address);
         const allowanceAfterBurn: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
@@ -60,14 +60,15 @@ export async function resetLivenetOwnerState(
         const adjustedGasEstimate = new BigNumber(gasEstimate.toString()).multipliedBy(1.0005).integerValue(BigNumber.ROUND_CEIL);
         const priceBN = new BigNumber(gasPrice);
         const cost = adjustedGasEstimate.multipliedBy(priceBN);
-        const burnAmount: bigint = ownerBalanceBefore - BigInt(cost.toFixed(0));
+        const finalCost = BigInt(cost.toFixed(0));
+        const transferAmount: bigint = ownerBalanceBefore - finalCost;
 
-        if (burnAmount < 0n) {
+        if (transferAmount < 0n) {
             return;
         }
 
-        await executeTx(ownerContract.approve(userSigner.address, burnAmount));
-        await executeTx(userContract.burnFrom(ownerSigner.address, burnAmount));
+        await executeTx(ownerContract.approve(userSigner.address, transferAmount));
+        await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
 
         const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
         const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
