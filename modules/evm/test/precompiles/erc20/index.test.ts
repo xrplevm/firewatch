@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { resetOwnerState, expectTransferEvent } from "./utils/helpers";
+import { resetLocalnetOwnerState, resetLivenetOwnerState, expectTransferEvent } from "./utils/helpers";
 import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
@@ -38,7 +38,7 @@ describe("ERC20", () => {
     const { owner } = moduleConfig.contracts.erc20;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
-    // to cover transaction fees and execute mint, burn, and transferOwnership tests.
+    // to cover transaction fees and execute mint, burn, and transferOwnership (just in localnet) tests.
     before(async () => {
         abi = erc20.abi;
         contractInterface = new Interface(erc20.abi);
@@ -51,15 +51,18 @@ describe("ERC20", () => {
         tokenAmount = toBigInt(erc20.amount);
     });
 
-    if (chain.env === "localnet") {
-        beforeEach(async () => {
-            await executeTx(userContract.transfer(ownerSigner.address, erc20.feeFund));
-        });
+    beforeEach(async () => {
+        await executeTx(userContract.transfer(ownerSigner.address, erc20.feeFund));
+    });
 
-        afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
-        });
-    }
+    afterEach(async () => {
+        if (chain.env === "localnet") {
+            await resetLocalnetOwnerState(ownerContract, userContract, ownerSigner, userSigner);
+        }
+        {
+            await resetLivenetOwnerState(ownerContract, userContract, ownerSigner, userSigner, erc20.gasPrice);
+        }
+    });
 
     describe("owner", () => {
         it("should return the correct owner", async () => {
