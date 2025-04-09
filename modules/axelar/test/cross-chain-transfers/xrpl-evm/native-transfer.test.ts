@@ -74,6 +74,7 @@ describe("Cross-Chain Native Transfer", () => {
             xrplChainSigner,
             evmChainWallet.address,
             interchainTransferOptions,
+            "100000000000000000",
         );
     });
 

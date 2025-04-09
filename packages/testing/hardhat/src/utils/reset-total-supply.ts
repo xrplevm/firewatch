@@ -1,14 +1,11 @@
 import { Token } from "@firewatch/core/token";
-import { EthersSigner, EthersTransaction } from "../../../../bridge/src/signers/evm/ethers";
-import { XrplSigner, XrplTransaction } from "../../../../bridge/src/signers/xrp/xrpl";
+import { EthersSigner } from "../../../../bridge/src/signers/evm/ethers";
+import { XrplSigner } from "../../../../bridge/src/signers/xrp/xrpl";
 import { ERC20 } from "@shared/evm/contracts";
-import { Unconfirmed } from "@shared/modules/blockchain";
 import BigNumber from "bignumber.js";
 import { Chain } from "@firewatch/core/chain";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-import { SignerErrors } from "@firewatch/bridge/signers/error";
 import { polling, PollingOptions } from "@shared/utils";
-import { HardhatErrors } from "../errors";
 import { ethers } from "ethers";
 
 /**
@@ -34,48 +31,36 @@ export async function resetTotalSupply(
     signer: EthersSigner | XrplSigner,
     xrplEvmWalletAddress: string,
     interchainTransferOptions: PollingOptions,
-): Promise<Unconfirmed<EthersTransaction> | Unconfirmed<XrplTransaction> | undefined> {
-    try {
-        const totalSupplyRaw = await tokenContract.totalSupply();
+    gasValue?: string,
+) {
+    const totalSupplyRaw = await tokenContract.totalSupply();
 
-        const currentTotalSupply = new BigNumber(totalSupplyRaw.toString());
-        const initSupply = new BigNumber(initialTotalSupply);
-        const amountToBridgeInRaw = initSupply.minus(currentTotalSupply);
+    const currentTotalSupply = new BigNumber(totalSupplyRaw.toString());
+    const initSupply = new BigNumber(initialTotalSupply);
+    const amountToBridgeInRaw = initSupply.minus(currentTotalSupply);
 
-        if (amountToBridgeInRaw.lte(0)) {
-            return;
-        }
-
-        let destinationAddress: string;
-        let tx: Unconfirmed<EthersTransaction> | Unconfirmed<XrplTransaction>;
-        const amountToBridgeIn = ethers.formatUnits(amountToBridgeInRaw.toString(), 18);
-
-        if (signer instanceof EthersSigner) {
-            destinationAddress = xrplEvmWalletAddress;
-            tx = await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress);
-        } else if (signer instanceof XrplSigner) {
-            const xrplChainTranslator = new XrpTranslator();
-            destinationAddress = xrplChainTranslator.translate(xrplEvmChain.type, xrplEvmWalletAddress);
-            tx = await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress);
-        } else {
-            throw new Error(SignerErrors.UNRECOGNIZED_SIGNER_TYPE);
-        }
-
-        try {
-            await polling(
-                async () => {
-                    const totalSupply = await tokenContract.totalSupply();
-                    return new BigNumber(totalSupply.toString()).eq(initSupply);
-                },
-                (result) => !result,
-                interchainTransferOptions,
-            );
-        } catch (pollingError) {
-            throw new Error(HardhatErrors.INTERCHAIN_TRANSFER_NOT_MINTED);
-        }
-
-        return tx;
-    } catch (error) {
-        throw error;
+    if (amountToBridgeInRaw.lte(0)) {
+        return;
     }
+
+    let destinationAddress: string;
+    const amountToBridgeIn = ethers.formatUnits(amountToBridgeInRaw.toString(), 18);
+
+    if (signer instanceof EthersSigner) {
+        destinationAddress = xrplEvmWalletAddress;
+        await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress, gasValue);
+    } else if (signer instanceof XrplSigner) {
+        const xrplChainTranslator = new XrpTranslator();
+        destinationAddress = xrplChainTranslator.translate(xrplEvmChain.type, xrplEvmWalletAddress);
+        await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress);
+    }
+
+    await polling(
+        async () => {
+            const totalSupply = await tokenContract.totalSupply();
+            return new BigNumber(totalSupply.toString()).eq(initSupply);
+        },
+        (result) => !result,
+        interchainTransferOptions,
+    );
 }
