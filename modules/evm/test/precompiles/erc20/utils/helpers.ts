@@ -6,21 +6,37 @@ import { executeTx } from "@testing/hardhat/utils";
 import BigNumber from "bignumber.js";
 
 /**
- * Resets the owner's contract state by burning tokens and restoring ownership if necessary.
+ * Resets the owner's contract state based on the network environment.
+ *
+ * If chainEvn is "localnet":
+ *   - Burns tokens and restores ownership if necessary.
+ *
+ * Otherwise:
+ *   - Burns tokens by calculating gas estimates and adjusts the transfer amount.
+ *
  * @param ownerContract The contract instance connected to the owner signer.
  * @param userContract The contract instance connected to the user signer.
  * @param ownerSigner The owner signer object.
  * @param userSigner The user signer object.
+ * @param chainEvn A string indicating the network environment ("localnet" for local, otherwise live).
+ * @param gasPrice (Optional) The gas price used by the livenet branch.
  */
-export async function resetLocalnetOwnerState(
+export async function resetOwnerState(
     ownerContract: Contract,
     userContract: Contract,
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
-) {
-    const currentOwner = await ownerContract.owner();
-    const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
-    if (ownerBalance > 0n) {
+    chainEvn: string,
+    gasPrice: string,
+): Promise<void> {
+    if (chainEvn === "localnet") {
+        const currentOwner = await ownerContract.owner();
+        const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
+
+        if (ownerBalance <= 0n) {
+            return;
+        }
+
         const burnGasEstimate: bigint = await userContract.approve.estimateGas(ownerSigner.address, ownerBalance);
         const exactApprovalAmount: bigint = ownerBalance - burnGasEstimate;
 
@@ -32,36 +48,23 @@ export async function resetLocalnetOwnerState(
 
         expect(ownerBalanceAfterBurn).to.equal(0n);
         expect(allowanceAfterBurn).to.equal(0n);
-    }
-    if (currentOwner !== ownerSigner.address) {
-        await executeTx(userContract.transferOwnership(ownerSigner.address));
-    }
-}
 
-/**
- * Resets the owner's contract state by burning tokens.
- * @param ownerContract The contract instance connected to the owner signer.
- * @param userContract The contract instance connected to the user signer.
- * @param ownerSigner The owner signer object.
- * @param userSigner The user signer object.
- * @param gasPrice The gasPrice fixed in the contract.
- */
-export async function resetLivenetOwnerState(
-    ownerContract: Contract,
-    userContract: Contract,
-    ownerSigner: HardhatEthersSigner,
-    userSigner: HardhatEthersSigner,
-    gasPrice: string,
-): Promise<void> {
-    const ownerBalanceBefore: bigint = await ownerContract.balanceOf(ownerSigner.address);
+        if (currentOwner !== ownerSigner.address) {
+            await executeTx(userContract.transferOwnership(ownerSigner.address));
+        }
+    } else {
+        const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
 
-    if (ownerBalanceBefore > 0n) {
-        const gasEstimate: bigint = await ownerContract.approve.estimateGas(userSigner.address, ownerBalanceBefore);
+        if (ownerBalance <= 0n) {
+            return;
+        }
+
+        const gasEstimate: bigint = await ownerContract.approve.estimateGas(userSigner.address, ownerBalance);
         const adjustedGasEstimate = new BigNumber(gasEstimate.toString()).multipliedBy(1.0005).integerValue(BigNumber.ROUND_CEIL);
         const priceBN = new BigNumber(gasPrice);
         const cost = adjustedGasEstimate.multipliedBy(priceBN);
         const finalCost = BigInt(cost.toFixed(0));
-        const transferAmount: bigint = ownerBalanceBefore - finalCost;
+        const transferAmount: bigint = ownerBalance - finalCost;
 
         if (transferAmount < 0n) {
             return;

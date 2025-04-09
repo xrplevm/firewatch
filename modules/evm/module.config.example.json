@@ -36,8 +36,8 @@
             ],
             "contractAddress": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
-            "amount": "1",
-            "feeFund": "1000000000000000000",
+            "minimumAmount": "1",
+            "faucetFund": "1000000000000000000",
             "gasPrice": "253125000000"
         }
     },
