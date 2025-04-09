@@ -1,6 +1,6 @@
 import { TransactionReceipt, TransactionResponse, ContractTransactionResponse } from "ethers";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
-import { HardhatErrors } from "../constants";
+import { HardhatErrors } from "../errors";
 
 type TxPromise = Promise<Unconfirmed<Transaction>> | Promise<ContractTransactionResponse>;
 

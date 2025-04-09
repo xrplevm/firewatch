@@ -14,7 +14,9 @@ import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
-import { expectRevert } from "@testing/hardhat/utils";
+import { expectRevert, resetTotalSupply } from "@testing/hardhat/utils";
+import { ERC20 } from "@shared/evm/contracts";
+import { Chain } from "@firewatch/core/chain";
 
 describe("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -33,6 +35,9 @@ describe("Cross-Chain Native Transfer", () => {
 
     let evmChainTranslator: EvmTranslator;
     let xrplChainTranslator: XrpTranslator;
+    let tokenContract: ERC20;
+
+    let initialTotalSupply: string;
 
     before(async () => {
         assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
@@ -52,6 +57,25 @@ describe("Cross-Chain Native Transfer", () => {
 
         evmChainTranslator = new EvmTranslator();
         xrplChainTranslator = new XrpTranslator();
+
+        tokenContract = evmChainProvider.getERC20Contract(sourceChain.nativeToken.address);
+
+        const totalSupplyRaw = await tokenContract.totalSupply();
+        initialTotalSupply = totalSupplyRaw.toString();
+    });
+
+    after(async () => {
+        await resetTotalSupply(
+            new Token({} as any),
+            destinationChain.interchainTokenServiceAddress,
+            sourceChain as unknown as Chain,
+            initialTotalSupply,
+            tokenContract,
+            xrplChainSigner,
+            evmChainWallet.address,
+            interchainTransferOptions,
+            "100000000000000000",
+        );
     });
 
     describe("from evm chain to xrpl chain", () => {
