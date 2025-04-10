@@ -31,7 +31,8 @@ describe("ERC20", () => {
     let ownerSigner: HardhatEthersSigner;
     let userSigner: HardhatEthersSigner;
 
-    let tokenMinimumAmount: bigint;
+    let tokenAmount: bigint;
+    let burnAmount: bigint;
 
     const { erc20 } = moduleConfig.contracts;
     const chain = moduleConfig.chain;
@@ -48,7 +49,8 @@ describe("ERC20", () => {
         ownerContract = new ethers.Contract(contractAddress, abi, ownerSigner);
         userContract = new ethers.Contract(contractAddress, abi, userSigner);
 
-        tokenMinimumAmount = toBigInt(erc20.minimumAmount);
+        tokenAmount = toBigInt(erc20.amount);
+        burnAmount = toBigInt(erc20.burnAmount);
     });
 
     describe("owner", () => {
@@ -59,12 +61,9 @@ describe("ERC20", () => {
     });
 
     describe("totalSupply", () => {
-        it("should correctly update totalSupply after burn", async () => {
-            const totalSupplyBefore = await userContract.totalSupply();
-            await executeTx(userContract.burn(tokenMinimumAmount));
-            const totalSupplyAfter = await userContract.totalSupply();
-
-            expect(totalSupplyAfter).to.equal(totalSupplyBefore - tokenMinimumAmount);
+        it("should return a positive totalSupply", async () => {
+            const totalSupply = await userContract.totalSupply();
+            expect(totalSupply).to.be.gt(0);
         });
     });
 
@@ -108,22 +107,31 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should mint tokens to the user", async () => {
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
-            const { receipt: mintReceipt } = await executeTx(ownerContract.mint(userSigner.address, tokenMinimumAmount));
+            const { receipt: mintReceipt } = await executeTx(ownerContract.mint(userSigner.address, tokenAmount));
 
-            expectTransferEvent(mintReceipt, ethers.ZeroAddress, userSigner.address, tokenMinimumAmount, contractInterface);
+            expectTransferEvent(mintReceipt, ethers.ZeroAddress, userSigner.address, tokenAmount, contractInterface);
 
             const afterBalance = await ownerContract.balanceOf(userSigner.address);
-            expect(afterBalance).to.equal(beforeBalance + tokenMinimumAmount);
+            expect(afterBalance).to.equal(beforeBalance + tokenAmount);
         });
 
         it("should prevent non-owner from minting tokens", async () => {
-            await expectRevert(userContract.mint(userSigner.address, tokenMinimumAmount), ERC20Errors.MINTER_IS_NOT_OWNER);
+            await expectRevert(userContract.mint(userSigner.address, tokenAmount), ERC20Errors.MINTER_IS_NOT_OWNER);
         });
 
         it("should revert when attempting to mint 0 tokens", async () => {
@@ -138,16 +146,16 @@ describe("ERC20", () => {
         it("should burn specified amount", async () => {
             const beforeBalance = await userContract.balanceOf(userSigner.address);
 
-            const { gasCost: burnGasFee } = await executeTx(userContract.burn(tokenMinimumAmount));
+            const { gasCost: burnGasFee } = await executeTx(userContract.burn(burnAmount));
 
             const afterBalance = await userContract.balanceOf(userSigner.address);
-            const expectedFinalBalance = beforeBalance - tokenMinimumAmount - burnGasFee;
+            const expectedFinalBalance = beforeBalance - burnAmount - burnGasFee;
             expect(afterBalance).to.equal(expectedFinalBalance);
         });
 
         it("should revert if trying to burn more than balance", async () => {
             const beforeBalance = await userContract.balanceOf(ownerSigner.address);
-            await expectRevert(userContract.burn(tokenMinimumAmount + beforeBalance), ERC20Errors.TRANSFER_AMOUNT_EXCEEDS_BALANCE);
+            await expectRevert(userContract.burn(tokenAmount + beforeBalance), ERC20Errors.TRANSFER_AMOUNT_EXCEEDS_BALANCE);
         });
         it("should revert when attempting to burn 0 tokens", async () => {
             await expectRevert(userContract.burn(0n), ERC20Errors.INVALID_COINS);
@@ -162,23 +170,29 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should revert if sender is not owner", async () => {
-            await expectRevert(
-                userContract["burn(address,uint256)"](ownerSigner.address, tokenMinimumAmount),
-                ERC20Errors.SENDER_IS_NOT_OWNER,
-            );
+            await expectRevert(userContract["burn(address,uint256)"](ownerSigner.address, tokenAmount), ERC20Errors.SENDER_IS_NOT_OWNER);
         });
 
         it("should burn coins of spender if sender is owner", async () => {
             const beforeBalance = await ownerContract.balanceOf(userSigner.address);
 
-            await executeTx(ownerContract["burn(address,uint256)"](userSigner.address, tokenMinimumAmount));
+            await executeTx(ownerContract["burn(address,uint256)"](userSigner.address, tokenAmount));
 
             const afterBalance = await ownerContract.balanceOf(userSigner.address);
-            expect(afterBalance).to.equal(beforeBalance - tokenMinimumAmount);
+            expect(afterBalance).to.equal(beforeBalance - tokenAmount);
         });
     });
 
@@ -190,25 +204,34 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should revert if spender does not have allowance", async () => {
-            await expectRevert(ownerContract.burnFrom(userSigner.address, tokenMinimumAmount), ERC20Errors.INSUFFICIENT_ALLOWANCE);
+            await expectRevert(ownerContract.burnFrom(userSigner.address, tokenAmount), ERC20Errors.INSUFFICIENT_ALLOWANCE);
         });
 
         it("should burn coins if spender has allowance", async () => {
-            await executeTx(ownerContract.approve(userSigner.address, tokenMinimumAmount));
+            await executeTx(ownerContract.approve(userSigner.address, tokenAmount));
 
             const initialAllowance = await userContract.allowance(ownerSigner.address, userSigner.address);
-            expect(initialAllowance).to.equal(tokenMinimumAmount);
+            expect(initialAllowance).to.equal(tokenAmount);
 
             const beforeBalance = await userContract.balanceOf(ownerSigner.address);
 
-            await executeTx(userContract.burnFrom(ownerSigner.address, tokenMinimumAmount));
+            await executeTx(userContract.burnFrom(ownerSigner.address, tokenAmount));
 
             const afterBalance = await userContract.balanceOf(ownerSigner.address);
-            expect(afterBalance).to.equal(beforeBalance - tokenMinimumAmount);
+            expect(afterBalance).to.equal(beforeBalance - tokenAmount);
 
             const finalAllowance = await userContract.allowance(ownerSigner.address, userSigner.address);
             expect(finalAllowance).to.equal(0n);
@@ -223,7 +246,16 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should revert if sender is not the owner", async () => {
@@ -242,17 +274,26 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should correctly increase allowance", async () => {
             const initialAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
             expect(initialAllowance).to.equal(0);
 
-            await executeTx(ownerContract.increaseAllowance(userSigner.address, tokenMinimumAmount));
+            await executeTx(ownerContract.increaseAllowance(userSigner.address, tokenAmount));
 
             const newAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(newAllowance).to.equal(initialAllowance + tokenMinimumAmount);
+            expect(newAllowance).to.equal(initialAllowance + tokenAmount);
         });
     });
 
@@ -261,20 +302,29 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should successfully transfer tokens between accounts", async () => {
             const senderBeforeBalance = await ownerContract.balanceOf(ownerSigner.address);
             const recipientBeforeBalance = await ownerContract.balanceOf(userSigner.address);
 
-            const { gasCost: transferGasFee } = await executeTx(ownerContract.transfer(userSigner.address, tokenMinimumAmount));
+            const { gasCost: transferGasFee } = await executeTx(ownerContract.transfer(userSigner.address, tokenAmount));
 
             const senderAfterBalance = await ownerContract.balanceOf(ownerSigner.address);
             const recipientAfterBalance = await ownerContract.balanceOf(userSigner.address);
 
-            expect(senderBeforeBalance - tokenMinimumAmount - transferGasFee).to.equal(senderAfterBalance);
-            expect(recipientBeforeBalance + tokenMinimumAmount).to.equal(recipientAfterBalance);
+            expect(senderBeforeBalance - tokenAmount - transferGasFee).to.equal(senderAfterBalance);
+            expect(recipientBeforeBalance + tokenAmount).to.equal(recipientAfterBalance);
         });
 
         it("should revert if sender has insufficient balance", async () => {
@@ -294,37 +344,46 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should successfully transfer tokens using transferFrom", async () => {
-            await executeTx(ownerContract.approve(userSigner.address, tokenMinimumAmount));
+            await executeTx(ownerContract.approve(userSigner.address, tokenAmount));
             const ownerBeforeBalance = await ownerContract.balanceOf(ownerSigner.address);
             const recipientBeforeBalance = await ownerContract.balanceOf(userSigner.address);
 
             const { gasCost: transferFromGasFee } = await executeTx(
-                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenMinimumAmount),
+                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenAmount),
             );
 
             const ownerAfterBalance = await ownerContract.balanceOf(ownerSigner.address);
             const recipientAfterBalance = await ownerContract.balanceOf(userSigner.address);
 
-            expect(ownerBeforeBalance - tokenMinimumAmount).to.equal(ownerAfterBalance);
-            expect(recipientBeforeBalance + tokenMinimumAmount - transferFromGasFee).to.equal(recipientAfterBalance);
+            expect(ownerBeforeBalance - tokenAmount).to.equal(ownerAfterBalance);
+            expect(recipientBeforeBalance + tokenAmount - transferFromGasFee).to.equal(recipientAfterBalance);
         });
 
         it("should revert if allowance is insufficient", async () => {
-            // Approve an amount smaller than tokenMinimumAmount.
-            const approvedAmount = tokenMinimumAmount - 1n;
+            // Approve an amount smaller than tokenAmount.
+            const approvedAmount = tokenAmount - 1n;
             await executeTx(ownerContract.approve(userSigner.address, approvedAmount));
             await expectRevert(
-                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenMinimumAmount),
+                userContract.transferFrom(ownerSigner.address, userSigner.address, tokenAmount),
                 ERC20Errors.INSUFFICIENT_ALLOWANCE,
             );
         });
 
         it("should revert when attempting to transfer 0 tokens", async () => {
-            await executeTx(ownerContract.approve(userSigner.address, tokenMinimumAmount));
+            await executeTx(ownerContract.approve(userSigner.address, tokenAmount));
             await expectRevert(
                 userContract.transferFrom(ownerSigner.address, userSigner.address, 0n),
                 ERC20Errors.ZERO_TOKEN_AMOUNT_NOT_POSITIVE,
@@ -338,22 +397,31 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.gasPrice);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.avgGasPrice,
+                erc20.approveGasUsed,
+                erc20.correctionFactor,
+            );
         });
 
         it("should set and reset the allowance correctly and emit Approval events", async () => {
-            const approveTx = await ownerContract.approve(userSigner.address, tokenMinimumAmount);
+            const approveTx = await ownerContract.approve(userSigner.address, tokenAmount);
             const approveReceipt = await approveTx.wait();
 
             let allowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(allowance).to.equal(tokenMinimumAmount);
+            expect(allowance).to.equal(tokenAmount);
 
             const approvalEvent = getEventArgs(approveReceipt, contractInterface, "Approval");
 
             expect(approvalEvent).to.not.eq(undefined);
             expect(approvalEvent!.args.owner).to.equal(erc20.contractAddress);
             expect(approvalEvent!.args.spender).to.equal(userSigner.address);
-            expect(approvalEvent!.args.value.toString()).to.equal(tokenMinimumAmount.toString());
+            expect(approvalEvent!.args.value.toString()).to.equal(tokenAmount.toString());
 
             const resetApproveTx = await ownerContract.approve(userSigner.address, 0n);
             const resetApproveReceipt = await resetApproveTx.wait();

@@ -27,8 +27,12 @@ export async function resetOwnerState(
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
     chainEvn: string,
-    gasPrice: string,
+    avgGasPrice: string,
+    approveGasUsed: string,
+    correctionFactor: string,
 ): Promise<void> {
+    const provider = ethers.getDefaultProvider();
+
     if (chainEvn === "localnet") {
         const currentOwner = await ownerContract.owner();
         const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
@@ -54,18 +58,18 @@ export async function resetOwnerState(
         }
     } else {
         const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
-
         if (ownerBalance <= 0n) {
             return;
         }
 
-        const gasEstimate: bigint = await ownerContract.approve.estimateGas(userSigner.address, ownerBalance);
-        const adjustedGasEstimate = new BigNumber(gasEstimate.toString()).multipliedBy(1.0005).integerValue(BigNumber.ROUND_CEIL);
-        const priceBN = new BigNumber(gasPrice);
-        const cost = adjustedGasEstimate.multipliedBy(priceBN);
-        const finalCost = BigInt(cost.toFixed(0));
-        const transferAmount: bigint = ownerBalance - finalCost;
+        const maxGasBN = new BigNumber(avgGasPrice);
+        const gasUsedBN = new BigNumber(approveGasUsed);
+        const correctionFactordBN = new BigNumber(correctionFactor);
 
+        const finalCostBN = maxGasBN.multipliedBy(gasUsedBN);
+        const finalCost = BigInt(finalCostBN.toFixed(0));
+
+        const transferAmount: bigint = ownerBalance - finalCost;
         if (transferAmount < 0n) {
             return;
         }
@@ -76,8 +80,13 @@ export async function resetOwnerState(
         const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
         const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
 
-        expect(ownerBalanceAfter).to.be.at.most(30000000000000n);
-        expect(remainingAllowance).to.be.at.most(30000000000000n);
+        const discountedGasPriceBN = maxGasBN.multipliedBy(correctionFactordBN);
+        const discountedCostBN = discountedGasPriceBN.multipliedBy(gasUsedBN);
+        const allowedDifferenceBN = finalCostBN.minus(discountedCostBN);
+        const allowedDifference = BigInt(allowedDifferenceBN.toFixed(0));
+
+        expect(ownerBalanceAfter).to.be.at.most(allowedDifference);
+        expect(remainingAllowance).to.be.at.most(allowedDifference);
     }
 }
 
