@@ -107,7 +107,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should mint tokens to the user", async () => {
@@ -161,7 +169,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should revert if sender is not owner", async () => {
@@ -186,7 +202,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should revert if spender does not have allowance", async () => {
@@ -219,7 +243,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should revert if sender is not the owner", async () => {
@@ -238,7 +270,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should correctly increase allowance", async () => {
@@ -257,7 +297,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should successfully transfer tokens between accounts", async () => {
@@ -290,7 +338,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should successfully transfer tokens using transferFrom", async () => {
@@ -334,7 +390,15 @@ describe("ERC20", () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
         afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env, erc20.correctionFactor);
+            await resetOwnerState(
+                ownerContract,
+                userContract,
+                ownerSigner,
+                userSigner,
+                chain.env,
+                erc20.feeMultiplier,
+                erc20.residualThreshold,
+            );
         });
 
         it("should set and reset the allowance correctly and emit Approval events", async () => {
