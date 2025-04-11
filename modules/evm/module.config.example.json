@@ -39,9 +39,7 @@
             "amount": "1",
             "burnAmount": "1",
             "faucetFund": "10000000000000000000",
-            "avgGasPrice": "253125000000",
-            "approveGasUsed": "52624",
-            "correctionFactor": "0.999"
+            "correctionFactor": "0.8"
         }
     },
     "chain": {

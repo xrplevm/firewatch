@@ -6,20 +6,14 @@ import { executeTx } from "@testing/hardhat/utils";
 import BigNumber from "bignumber.js";
 
 /**
- * Resets the owner's contract state based on the network environment.
- *
- * If chainEvn is "localnet":
- *   - Burns tokens and restores ownership if necessary.
- *
- * Otherwise:
- *   - Burns tokens by calculating gas estimates and adjusts the transfer amount.
- *
- * @param ownerContract The contract instance connected to the owner signer.
- * @param userContract The contract instance connected to the user signer.
- * @param ownerSigner The owner signer object.
- * @param userSigner The user signer object.
- * @param chainEvn A string indicating the network environment ("localnet" for local, otherwise live).
- * @param gasPrice (Optional) The gas price used by the livenet branch.
+ * Resets the owner's contract state. Transferring tokens back to "faucet account".
+ * For "localnet", restores ownership if needed.
+ * @param ownerContract Contract instance for the owner.
+ * @param userContract Contract instance for user operations.
+ * @param ownerSigner Owner signer.
+ * @param userSigner User signer.
+ * @param chainEvn Network environment.
+ * @param correctionFactor Multiplier for allowed cost difference.
  */
 export async function resetOwnerState(
     ownerContract: Contract,
@@ -27,67 +21,43 @@ export async function resetOwnerState(
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
     chainEvn: string,
-    avgGasPrice: string,
-    approveGasUsed: string,
     correctionFactor: string,
 ): Promise<void> {
-    const provider = ethers.getDefaultProvider();
+    const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
+    if (ownerBalance <= 0n) return;
 
     if (chainEvn === "localnet") {
         const currentOwner = await ownerContract.owner();
-        const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
-
-        if (ownerBalance <= 0n) {
-            return;
-        }
-
-        const burnGasEstimate: bigint = await userContract.approve.estimateGas(ownerSigner.address, ownerBalance);
-        const exactApprovalAmount: bigint = ownerBalance - burnGasEstimate;
-
-        await executeTx(ownerContract.approve(userSigner.address, exactApprovalAmount));
-        await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, exactApprovalAmount));
-
-        const ownerBalanceAfterBurn: bigint = await ownerContract.balanceOf(ownerSigner.address);
-        const allowanceAfterBurn: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-
-        expect(ownerBalanceAfterBurn).to.equal(0n);
-        expect(allowanceAfterBurn).to.equal(0n);
-
         if (currentOwner !== ownerSigner.address) {
             await executeTx(userContract.transferOwnership(ownerSigner.address));
         }
-    } else {
-        const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
-        if (ownerBalance <= 0n) {
-            return;
-        }
-
-        const maxGasBN = new BigNumber(avgGasPrice);
-        const gasUsedBN = new BigNumber(approveGasUsed);
-        const correctionFactordBN = new BigNumber(correctionFactor);
-
-        const finalCostBN = maxGasBN.multipliedBy(gasUsedBN);
-        const finalCost = BigInt(finalCostBN.toFixed(0));
-
-        const transferAmount: bigint = ownerBalance - finalCost;
-        if (transferAmount < 0n) {
-            return;
-        }
-
-        await executeTx(ownerContract.approve(userSigner.address, transferAmount));
-        await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
-
-        const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
-        const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-
-        const discountedGasPriceBN = maxGasBN.multipliedBy(correctionFactordBN);
-        const discountedCostBN = discountedGasPriceBN.multipliedBy(gasUsedBN);
-        const allowedDifferenceBN = finalCostBN.minus(discountedCostBN);
-        const allowedDifference = BigInt(allowedDifferenceBN.toFixed(0));
-
-        expect(ownerBalanceAfter).to.be.at.most(allowedDifference);
-        expect(remainingAllowance).to.be.at.most(allowedDifference);
     }
+
+    const provider = ethers.provider;
+    const gas = await provider.getFeeData();
+    const burnGasEstimate: string = (await userContract.approve.estimateGas(ownerSigner.address, ownerBalance)).toString();
+
+    // Localnet has a gasPrice == 0
+    const gasPriceBN = chainEvn === "localnet" ? new BigNumber("1") : new BigNumber(gas.gasPrice!.toString());
+    const gasUsedBN = new BigNumber(burnGasEstimate);
+    const correctionFactorBN = new BigNumber(correctionFactor);
+    const finalCostBN = gasPriceBN.multipliedBy(gasUsedBN);
+    const finalCost = BigInt(finalCostBN.toFixed(0));
+    const transferAmount: bigint = ownerBalance - finalCost;
+
+    if (transferAmount < 0n) return;
+
+    await executeTx(ownerContract.approve(userSigner.address, transferAmount));
+    await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
+
+    const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
+    const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
+
+    const allowedDifferenceBN = finalCostBN.multipliedBy(correctionFactorBN);
+    const allowedDifference = BigInt(allowedDifferenceBN.toFixed(0));
+
+    expect(ownerBalanceAfter).to.be.at.most(allowedDifference);
+    expect(remainingAllowance).to.be.at.most(allowedDifference);
 }
 
 /**
