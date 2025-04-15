@@ -1,0 +1,26 @@
+{
+    "cosmos": {
+        "url": "https://testnet.cosmos.directory/osmosistestnet",
+        "chain": {
+            "id": "osmo-test-5",
+            "name": "osmosistestnet",
+            "env": "testnet",
+            "type": "cosmos",
+            "nativeToken": {
+                "symbol": "OSMO",
+                "decimals": 6,
+                "name": "Osmosis Testnet Token",
+                "denom": "uosmo"
+            },
+            "urls": {
+                "rpc": "https://rpc.osmotest5.osmosis.zone/"
+            },
+            "account": {
+                "seed": "sEd7gknRabQEc2FXAxhCPb9BTFvFZwb"
+            },
+            "module": {
+                "name": "bank"
+            }
+        }
+    }
+}

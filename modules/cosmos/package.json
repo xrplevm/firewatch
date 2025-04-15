@@ -14,6 +14,7 @@
         "cosmjs-types": "^0.9.0"
     },
     "devDependencies": {
+        "@firewatch/core": "workspace:*",
         "@shared/tsconfig": "workspace:*",
         "@shared/eslint": "workspace:*"
     }
