@@ -5,5 +5,5 @@ import { CosmosModule } from "../models/module";
 export interface CosmosChain extends Chain {
     height: number;
     module: CosmosModule;
-    account: Pick<Account, "privateKey">;
+    account: Pick<Account, "name">;
 }

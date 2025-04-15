@@ -19,8 +19,7 @@
                 "rpc": "http://localhost:26657"
             },
             "account": {
-                "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg",
-                "privateKey": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+                "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
             },
             "module": {
                 "name": "bank"
