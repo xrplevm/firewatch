@@ -2,21 +2,25 @@
     "cosmos": {
         "url": "https://testnet.cosmos.directory/osmosistestnet",
         "chain": {
-            "id": "osmo-test-5",
-            "name": "osmosistestnet",
-            "env": "testnet",
+            "id": "xrplevm_localnet",
+            "name": "xrplevm_localnet",
+            "symbol": "OSMO",
+            "env": "localnet",
             "type": "cosmos",
+            "height": 27654630,
             "nativeToken": {
                 "symbol": "OSMO",
                 "decimals": 6,
                 "name": "Osmosis Testnet Token",
                 "denom": "uosmo"
             },
+            "door": "TODO: remove from interface",
             "urls": {
-                "rpc": "https://rpc.osmotest5.osmosis.zone/"
+                "rpc": "http://localhost:26657"
             },
             "account": {
-                "seed": "sEd7gknRabQEc2FXAxhCPb9BTFvFZwb"
+                "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg",
+                "privateKey": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
             },
             "module": {
                 "name": "bank"
