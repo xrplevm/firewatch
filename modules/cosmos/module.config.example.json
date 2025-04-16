@@ -2,17 +2,17 @@
     "cosmos": {
         "url": "https://testnet.cosmos.directory/osmosistestnet",
         "chain": {
-            "id": "xrplevm_devnet",
-            "name": "xrplevm_devnet",
-            "symbol": "OSMO",
-            "env": "devnet",
+            "id": "xrplevm_testnet",
+            "name": "xrplevm_testnet",
+            "symbol": "XRP",
+            "env": "testnet",
             "type": "cosmos",
-            "height": 27654630,
             "nativeToken": {
-                "symbol": "OSMO",
-                "decimals": 6,
-                "name": "Osmosis Testnet Token",
-                "denom": "uosmo"
+                "id": "",
+                "symbol": "XRP",
+                "decimals": 18,
+                "name": "XRP",
+                "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
             },
             "door": "TODO: remove from interface",
             "urls": {
