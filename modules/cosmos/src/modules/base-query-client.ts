@@ -2,7 +2,7 @@ import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { QueryClient, createProtobufRpcClient, ProtobufRpcClient } from "@cosmjs/stargate";
 
 export class BaseQueryClient {
-    public readonly rpcClient: ProtobufRpcClient;
+    readonly rpcClient: ProtobufRpcClient;
 
     private constructor(rpcClient: ProtobufRpcClient) {
         this.rpcClient = rpcClient;
@@ -10,7 +10,7 @@ export class BaseQueryClient {
 
     /**
      * Connects to the given RPC URL and returns a BaseQueryClient instance.
-     * @param rpcUrl - The Tendermint RPC endpoint.
+     * @param rpcUrl The Tendermint RPC endpoint.
      * @returns A Promise that resolves to a BaseQueryClient.
      */
     static async connect(rpcUrl: string): Promise<BaseQueryClient> {

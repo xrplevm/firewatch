@@ -6,7 +6,7 @@ import { BaseQueryClient } from "../base-query-client";
 import { fromUtf8 } from "@cosmjs/encoding";
 
 export class SlashingClient {
-    public readonly slashingQuery: SlashingQueryClient;
+    readonly slashingQuery: SlashingQueryClient;
 
     private constructor(slashingQuery: SlashingQueryClient) {
         this.slashingQuery = slashingQuery;
@@ -14,7 +14,7 @@ export class SlashingClient {
 
     /**
      * Static async factory method to create a SlashingClient instance.
-     * @param rpcUrl - The Tendermint RPC endpoint URL.
+     * @param rpcUrl The Tendermint RPC endpoint URL.
      * @returns A Promise that resolves to a fully initialized SlashingClient.
      */
     static async connect(rpcUrl: string): Promise<SlashingClient> {
