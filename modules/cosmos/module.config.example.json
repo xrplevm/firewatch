@@ -23,9 +23,7 @@
             },
             "module": {
                 "name": "bank",
-                "validatorsStatus": "BOND_STATUS_BONDED",
-                "stakedAmount": "1000000",
-                "delegatorPrefix": "ethm"
+                "stakedAmount": "1000000"
             }
         }
     }
