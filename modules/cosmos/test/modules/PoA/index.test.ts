@@ -17,7 +17,7 @@ describe("PoA Module", () => {
     });
 
     describe("Validator staking and self-delegation", () => {
-        it("should have the staking bond for all validators", async () => {
+        it("should have the same amount of staking bond for all validators", async () => {
             const validators = await poaClient.getValidators();
             expect(validators.length).to.be.greaterThan(0);
 
