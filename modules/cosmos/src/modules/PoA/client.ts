@@ -10,11 +10,9 @@ import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 // The PoAClient will use composition rather than inheritance.
 export class PoAClient {
     public readonly stakingQuery: StakingQueryClient;
-    public readonly slashingQuery: SlashingQueryClient;
 
-    private constructor(stakingQuery: StakingQueryClient, slashingQuery: SlashingQueryClient) {
+    private constructor(stakingQuery: StakingQueryClient) {
         this.stakingQuery = stakingQuery;
-        this.slashingQuery = slashingQuery;
     }
 
     /**
@@ -27,9 +25,8 @@ export class PoAClient {
         const queryClient = new QueryClient(tendermint as any);
         const rpcClient = createProtobufRpcClient(queryClient);
         const stakingQuery = new StakingQueryClient(rpcClient);
-        const slashingQuery = new SlashingQueryClient(rpcClient);
 
-        return new PoAClient(stakingQuery, slashingQuery);
+        return new PoAClient(stakingQuery);
     }
 
     /**
