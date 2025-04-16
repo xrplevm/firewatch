@@ -12,6 +12,7 @@
     "dependencies": {
         "@cosmjs/stargate": "^0.33.0",
         "@cosmjs/tendermint-rpc": "^0.33.1",
+        "@types/chai": "^5.0.1",
         "cosmjs-types": "^0.9.0",
         "mocha": "^11.1.0"
     },
