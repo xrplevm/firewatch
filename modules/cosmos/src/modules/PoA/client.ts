@@ -8,7 +8,7 @@ import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
  */
 // The PoAClient will use composition rather than inheritance.
 export class PoAClient {
-    public readonly stakingQuery: StakingQueryClient;
+    readonly stakingQuery: StakingQueryClient;
 
     private constructor(stakingQuery: StakingQueryClient) {
         this.stakingQuery = stakingQuery;
@@ -16,7 +16,7 @@ export class PoAClient {
 
     /**
      * Static async factory method to create a PoAClient instance.
-     * @param rpcUrl - The Tendermint RPC endpoint URL.
+     * @param rpcUrl The Tendermint RPC endpoint URL.
      * @returns A Promise that resolves to a fully initialized PoAClient.
      */
     static async connect(rpcUrl: string): Promise<PoAClient> {
