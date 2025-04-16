@@ -1,7 +1,6 @@
 import { createProtobufRpcClient, QueryClient } from "@cosmjs/stargate";
 import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { QueryValidatorDelegationsResponse, QueryClientImpl as StakingQueryClient } from "cosmjs-types/cosmos/staking/v1beta1/query";
-import { QueryClientImpl as SlashingQueryClient } from "cosmjs-types/cosmos/slashing/v1beta1/query";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 
 /**
