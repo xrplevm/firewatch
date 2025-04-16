@@ -16,13 +16,15 @@
             },
             "door": "TODO: remove from interface",
             "urls": {
-                "rpc": "http://localhost:26657"
+                "rpc": "https://xrpevm.kintsugi-nodes.com"
             },
             "account": {
                 "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
             },
             "module": {
-                "name": "bank"
+                "name": "bank",
+                "downtimeFraction": "0",
+                "doubleSignerFraction": "0"
             }
         }
     }
