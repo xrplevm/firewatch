@@ -1,7 +1,6 @@
-import { createProtobufRpcClient, QueryClient } from "@cosmjs/stargate";
 import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { QueryValidatorDelegationsResponse, QueryClientImpl as StakingQueryClient } from "cosmjs-types/cosmos/staking/v1beta1/query";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { BaseQueryClient } from "../base-query-client";
 
 /**
  * PoAClient extends StargateClient and adds custom staking query methods.
@@ -20,12 +19,9 @@ export class PoAClient {
      * @returns A Promise that resolves to a fully initialized PoAClient.
      */
     static async connect(rpcUrl: string): Promise<PoAClient> {
-        const tendermint = await Tendermint34Client.connect(rpcUrl);
-        const queryClient = new QueryClient(tendermint as any);
-        const rpcClient = createProtobufRpcClient(queryClient);
-        const stakingQuery = new StakingQueryClient(rpcClient);
-
-        return new PoAClient(stakingQuery);
+        const baseClient = await BaseQueryClient.connect(rpcUrl);
+        const slashingQuery = new StakingQueryClient(baseClient.rpcClient);
+        return new PoAClient(slashingQuery);
     }
 
     /**
