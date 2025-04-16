@@ -1,7 +1,13 @@
-import { StargateClient } from "@cosmjs/stargate";
+import { createProtobufRpcClient, QueryClient } from "@cosmjs/stargate";
 import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
-import { QueryClientImpl as StakingQueryClient } from "cosmjs-types/cosmos/staking/v1beta1/query";
+import { QueryValidatorDelegationsResponse, QueryClientImpl as StakingQueryClient } from "cosmjs-types/cosmos/staking/v1beta1/query";
 import { PoAModule } from "./module";
+import {
+    QueryClientImpl as SlashingQueryClient,
+    QueryParamsResponse as SlashingParamsResponse,
+} from "cosmjs-types/cosmos/slashing/v1beta1/query";
+import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { fromBech32, toBech32 } from "@cosmjs/encoding";
 
 // Define a minimal Rpc interface (what StakingQueryClient expects)
 interface Rpc {
@@ -11,35 +17,32 @@ interface Rpc {
 /**
  * PoAClient extends StargateClient and adds custom staking query methods.
  */
-export class PoAClient extends StargateClient {
-    public readonly stakingService: StakingQueryClient;
+// The PoAClient will use composition rather than inheritance.
+export class PoAClient {
+    public readonly stakingQuery: StakingQueryClient;
+    public readonly slashingQuery: SlashingQueryClient;
     private readonly moduleConfig: PoAModule;
 
-    private constructor(cometClient: any, stakingService: StakingQueryClient, moduleConfig: PoAModule) {
-        // Pass an empty object as options.
-        super(cometClient, {});
-        this.stakingService = stakingService;
+    private constructor(stakingQuery: StakingQueryClient, slashingQuery: SlashingQueryClient, moduleConfig: PoAModule) {
+        this.stakingQuery = stakingQuery;
+        this.slashingQuery = slashingQuery;
         this.moduleConfig = moduleConfig;
     }
 
     /**
-     * Static async factory method that creates a PoAClient instance.
-     * @param rpcUrl - The Cosmos RPC endpoint.
-     * @param moduleConfig - The PoA module configuration (includes validatorsStatus).
-     * @returns A fully initialized PoAClient.
+     * Static async factory method to create a PoAClient instance.
+     * @param rpcUrl - The Tendermint RPC endpoint URL.
+     * @param moduleConfig - The PoA module configuration (e.g. includes validatorsStatus).
+     * @returns A Promise that resolves to a fully initialized PoAClient.
      */
-    static async createPoAClient(rpcUrl: string, moduleConfig: PoAModule): Promise<PoAClient> {
-        const client = await StargateClient.connect(rpcUrl);
+    static async connect(rpcUrl: string, moduleConfig: PoAModule): Promise<PoAClient> {
+        const tendermint = await Tendermint34Client.connect(rpcUrl);
+        const queryClient = new QueryClient(tendermint as any);
+        const rpcClient = createProtobufRpcClient(queryClient);
+        const stakingQuery = new StakingQueryClient(rpcClient);
+        const slashingQuery = new SlashingQueryClient(rpcClient);
 
-        const rpc = (client as any).rpc as Rpc;
-        if (!rpc || typeof rpc.request !== "function") {
-            throw new Error("Unable to extract rpc from StargateClient");
-        }
-
-        const stakingService = new StakingQueryClient(rpc);
-        const cometClient = (client as any).cometClient;
-
-        return new PoAClient(cometClient, stakingService, moduleConfig);
+        return new PoAClient(stakingQuery, slashingQuery, moduleConfig);
     }
 
     /**
@@ -47,8 +50,8 @@ export class PoAClient extends StargateClient {
      * @returns A promise that resolves to an array of Validator objects.
      */
     async getValidators(): Promise<Validator[]> {
-        const response = await this.stakingService.Validators({
-            status: this.moduleConfig.validatorsStatus,
+        const response = await this.stakingQuery.Validators({
+            status: this.moduleConfig.validatorsStatus, // e.g., "BOND_STATUS_BONDED"
         });
         return response.validators;
     }
@@ -60,11 +63,36 @@ export class PoAClient extends StargateClient {
      * @param validatorAddress The operator address of the validator.
      * @returns A promise that resolves to the delegation shares as a string.
      */
-    async getValidatorSelfDelegationShare(validatorAddress: string): Promise<string> {
-        const response = await this.stakingService.Delegation({
-            delegatorAddr: validatorAddress,
+    async getValidatorSelfDelegationShare(validatorAddress: string, delegatorPrefix: string): Promise<string> {
+        const delegatorAddress = convertValidatorToDelegatorAddress(validatorAddress, delegatorPrefix);
+        const response = await this.stakingQuery.Delegation({
+            delegatorAddr: delegatorAddress,
             validatorAddr: validatorAddress,
         });
         return response.delegationResponse ? response.delegationResponse.delegation.shares : "0";
     }
+
+    /**
+     * Retrieves all delegations for the given validator.
+     *
+     * This method calls the ValidatorDelegations query and returns the full response.
+     *
+     * @param validatorAddress The validator operator address.
+     * @returns A promise that resolves to the QueryValidatorDelegationsResponse.
+     */
+    async getValidatorDelegations(validatorAddress: string): Promise<QueryValidatorDelegationsResponse> {
+        const response = await this.stakingQuery.ValidatorDelegations({
+            validatorAddr: validatorAddress,
+        });
+        return response;
+    }
+}
+
+/**
+ * Helper function to convert a validator operator address to a delegator address.
+ * This version decodes the validator address using fromBech32 and then re-encodes it with the delegator prefix.
+ */
+export function convertValidatorToDelegatorAddress(validatorAddress: string, delegatorPrefix: string): string {
+    const decoded = fromBech32(validatorAddress);
+    return toBech32(delegatorPrefix, new Uint8Array(decoded.data));
 }

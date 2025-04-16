@@ -2,10 +2,10 @@
     "cosmos": {
         "url": "https://testnet.cosmos.directory/osmosistestnet",
         "chain": {
-            "id": "xrplevm_localnet",
-            "name": "xrplevm_localnet",
+            "id": "xrplevm_devnet",
+            "name": "xrplevm_devnet",
             "symbol": "OSMO",
-            "env": "localnet",
+            "env": "devnet",
             "type": "cosmos",
             "height": 27654630,
             "nativeToken": {
@@ -16,13 +16,16 @@
             },
             "door": "TODO: remove from interface",
             "urls": {
-                "rpc": "http://localhost:26657"
+                "rpc": "https://xrpevm.kintsugi-nodes.com"
             },
             "account": {
                 "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
             },
             "module": {
-                "name": "bank"
+                "name": "bank",
+                "validatorsStatus": "BOND_STATUS_BONDED",
+                "stakedAmount": "1000000",
+                "delegatorPrefix": "ethm"
             }
         }
     }
