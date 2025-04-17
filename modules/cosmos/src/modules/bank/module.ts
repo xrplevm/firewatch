@@ -1,3 +1,3 @@
-import { CosmosModule } from "../../models/module";
-
-export interface BankModule extends CosmosModule {}
+export interface BankModule {
+    account: string;
+}
