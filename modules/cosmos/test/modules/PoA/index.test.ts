@@ -4,15 +4,18 @@ import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assert
 import { PoAClient } from "../../../src/modules/PoA/client";
 import moduleConfig from "../../../module.config.example.json";
 import { Chain } from "@firewatch/core/chain";
+import { PoAModule } from "../../../src/modules/PoA/module";
 
 describe("PoA Module", () => {
     let poaClient: PoAClient;
     const chain = moduleConfig.chain;
-    const poaModule = moduleConfig.modules.poa;
+    let poaModule: PoAModule;
 
     before(async () => {
         assertChainTypes(["cosmos"], chain as unknown as Chain);
         assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], chain as unknown as Chain);
+
+        poaModule = moduleConfig.modules.poa;
 
         poaClient = await PoAClient.connect(chain.urls.rpc);
     });
