@@ -5,16 +5,21 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "test": "ts-node src/bank.ts",
+        "test": "mocha",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
     "dependencies": {
         "@cosmjs/stargate": "^0.33.0",
-        "cosmjs-types": "^0.9.0"
+        "@types/chai": "^5.0.1",
+        "cosmjs-types": "^0.9.0",
+        "mocha": "^11.1.0"
     },
     "devDependencies": {
+        "@firewatch/core": "workspace:*",
+        "@shared/eslint": "workspace:*",
         "@shared/tsconfig": "workspace:*",
-        "@shared/eslint": "workspace:*"
+        "@testing/mocha": "workspace:*",
+        "@types/mocha": "^10.0.10"
     }
 }
