@@ -1,6 +1,6 @@
 import { Validator } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 import { QueryValidatorDelegationsResponse, QueryClientImpl as StakingQueryClient } from "cosmjs-types/cosmos/staking/v1beta1/query";
-import { BaseQueryClient } from "../base-query-client";
+import { BaseQueryClient } from "../common/client";
 
 /**
  * PoAClient extends StargateClient and adds custom staking query methods.
