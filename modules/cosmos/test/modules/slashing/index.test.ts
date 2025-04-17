@@ -21,13 +21,15 @@ describe("Slashing Module", () => {
         slashingClient = await SlashingClient.connect(chain.urls.rpc);
     });
 
-    it("should return a double sign fraction matching the config", async function () {
-        const fraction = await slashingClient.getSlashFractionDoubleSignAsString();
-        expect(fraction).to.equal(slashingModule.slashDoubleSignFraction);
-    });
+    describe("Slash fractions", () => {
+        it("should return a double sign fraction matching the config", async () => {
+            const fraction = await slashingClient.getSlashFractionDoubleSignAsString();
+            expect(fraction).to.equal(slashingModule.slashDoubleSignFraction);
+        });
 
-    it("should return a downtime fraction matching the config", async function () {
-        const fraction = await slashingClient.getSlashFractionDowntimeAsString();
-        expect(fraction).to.equal(slashingModule.slashDowntimeFraction);
+        it("should return a downtime fraction matching the config", async () => {
+            const fraction = await slashingClient.getSlashFractionDowntimeAsString();
+            expect(fraction).to.equal(slashingModule.slashDowntimeFraction);
+        });
     });
 });
