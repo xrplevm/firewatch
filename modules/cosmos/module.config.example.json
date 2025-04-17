@@ -1,31 +1,23 @@
 {
-    "cosmos": {
-        "url": "https://testnet.cosmos.directory/osmosistestnet",
-        "chain": {
-            "id": "xrplevm_localnet",
-            "name": "xrplevm_localnet",
-            "symbol": "OSMO",
-            "env": "localnet",
-            "type": "cosmos",
-            "height": 27654630,
-            "nativeToken": {
-                "symbol": "OSMO",
-                "decimals": 6,
-                "name": "Osmosis Testnet Token",
-                "denom": "uosmo"
-            },
-            "door": "TODO: remove from interface",
-            "urls": {
-                "rpc": "https://xrpevm.kintsugi-nodes.com"
-            },
-            "account": {
-                "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
-            },
-            "module": {
-                "name": "bank",
-                "downtimeFraction": "0",
-                "doubleSignerFraction": "0"
-            }
+    "chain": {
+        "id": "xrplevm_testnet",
+        "name": "xrplevm_testnet",
+        "symbol": "XRP",
+        "env": "testnet",
+        "type": "cosmos",
+        "nativeToken": {
+            "name": "XRP",
+            "symbol": "XRP",
+            "decimals": 18
+        },
+        "door": "TODO: remove from interface",
+        "urls": {
+            "rpc": "http://cosmos.testnet.xrplevm.org:26657"
+        }
+    },
+    "modules": {
+        "bank": {
+            "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
         }
     }
 }
