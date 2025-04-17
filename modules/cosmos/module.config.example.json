@@ -19,6 +19,9 @@
         "bank": {
             "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
         },
+        "poa": {
+            "stakedAmount": "1000000"
+        },
         "slashing": {
             "slashDowntimeFraction": "0",
             "slashDoubleSignFraction": "0"
