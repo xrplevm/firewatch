@@ -1,30 +1,24 @@
 {
-    "cosmos": {
-        "url": "https://testnet.cosmos.directory/osmosistestnet",
-        "chain": {
-            "id": "xrplevm_testnet",
-            "name": "xrplevm_testnet",
+    "chain": {
+        "id": "xrplevm_testnet",
+        "name": "xrplevm_testnet",
+        "symbol": "XRP",
+        "env": "testnet",
+        "type": "cosmos",
+        "nativeToken": {
+            "name": "XRP",
             "symbol": "XRP",
-            "env": "testnet",
-            "type": "cosmos",
-            "nativeToken": {
-                "id": "",
-                "symbol": "XRP",
-                "decimals": 18,
-                "name": "XRP",
-                "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-            },
-            "door": "TODO: remove from interface",
-            "urls": {
-                "rpc": "https://xrpevm.kintsugi-nodes.com"
-            },
-            "account": {
-                "name": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
-            },
-            "module": {
-                "name": "bank",
-                "stakedAmount": "1000000"
-            }
+            "decimals": 18
+        },
+        "door": "TODO: remove from interface",
+        "urls": {
+            "rpc": "http://cosmos.testnet.xrplevm.org:26657"
+        }
+    },
+    "modules": {
+        "bank": {
+            "name": "bank",
+            "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
         }
     }
 }
