@@ -18,6 +18,10 @@
     "modules": {
         "bank": {
             "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+        },
+        "slashing": {
+            "slashDowntimeFraction": "0",
+            "slashDoubleSignFraction": "0"
         }
     }
 }

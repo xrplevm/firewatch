@@ -2,7 +2,7 @@ import {
     QueryClientImpl as SlashingQueryClient,
     QueryParamsResponse as SlashingParamsResponse,
 } from "cosmjs-types/cosmos/slashing/v1beta1/query";
-import { BaseQueryClient } from "../base-query-client";
+import { BaseQueryClient } from "../common/client";
 import { fromUtf8 } from "@cosmjs/encoding";
 
 export class SlashingClient {
