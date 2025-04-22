@@ -1,15 +1,8 @@
 import { Account } from "@firewatch/core/account";
 import { ModuleConfig } from "@firewatch/core/module";
 import { Chain } from "@firewatch/core/chain";
-import { BankModule } from "../modules/bank/module";
-import { PoAModule } from "../modules/PoA/module";
+import { BankModuleConfig } from "../modules/bank/config";
 
-export interface CosmosModuleConfig extends Omit<ModuleConfig<Chain, Account>, "network" | "accounts"> {
-    chain: Chain;
-    modules: SubModulesObject;
+export interface CosmosModuleConfig extends Omit<ModuleConfig<Chain, Account>, "accounts" | "door"> {
+    bank: BankModuleConfig;
 }
-
-export type SubModulesObject = {
-    bank: BankModule;
-    poa: PoAModule;
-};
