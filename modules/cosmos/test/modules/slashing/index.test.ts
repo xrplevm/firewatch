@@ -4,21 +4,21 @@ import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assert
 import { SlashingClient } from "../../../src/modules/slashing/client";
 import moduleConfig from "../../../module.config.example.json";
 import { Chain } from "@firewatch/core/chain";
-import { SlashingModule } from "../../../src/modules/slashing/module";
+import { SlashingModuleConfig } from "../../../src/modules/slashing/config";
 
-describe("Slashing Module", () => {
+describe("SlashingModule", () => {
     let slashingClient: SlashingClient;
-    let slashingModule: SlashingModule;
+    let slashingModule: SlashingModuleConfig;
 
-    const chain = moduleConfig.chain;
+    const network = moduleConfig.network;
 
     before(async () => {
-        assertChainTypes(["cosmos"], chain as unknown as Chain);
-        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], chain as unknown as Chain);
+        assertChainTypes(["cosmos"], network as unknown as Chain);
+        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], network as unknown as Chain);
 
-        slashingModule = moduleConfig.modules.slashing;
+        slashingModule = moduleConfig.slashing;
 
-        slashingClient = await SlashingClient.connect(chain.urls.rpc);
+        slashingClient = await SlashingClient.connect(network.urls.rpc);
     });
 
     describe("Slash fractions", () => {

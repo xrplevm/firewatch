@@ -2,7 +2,7 @@ import { Account } from "@firewatch/core/account";
 import { ModuleConfig } from "@firewatch/core/module";
 import { Chain } from "@firewatch/core/chain";
 import { BankModuleConfig } from "../modules/bank/config";
-import { PoaModuleConfig } from "../modules/PoA/module";
+import { PoaModuleConfig } from "../modules/poa/config";
 import { SlashingModuleConfig } from "../modules/slashing/config";
 export interface CosmosModuleConfig extends Omit<ModuleConfig<Chain, Account>, "accounts" | "door"> {
     bank: BankModuleConfig;
