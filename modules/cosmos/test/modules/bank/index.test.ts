@@ -4,20 +4,20 @@ import { describe, it, before } from "mocha";
 import moduleConfig from "../../../module.config.example.json";
 import { BankClient } from "../../../src/modules/bank/client";
 import { Chain } from "@firewatch/core/chain";
-import { BankModule } from "../../../src/modules/bank/module";
+import { BankModuleConfig } from "../../../src/modules/bank/config";
 
-describe("Bank Module", () => {
+describe("BankModule", () => {
     let bankClient: BankClient;
-    const chain = moduleConfig.chain;
-    let bankModule: BankModule;
+    const network = moduleConfig.network;
+    let bankModule: BankModuleConfig;
     let testAccountAddress: string;
 
     before(async () => {
-        assertChainTypes(["cosmos"], chain as unknown as Chain);
-        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], chain as unknown as Chain);
-        bankModule = moduleConfig.modules.bank;
+        assertChainTypes(["cosmos"], network as unknown as Chain);
+        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], network as unknown as Chain);
+        bankModule = moduleConfig.bank;
 
-        bankClient = await BankClient.connect(chain.urls.rpc);
+        bankClient = await BankClient.connect(network.urls.rpc);
         testAccountAddress = bankModule.account;
     });
 

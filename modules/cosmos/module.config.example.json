@@ -1,5 +1,5 @@
 {
-    "chain": {
+    "network": {
         "id": "xrplevm_testnet",
         "name": "xrplevm_testnet",
         "symbol": "XRP",
@@ -10,14 +10,11 @@
             "symbol": "XRP",
             "decimals": 18
         },
-        "door": "TODO: remove from interface",
         "urls": {
             "rpc": "http://cosmos.testnet.xrplevm.org:26657"
         }
     },
-    "modules": {
-        "bank": {
-            "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
-        }
+    "bank": {
+        "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
     }
 }
