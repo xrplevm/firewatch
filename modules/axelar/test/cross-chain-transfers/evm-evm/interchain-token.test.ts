@@ -1,5 +1,5 @@
 import { ethers, Contract } from "ethers";
-import config from "../../../config/devnet.config.example.json";
+import config from "../../../module.config.example.json";
 import { PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";

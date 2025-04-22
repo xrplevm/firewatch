@@ -2,7 +2,7 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import config from "../../../config/devnet.config.example.json";
+import config from "../../../module.config.example.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
