@@ -1,3 +1,3 @@
-export interface PoAModule {
+export interface PoaModuleConfig {
     stakedAmount: string;
 }

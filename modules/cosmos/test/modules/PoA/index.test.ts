@@ -1,23 +1,23 @@
 import { expect } from "chai";
 import { describe, it, before } from "mocha";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
-import { PoAClient } from "../../../src/modules/PoA/client";
+import { PoAClient } from "../../../src/modules/poa/client";
 import moduleConfig from "../../../module.config.example.json";
 import { Chain } from "@firewatch/core/chain";
-import { PoAModule } from "../../../src/modules/PoA/module";
+import { PoaModuleConfig } from "../../../src/modules/poa/module";
 
-describe("PoA Module", () => {
+describe("PoaModule", () => {
     let poaClient: PoAClient;
-    const chain = moduleConfig.chain;
-    let poaModule: PoAModule;
+    const network = moduleConfig.network;
+    let poaModule: PoaModuleConfig;
 
     before(async () => {
-        assertChainTypes(["cosmos"], chain as unknown as Chain);
-        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], chain as unknown as Chain);
+        assertChainTypes(["cosmos"], network as unknown as Chain);
+        assertChainEnvironments(["localnet", "devnet", "testnet", "mainnet"], network as unknown as Chain);
 
-        poaModule = moduleConfig.modules.poa;
+        poaModule = moduleConfig.poa;
 
-        poaClient = await PoAClient.connect(chain.urls.rpc);
+        poaClient = await PoAClient.connect(network.urls.rpc);
     });
 
     describe("Validator staking and self-delegation", () => {
