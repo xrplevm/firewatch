@@ -95,6 +95,9 @@ importers:
 
     modules/cosmos:
         dependencies:
+            "@cosmjs/encoding":
+                specifier: ^0.33.1
+                version: 0.33.1
             "@cosmjs/stargate":
                 specifier: ^0.33.0
                 version: 0.33.0(bufferutil@4.0.5)(utf-8-validate@5.0.7)
