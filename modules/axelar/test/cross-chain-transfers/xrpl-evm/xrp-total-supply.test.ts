@@ -1,8 +1,7 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { dropsToXrp } from "xrpl";
-
 import { ethers } from "ethers";
-import config from "../../../config/testnet.config.example.json";
+import config from "../../../module.config.example.json";
 import { Client } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { ERC20 } from "@shared/evm/contracts";
@@ -12,7 +11,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 
 describe("Total Supply", () => {
     const { sourceChain, destinationChain } = config.axelar;
-    const gatewayAddress = destinationChain.contractAddresses.axelarAmplifierGatewayAddress;
+    const gatewayAddress = destinationChain.contractAddresses.axelarGatewayAddress;
 
     let evmChainProvider: EthersProvider;
     let xrplChainProvider: XrplProvider;
