@@ -15,7 +15,7 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { AssertionErrors } from "@testing/mocha/assertions";
 
-describe.skip("Cross-Chain Native Transfer", () => {
+describe.skip("Cross-Chain No-Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;
@@ -59,25 +59,35 @@ describe.skip("Cross-Chain Native Transfer", () => {
         }
     });
 
-    describe("from evm chain to xrpl chain", () => {
+    describe("from ERC20 evm chain to xrpl chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
         });
 
-        it("should transfer the token", async () => {
+        it("should transfer the ERC20", async () => {
             const initialSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
             const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
-            const amount = interchainTransferOptions.amount;
+            const amount = "9";
+            const amountInBase18 = ethers.parseUnits(amount, 18);
+
+            const RLUSD: Token = {
+                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+                symbol: "RLUSD",
+                decimals: 18,
+                name: "RLUSD",
+                address: "0x20937978F265DC0C947AA8e136472CFA994FE1eD",
+                isNative: () => false,
+            };
 
             const tx = await evmChainSigner.transfer(
                 amount,
-                sourceChain.nativeToken as Token,
+                RLUSD as Token,
                 sourceChain.interchainTokenServiceAddress,
                 destinationChain.name,
                 evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
-                interchainTransferOptions.gasToPay,
+                "1.7",
             );
 
             const receipt = await tx.wait();
@@ -86,12 +96,14 @@ describe.skip("Cross-Chain Native Transfer", () => {
             const finalSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
 
             const expectedSrcBalance = BigNumber(initialSrcBalance)
-                .minus(BigNumber(amount.toString()))
+                .minus(BigNumber(amountInBase18.toString()))
                 .minus(BigNumber(gasCost.toString()));
 
             await polling(
                 async () => {
                     const balance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
+                    console.log({ balance, initialDestBalance, amount });
+                    console.log(xrplChainWallet.address);
                     return BigNumber(balance.toString()).eq(BigNumber(initialDestBalance.toString()).plus(xrpToDrops(amount)));
                 },
                 (res) => !res,
@@ -100,34 +112,53 @@ describe.skip("Cross-Chain Native Transfer", () => {
         });
 
         it("should revert when transferring 0 tokens", async () => {
+            const RLUSD: Token = {
+                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+                symbol: "RLUSD",
+                decimals: 18,
+                name: "RLUSD",
+                address: "0x20937978F265DC0C947AA8e136472CFA994FE1eD",
+                isNative: () => false,
+            };
             await assertRevert(
                 evmChainSigner.transfer(
                     "0",
-                    sourceChain.nativeToken as Token,
+                    RLUSD as Token,
                     sourceChain.interchainTokenServiceAddress,
                     destinationChain.name,
                     evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+                    "0",
                 ),
                 AssertionErrors.UNKNOWN_CUSTOM_ERROR,
             );
         });
     });
 
-    describe("from xrpl chain to evm chain", () => {
+    describe("from IOU xrpl chain to evm chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
         });
 
-        it("should transfer the token", async () => {
+        it("should transfer the IOU", async () => {
             const erc20 = evmChainProvider.getERC20Contract(sourceChain.nativeToken.address, evmChainWallet);
             const initialDestBalance = await erc20.balanceOf(evmChainWallet.address);
+            const initialSourceBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
             const amount = interchainTransferOptions.amount;
 
+            const FOO: Token = {
+                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+                symbol: "FOO",
+                decimals: 18,
+                name: "FOO",
+                address: "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj",
+                isNative: () => false,
+            };
+
             const tx = await xrplChainSigner.transfer(
-                amount,
-                new Token({} as any),
+                "3",
+                FOO,
                 destinationChain.interchainTokenServiceAddress,
                 xrplChainTranslator.translate("evm", sourceChain.name),
                 xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
@@ -138,22 +169,36 @@ describe.skip("Cross-Chain Native Transfer", () => {
             await polling(
                 async () => {
                     const balance = await erc20.balanceOf(evmChainWallet.address);
+                    console.log({ balance, initialDestBalance, amount });
                     return BigNumber(balance.toString()).eq(
-                        BigNumber(initialDestBalance.toString())
-                            .plus(ethers.parseUnits(amount, 18).toString())
-                            .minus(ethers.parseEther("1.7").toString()),
+                        BigNumber(initialDestBalance.toString()).plus(ethers.parseUnits(amount, 18).toString()),
                     );
                 },
                 (res) => !res,
                 interchainTransferOptions as PollingOptions,
             );
+
+            const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(xrpToDrops(amount)).minus(fee!);
+            const finalSrcBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
+
+            if (!BigNumber(finalSrcBalance.toString()).eq(expectedSourceBalance)) {
+                throw new Error(`Source balance mismatch! Expected: ${expectedSourceBalance}, Actual: ${finalSrcBalance}`);
+            }
         });
 
         it("should revert when transferring 0 tokens", async () => {
+            const FOO: Token = {
+                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+                symbol: "FOO",
+                decimals: 18,
+                name: "FOO",
+                address: "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj",
+                isNative: () => false,
+            };
             await assertRevert(
                 xrplChainSigner.transfer(
                     "0",
-                    new Token({} as any),
+                    FOO,
                     destinationChain.interchainTokenServiceAddress,
                     xrplChainTranslator.translate("evm", sourceChain.name),
                     xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),

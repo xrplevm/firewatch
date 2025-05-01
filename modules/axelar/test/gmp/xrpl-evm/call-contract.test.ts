@@ -1,6 +1,6 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
-import { AbiCoder, ethers } from "ethers";
+import { AbiCoder, BigNumberish, ethers } from "ethers";
 import config from "../../../module.config.example.json";
 import { polling, PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
@@ -38,34 +38,39 @@ describe("CallContract XRP - EVM", () => {
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
     before(async () => {
-        assertChainTypes(["xrp"], sourceChain as unknown as AxelarBridgeChain);
-        assertChainTypes(["evm"], destinationChain as unknown as AxelarBridgeChain);
+        // Ensure correct chain types for this test direction
+        assertChainTypes(["evm"], sourceChain as unknown as AxelarBridgeChain);
+        assertChainTypes(["xrp"], destinationChain as unknown as AxelarBridgeChain);
 
-        const { urls: destUrls, callContractWithTokenAddress: destCallContractAddress } = destinationChain;
+        // Providers
+        evmJsonProvider = new ethers.JsonRpcProvider(sourceChain.urls.rpc);
+        xrplClient = new Client(destinationChain.urls.ws);
 
-        xrplClient = new Client(sourceChain.urls.ws);
-        evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
-
-        xrplChainProvider = new XrplProvider(xrplClient);
         evmChainProvider = new EthersProvider(evmJsonProvider);
+        xrplChainProvider = new XrplProvider(xrplClient);
 
-        xrplChainWallet = Wallet.fromSeed(sourceChain.account.privateKey);
-        evmChainWallet = new ethers.Wallet(destinationChain.account.privateKey, evmJsonProvider);
-        console.log({ evmChainWallet });
+        // Wallets
+        evmChainWallet = new ethers.Wallet(sourceChain.account.privateKey, evmJsonProvider);
+        xrplChainWallet = Wallet.fromSeed(destinationChain.account.privateKey);
 
+        // Signers
         evmChainSigner = new EthersSigner(evmChainWallet, evmChainProvider);
-        console.log(await evmChainSigner.getAddress());
         xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
+        // Translators
         evmChainTranslator = new EvmTranslator();
         xrplChainTranslator = new XrpTranslator();
 
-        destinationCallContract = new CallContract(destCallContractAddress, evmChainWallet);
+        // Contracts
+        destinationCallContract = new CallContract(
+            sourceChain.callContractWithTokenAddress, // This is the EVM contract address
+            evmChainWallet,
+        );
+
+        // Ensure XRPL client is connected
         if (!xrplClient.isConnected()) {
-            console.log("Connecting to XRPL...");
             await xrplClient.connect();
         }
-        console.log("XRPL Client Connected:", xrplClient.isConnected());
     });
 
     describe("from xrp Source chain to evm Destination chain", () => {
@@ -75,36 +80,24 @@ describe("CallContract XRP - EVM", () => {
         });
 
         it("should update destination state when a non-empty message is sent", async () => {
-            const msgText = `Hello from the source chain! ${Date.now()}`;
-            const abiCoder = new AbiCoder();
-            const payload = abiCoder.encode(["string"], [msgText]);
-            console.log({ xrplChainWallet });
+            const encodedPayload = AbiCoder.defaultAbiCoder().encode(["string"], ["Hello Sidechain"]);
+            const amount = (Math.random() + 5).toFixed(6);
+
             const tx = await xrplChainSigner.callContractWithToken(
-                "0.00001",
+                amount,
                 new Token({} as any),
-                sourceChain.interchainTokenServiceAddress,
-                destinationChain.name,
-                xrplChainTranslator.translate(ChainType.EVM, destinationChain.callContractWithTokenAddress),
-                payload,
+                destinationChain.interchainTokenServiceAddress,
+                xrplChainTranslator.translate("evm", sourceChain.name),
+                xrplChainTranslator.translate(ChainType.EVM, sourceChain.callContractWithTokenAddress),
+                encodedPayload.slice(2),
             );
             const confirmedTx = await tx.wait();
 
-            console.log("Transaction Sent:", tx);
-            console.log("Transaction Confirmed:", confirmedTx);
-            const txDetails = await xrplClient.request({
-                command: "tx",
-                transaction: confirmedTx.hash,
-                binary: false, // Ensure human-readable format
-            });
-
-            console.log("Full XRPL Transaction Details:", txDetails);
-
-            let finalMessage: string;
+            let finalValue: BigNumberish;
             await polling(
                 async () => {
-                    finalMessage = await destinationCallContract.message();
-                    console.log({ finalMessage });
-                    return finalMessage.includes(msgText);
+                    finalValue = await destinationCallContract.value();
+                    return finalValue.toString() === amount;
                 },
                 (result) => !result,
                 pollingOpts,

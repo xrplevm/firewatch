@@ -95,12 +95,41 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
         doorAddress: string,
         destinationChainId: string,
         destinationAddress: string,
+        gasToPay?: string,
     ): Promise<Unconfirmed<XrplTransaction>> {
         try {
-            const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
+            // Prepare memos
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("type"),
+                        MemoData: convertStringToHex("interchain_transfer"),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_address"),
+                        MemoData: destinationAddress,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_chain"),
+                        MemoData: destinationChainId,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("gas_fee_amount"),
+                        MemoData: convertStringToHex(gasToPay ?? "1700000"),
+                    },
+                },
+            ];
+
+            // Prepare payment object
+            const payment: Payment = {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
-                // TODO: Handle IOU decimal values
                 Amount: token.isNative()
                     ? xrpToDrops(amount)
                     : {
@@ -109,23 +138,13 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                           issuer: token.address!,
                       },
                 Destination: doorAddress,
-                Memos: [
-                    {
-                        Memo: {
-                            //
-                            MemoType: "64657374696E6174696F6E5F61646472657373", // hex(destination_address)
-                            MemoData: destinationAddress,
-                        },
-                    },
-                    {
-                        Memo: {
-                            MemoType: "64657374696E6174696F6E5F636861696E", // hex(destination_chain)
-                            MemoData: convertStringToHex(destinationChainId),
-                        },
-                    },
-                ],
-            });
+                Memos: memos,
+            };
 
+            // Sign and submit transaction
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
+
+            // Parse and return response
             return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse, (txResponse) => ({
                 fee: (txResponse as ExtendedXrplTxResponse).Fee,
             }));
@@ -137,51 +156,51 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
     /**
      * @inheritdoc
      */
+    async callContract(
+        sourceGatewayAddress: string,
+        destinationChainId: string,
+        destinationContractAddress: string,
+        payload: string,
+    ): Promise<Unconfirmed<Transaction>> {
+        // Not implemented for XRPL
+        throw new Error("callContract is not implemented for XRPL signer.");
+    }
+
+    /**
+     * @inheritdoc
+     */
     async callContractWithToken(
         amount: string,
         token: Token,
-        _sourceGatewayAddress: string,
-        _destinationChainId: string,
-        _destinationContractAddress: string,
-        _payload: string,
+        sourceGatewayAddress: string,
+        destinationChainId: string,
+        destinationContractAddress: string,
+        payload: string,
     ): Promise<Unconfirmed<Transaction>> {
         try {
-            const cleanPayload = _payload.startsWith("0x") ? _payload.slice(2).toUpperCase() : _payload.toUpperCase();
-            const destinationChainHex = convertStringToHex(_destinationChainId);
-            const cleanDestinationAddress = _destinationContractAddress.startsWith("0x")
-                ? _destinationContractAddress.slice(2)
-                : _destinationContractAddress;
-
             const memos = [
                 {
                     Memo: {
-                        MemoData: Buffer.from("interchain_transfer").toString("hex").toUpperCase(),
-                        MemoType: Buffer.from("type").toString("hex").toUpperCase(),
+                        MemoType: convertStringToHex("type"),
+                        MemoData: convertStringToHex("call_contract"),
                     },
                 },
                 {
                     Memo: {
-                        MemoData: Buffer.from(cleanDestinationAddress).toString("hex").toUpperCase(),
-                        MemoType: Buffer.from("destination_address").toString("hex").toUpperCase(),
+                        MemoType: convertStringToHex("destination_address"),
+                        MemoData: destinationContractAddress,
                     },
                 },
                 {
                     Memo: {
-                        // Here we assume the testnet bridge chain is "xrpl-evm-testnet"
-                        MemoData: Buffer.from(_destinationChainId).toString("hex").toUpperCase(),
-                        MemoType: Buffer.from("destination_chain").toString("hex").toUpperCase(),
+                        MemoType: convertStringToHex("destination_chain"),
+                        MemoData: destinationChainId,
                     },
                 },
                 {
                     Memo: {
-                        MemoData: Buffer.from("1000000").toString("hex").toUpperCase(),
-                        MemoType: Buffer.from("gas_fee_amount").toString("hex").toUpperCase(),
-                    },
-                },
-                {
-                    Memo: {
-                        MemoType: Buffer.from("payload").toString("hex").toLowerCase(),
-                        MemoData: cleanPayload,
+                        MemoType: convertStringToHex("payload"),
+                        MemoData: payload,
                     },
                 },
             ];
@@ -196,9 +215,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                           value: amount,
                           issuer: token.address!,
                       },
-                Destination: _sourceGatewayAddress,
-                Flags: 0,
-                Fee: "12",
+                Destination: sourceGatewayAddress,
                 Memos: memos,
             });
 

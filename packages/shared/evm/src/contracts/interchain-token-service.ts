@@ -14,6 +14,7 @@ export interface IInterchainTokenService {
         metadata?: string,
         gasValue?: ethers.BigNumberish,
         options?: {
+            gasValue?: ethers.BigNumberish;
             gasLimit?: number;
             value?: ethers.BigNumberish;
         },
