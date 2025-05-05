@@ -11,7 +11,7 @@
             "type": "evm",
             "symbol": "XRP",
             "nativeToken": {
-                "id": "",
+                "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
                 "symbol": "XRP",
                 "decimals": 18,
                 "name": "XRP",
