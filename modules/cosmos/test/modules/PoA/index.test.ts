@@ -4,7 +4,7 @@ import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assert
 import { PoAClient } from "../../../src/modules/poa/client";
 import moduleConfig from "../../../module.config.example.json";
 import { Chain } from "@firewatch/core/chain";
-import { PoaModuleConfig } from "../../../src/modules/poa/module";
+import { PoaModuleConfig } from "../../../src/modules/poa/config";
 
 describe("PoaModule", () => {
     let poaClient: PoAClient;
