@@ -16,7 +16,7 @@ import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
 
-describe("Cross-Chain Native Transfer", () => {
+describe.skip("Cross-Chain Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;

@@ -11,7 +11,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 
 describe("Total Supply", () => {
     const { sourceChain, destinationChain } = config.axelar;
-    const gatewayAddress = destinationChain.contractAddresses.axelarGatewayAddress;
+    const gatewayAddress = destinationChain.contractAddresses.axelarAmplifierGatewayAddress;
 
     let evmChainProvider: EthersProvider;
     let xrplChainProvider: XrplProvider;
