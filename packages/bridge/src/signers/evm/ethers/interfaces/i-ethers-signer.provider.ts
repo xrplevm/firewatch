@@ -1,4 +1,4 @@
-import { ERC20, InterchainTokenService, AxelarAmplifierGateway } from "@shared/evm/contracts";
+import { ERC20, InterchainTokenService, AxelarAmplifierGateway, InterchainToken } from "@shared/evm/contracts";
 import { ethers } from "ethers";
 
 export interface IEthersSignerProvider {
@@ -9,6 +9,8 @@ export interface IEthersSignerProvider {
      * @returns The ERC20 contract.
      */
     getERC20Contract(address: string, signerOrProvider: ethers.Signer | ethers.Provider): ERC20;
+
+    getInterchainTokenContract(address: string, signerOrProvider: ethers.Signer | ethers.Provider): InterchainToken;
 
     /**
      * Gets the Interchain Token Service contract.

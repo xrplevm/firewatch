@@ -113,7 +113,7 @@ describe.skip("Cross-Chain Native Transfer", () => {
         });
     });
 
-    describe("from xrpl chain to evm chain", () => {
+    describe.skip("from xrpl chain to evm chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);

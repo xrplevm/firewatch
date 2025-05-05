@@ -5,7 +5,7 @@ import { EthersProvider } from "../../../providers/evm/ethers/ethers.provider";
 import { SignerError } from "../../core/error";
 import { EthersSignerErrors } from "./ethers.signer.errors";
 import { EthersTransactionParser } from "../../../transaction-parsers/evm/ethers/ethers.transaction-parser";
-import { AxelarAmplifierGateway, ERC20, InterchainTokenService } from "@shared/evm/contracts";
+import { AxelarAmplifierGateway, ERC20, InterchainToken, InterchainTokenService } from "@shared/evm/contracts";
 import { decimalToInt } from "@shared/number";
 import { IEthersSigner } from "./interfaces";
 import { Token } from "@firewatch/core/token";
@@ -33,6 +33,10 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
      */
     protected getERC20Contract(address: string): ERC20 {
         return this.provider.getERC20Contract(address, this.signer);
+    }
+
+    getInterchainTokenContract(address: string): InterchainToken {
+        return this.provider.getInterchainTokenContract(address, this.signer);
     }
 
     /**
@@ -88,6 +92,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             sendingAmount.toString(),
             "0x",
             gasToPay ? ethers.parseEther(gasToPay) : undefined,
+            { gasValue: ethers.parseEther("1").toString() },
         );
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({

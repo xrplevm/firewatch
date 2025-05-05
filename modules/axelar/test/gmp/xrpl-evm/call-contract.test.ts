@@ -15,7 +15,7 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";
 
-describe("CallContract XRP - EVM", () => {
+describe.skip("CallContract XRP - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;

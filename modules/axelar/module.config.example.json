@@ -49,7 +49,7 @@
         },
         "interchainTransferOptions": {
             "amount": "7",
-            "gasToPay": "0.02",
+            "gasToPay": "0.2",
             "maxRetries": 50,
             "retryDelay": 10000,
             "timeout": 600000

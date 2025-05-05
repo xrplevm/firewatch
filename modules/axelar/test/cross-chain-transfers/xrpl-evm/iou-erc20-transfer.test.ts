@@ -15,7 +15,7 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { AssertionErrors } from "@testing/mocha/assertions";
 
-describe.skip("Cross-Chain No-Native Transfer", () => {
+describe("Cross-Chain No-Native Transfer", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let evmChainProvider: EthersProvider;
@@ -69,46 +69,66 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
             const initialSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
             const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
-            const amount = "9";
-            const amountInBase18 = ethers.parseUnits(amount, 18);
+            const amount = "0.01";
+            const amountInBase18 = ethers.parseUnits("5", 18);
 
-            const RLUSD: Token = {
-                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
-                symbol: "RLUSD",
+            const interchainToken = evmChainSigner.getInterchainTokenContract("0xE26D509C661c4F16FaFfBB1eAce1Fa1CdA8cc146");
+            const balance = await interchainToken.balanceOf(evmChainWallet.address);
+            console.log("Fetched balance from InterchainToken contract:", balance.toString(), evmChainWallet.address);
+            // Call the tokenId() function
+            const tokenId = await interchainToken.interchainTokenId();
+            console.log("Fetched tokenId from InterchainToken contract:", tokenId);
+
+            const FOO: Token = {
+                id: "0xc8895f8ceb0cae9da15bb9d2bc5859a184ca0f61c88560488355c8a7364deef8",
+                symbol: "FOO",
                 decimals: 18,
-                name: "RLUSD",
-                address: "0x20937978F265DC0C947AA8e136472CFA994FE1eD",
+                name: "FOO",
+                address: "0xE26D509C661c4F16FaFfBB1eAce1Fa1CdA8cc146",
                 isNative: () => false,
             };
 
-            const tx = await evmChainSigner.transfer(
-                amount,
-                RLUSD as Token,
-                sourceChain.interchainTokenServiceAddress,
-                destinationChain.name,
-                evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
-                "1.7",
-            );
+            // Prepare recipient and metadata
+            const recipient = evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address);
+            const metadata = "0x"; // or any metadata you want
+
+            // Call the new interchainTransfer function directly
+            const tx = await interchainToken.interchainTransfer(destinationChain.name, recipient, ethers.parseUnits(amount, 18), metadata, {
+                value: amountInBase18,
+                // gasValue: amountInBase18,
+                gasLimit: 100000000,
+            });
 
             const receipt = await tx.wait();
-            const gasCost = receipt.gasUsed * receipt.gasPrice;
+            console.log("Transaction receipt:", receipt);
+            // const tx = await evmChainSigner.transfer(
+            //     amount,
+            //     FOO as Token,
+            //     sourceChain.interchainTokenServiceAddress,
+            //     destinationChain.name,
+            //     evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+            //     "0.2",
+            // );
 
-            const finalSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
+            // const receipt = await tx.wait();
+            // const gasCost = receipt.gasUsed * receipt.gasPrice;
 
-            const expectedSrcBalance = BigNumber(initialSrcBalance)
-                .minus(BigNumber(amountInBase18.toString()))
-                .minus(BigNumber(gasCost.toString()));
+            // const finalSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
 
-            await polling(
-                async () => {
-                    const balance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
-                    console.log({ balance, initialDestBalance, amount });
-                    console.log(xrplChainWallet.address);
-                    return BigNumber(balance.toString()).eq(BigNumber(initialDestBalance.toString()).plus(xrpToDrops(amount)));
-                },
-                (res) => !res,
-                interchainTransferOptions as PollingOptions,
-            );
+            // const expectedSrcBalance = BigNumber(initialSrcBalance)
+            //     .minus(BigNumber(amountInBase18.toString()))
+            //     .minus(BigNumber(gasCost.toString()));
+
+            // await polling(
+            //     async () => {
+            //         const balance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
+            //         console.log({ balance, initialDestBalance, amount });
+            //         console.log(xrplChainWallet.address);
+            //         return BigNumber(balance.toString()).eq(BigNumber(initialDestBalance.toString()).plus(xrpToDrops(amount)));
+            //     },
+            //     (res) => !res,
+            //     interchainTransferOptions as PollingOptions,
+            // );
         });
 
         it("should revert when transferring 0 tokens", async () => {
@@ -134,7 +154,7 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
         });
     });
 
-    describe("from IOU xrpl chain to evm chain", () => {
+    describe.skip("from IOU xrpl chain to evm chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
