@@ -1,11 +1,13 @@
-import { AxelarGMPRecoveryAPI, Environment, GMPStatusResponse, GMPStatus } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo } from "./axelar.provider.types";
+import { AxelarGMPRecoveryAPI, Environment, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { AxelarCallInfo, LifecycleInfo } from "./axelar.provider.types";
+import { toSdkEnv } from "./helpers";
+import { Env } from "@firewatch/env/types";
 
-export class AxelarSdkProvider {
+export class AxelarProvider {
     private recoveryApi: AxelarGMPRecoveryAPI;
 
-    constructor(environment: Environment) {
-        this.recoveryApi = new AxelarGMPRecoveryAPI({ environment });
+    constructor(environment: Env) {
+        this.recoveryApi = new AxelarGMPRecoveryAPI({ environment: toSdkEnv(environment) });
     }
 
     /**
@@ -27,7 +29,7 @@ export class AxelarSdkProvider {
     /**
      * @inheritdoc
      */
-    async getCallInfo(txHash: string): Promise<any> {
+    async getCallInfo(txHash: string): Promise<AxelarCallInfo> {
         const { callTx } = await this.recoveryApi.queryTransactionStatus(txHash);
         return callTx;
     }
