@@ -1,27 +1,34 @@
 import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo, AxelarCallInfo } from "../axelar.provider.types";
+import { LifecycleInfo, AxelarCallInfo, AxelarMetrics } from "../axelar.provider.types";
 
 export interface IAxelarProvider {
     /**
-     * Gets high-level lifecycle information for a GMP transaction.
+     * Fetches high-level lifecycle information for a GMP transaction.
      * @param txHash The transaction hash.
-     * @returns Lifecycle information for the transaction.
+     * @returns LifecycleInfo containing status and error fields.
      */
-    getLifecycleInfo(txHash: string): Promise<LifecycleInfo>;
+    fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
-     * Gets the full status response from the Axelar SDK for a GMP transaction.
+     * Fetches metrics such as time spent and gas paid info for a GMP transaction.
      * @param txHash The transaction hash.
-     * @returns The full GMP status response.
+     * @returns AxelarMetrics containing timeSpent and gasPaidInfo.
      */
-    getFullStatus(txHash: string): Promise<GMPStatusResponse>;
+    fetchMetrics(txHash: string): Promise<AxelarMetrics>;
 
     /**
-     * Gets the on-chain call metadata for a GMP transaction (block, event args, receipt, etc).
+     * Fetches the full status response from the Axelar SDK for a GMP transaction.
      * @param txHash The transaction hash.
-     * @returns The call info (type is currently any, see AxelarCallInfo for details).
+     * @returns The full GMPStatusResponse object.
      */
-    getCallInfo(txHash: string): Promise<AxelarCallInfo>;
+    fetchFullStatus(txHash: string): Promise<GMPStatusResponse>;
+
+    /**
+     * Fetches on-chain call and event metadata for a GMP transaction.
+     * @param txHash The transaction hash.
+     * @returns AxelarCallInfo containing callTx, approved, expressExecuted, executed, and callback fields.
+     */
+    fetchEvents(txHash: string): Promise<AxelarCallInfo>;
 
     /**
      * Checks if the given transaction is already executed on the destination chain.
@@ -36,4 +43,10 @@ export interface IAxelarProvider {
      * @returns True if the transaction is confirmed, false otherwise.
      */
     isConfirmed(txHash: string): Promise<boolean>;
+
+    /**
+     * Gets the Axelar GMP API endpoint URL.
+     * @returns The endpoint URL as a string.
+     */
+    getEndpoint(): Promise<string>;
 }

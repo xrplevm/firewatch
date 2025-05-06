@@ -1,16 +1,19 @@
-import { GMPStatus, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { GasPaidInfo, GMPError, GMPStatus, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
 
 export type LifecycleInfo = {
     status: GMPStatus | string;
-    error?: GMPStatusResponse["error"];
-    executed?: GMPStatusResponse["executed"];
-    expressExecuted?: GMPStatusResponse["expressExecuted"];
-    approved?: GMPStatusResponse["approved"];
-    callback?: GMPStatusResponse["callback"];
+    error?: GMPError;
 };
 
-/**
- * TODO: This type is currently `any` because the Axelar SDK can return different transaction receipt shapes from multiple chains.
- * Will try to improve this type when we know the possible structures better.
- */
-export type AxelarCallInfo = any;
+export type AxelarMetrics = {
+    timeSpent?: GMPStatusResponse["timeSpent"];
+    gasPaidInfo?: GasPaidInfo;
+};
+
+export type AxelarCallInfo = {
+    callTx?: GMPStatusResponse["callTx"];
+    approved?: GMPStatusResponse["approved"];
+    expressExecuted?: GMPStatusResponse["expressExecuted"];
+    executed?: GMPStatusResponse["executed"];
+    callback?: GMPStatusResponse["callback"];
+};

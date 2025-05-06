@@ -1,39 +1,69 @@
 import { AxelarGMPRecoveryAPI, AxelarRecoveryAPIConfig, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { AxelarCallInfo, LifecycleInfo } from "./axelar.provider.types";
+import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelar.provider.types";
 import { toSdkEnv } from "./helpers";
 import { Env } from "@firewatch/env/types";
+import { IAxelarProvider } from "./interfaces";
 
-export class AxelarProvider {
-    private recoveryApi: AxelarGMPRecoveryAPI;
+class PatchedRecoveryAPI extends AxelarGMPRecoveryAPI {
+    private _overrideUrl?: string;
 
-    constructor(environment: Env, configOverrides?: Omit<AxelarRecoveryAPIConfig, "environment">) {
-        this.recoveryApi = new AxelarGMPRecoveryAPI({
-            environment: toSdkEnv(environment),
-            ...configOverrides,
-        });
+    constructor(config: AxelarRecoveryAPIConfig, overrideUrl?: string) {
+        super(config);
+        this._overrideUrl = overrideUrl;
     }
+
+    /**
+     * Returns the Axelar GMP API URL, using the override if provided.
+     */
+    public override get getAxelarGMPApiUrl(): string {
+        return this._overrideUrl ?? super.getAxelarGMPApiUrl;
+    }
+}
+
+export class AxelarProvider implements IAxelarProvider {
+    private recoveryApi: PatchedRecoveryAPI;
+
+    constructor(environment: Env, gmpApiUrl?: string) {
+        const sdkEnv = toSdkEnv(environment);
+        this.recoveryApi = new PatchedRecoveryAPI({ environment: sdkEnv }, gmpApiUrl);
+    }
+
     /**
      * @inheritdoc
      */
-    async getLifecycleInfo(txHash: string): Promise<LifecycleInfo> {
+    async fetchOutcome(txHash: string): Promise<LifecycleInfo> {
         const full = await this.recoveryApi.queryTransactionStatus(txHash);
-        const { status, error, executed, expressExecuted, approved, callback } = full;
-        return { status, error, executed, expressExecuted, approved, callback };
+        const { status, error } = full;
+        return { status, error };
     }
 
     /**
      * @inheritdoc
      */
-    async getFullStatus(txHash: string): Promise<GMPStatusResponse> {
+    async fetchMetrics(txHash: string): Promise<AxelarMetrics> {
+        const full = await this.recoveryApi.queryTransactionStatus(txHash);
+        const { timeSpent, gasPaidInfo } = full;
+        return { timeSpent, gasPaidInfo };
+    }
+    /**
+     * @inheritdoc
+     */
+    async fetchFullStatus(txHash: string): Promise<GMPStatusResponse> {
         return this.recoveryApi.queryTransactionStatus(txHash);
     }
 
     /**
      * @inheritdoc
      */
-    async getCallInfo(txHash: string): Promise<AxelarCallInfo> {
-        const { callTx } = await this.recoveryApi.queryTransactionStatus(txHash);
-        return callTx;
+    async fetchEvents(txHash: string): Promise<AxelarCallInfo> {
+        const { callTx, approved, expressExecuted, executed, callback } = await this.recoveryApi.queryTransactionStatus(txHash);
+        return {
+            callTx,
+            approved,
+            expressExecuted,
+            executed,
+            callback,
+        };
     }
 
     /**
@@ -48,5 +78,9 @@ export class AxelarProvider {
      */
     async isConfirmed(txHash: string): Promise<boolean> {
         return this.recoveryApi.isConfirmed(txHash);
+    }
+
+    async getEndpoint(): Promise<string> {
+        return await this.recoveryApi.getAxelarGMPApiUrl;
     }
 }
