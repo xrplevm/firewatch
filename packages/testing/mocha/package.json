@@ -21,6 +21,7 @@
     },
     "exports": {
         "./reporters/json": "./src/reporters/json/index.ts",
-        "./assertions": "./src/assertions/index.ts"
+        "./assertions": "./src/assertions/index.ts",
+        "./utils": "./src/utils/index.ts"
     }
 }
