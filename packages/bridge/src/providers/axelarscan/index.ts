@@ -1,2 +1,2 @@
-export * from "./models/request";
-export * from "./axelarscan.provider";
+export * from "./axelar.provider";
+export * from "./axelar.provider.types";
