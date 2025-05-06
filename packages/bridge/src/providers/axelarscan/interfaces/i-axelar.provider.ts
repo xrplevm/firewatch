@@ -22,4 +22,18 @@ export interface IAxelarProvider {
      * @returns The call info (type is currently any, see AxelarCallInfo for details).
      */
     getCallInfo(txHash: string): Promise<AxelarCallInfo>;
+
+    /**
+     * Checks if the given transaction is already executed on the destination chain.
+     * @param txHash The transaction hash.
+     * @returns True if the transaction is executed, false otherwise.
+     */
+    isExecuted(txHash: string): Promise<boolean>;
+
+    /**
+     * Checks if the given transaction is already confirmed on the source chain.
+     * @param txHash The transaction hash.
+     * @returns True if the transaction is confirmed, false otherwise.
+     */
+    isConfirmed(txHash: string): Promise<boolean>;
 }

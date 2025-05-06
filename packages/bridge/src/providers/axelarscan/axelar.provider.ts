@@ -31,4 +31,18 @@ export class AxelarSdkProvider {
         const { callTx } = await this.recoveryApi.queryTransactionStatus(txHash);
         return callTx;
     }
+
+    /**
+     * @inheritdoc
+     */
+    async isExecuted(txHash: string): Promise<boolean> {
+        return this.recoveryApi.isExecuted(txHash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async isConfirmed(txHash: string): Promise<boolean> {
+        return this.recoveryApi.isConfirmed(txHash);
+    }
 }
