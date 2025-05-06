@@ -1,4 +1,4 @@
-import { AxelarGMPRecoveryAPI, Environment, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { AxelarGMPRecoveryAPI, AxelarRecoveryAPIConfig, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
 import { AxelarCallInfo, LifecycleInfo } from "./axelar.provider.types";
 import { toSdkEnv } from "./helpers";
 import { Env } from "@firewatch/env/types";
@@ -6,10 +6,12 @@ import { Env } from "@firewatch/env/types";
 export class AxelarProvider {
     private recoveryApi: AxelarGMPRecoveryAPI;
 
-    constructor(environment: Env) {
-        this.recoveryApi = new AxelarGMPRecoveryAPI({ environment: toSdkEnv(environment) });
+    constructor(environment: Env, configOverrides?: Omit<AxelarRecoveryAPIConfig, "environment">) {
+        this.recoveryApi = new AxelarGMPRecoveryAPI({
+            environment: toSdkEnv(environment),
+            ...configOverrides,
+        });
     }
-
     /**
      * @inheritdoc
      */
