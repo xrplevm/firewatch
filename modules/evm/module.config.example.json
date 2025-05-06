@@ -37,7 +37,10 @@
             "contractAddress": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
             "owner": "0x10CDF544aeeEbadA19198a21a38D653A95e32272",
             "amount": "1",
-            "feeFund": "10000000"
+            "burnAmount": "1",
+            "faucetFund": "10000000000000000000",
+            "feeMultiplier": "0.95",
+            "residualThreshold": "0.8"
         }
     },
     "chain": {
