@@ -1,6 +1,6 @@
 import { ethers, Contract } from "ethers";
 import config from "../../../module.config.example.json";
-import { PollingOptions } from "@shared/utils";
+import { polling, PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
@@ -9,6 +9,8 @@ import { pollForEvent } from "@shared/evm/utils";
 import BigNumber from "bignumber.js";
 import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
+import { AxelarProvider } from "@firewatch/bridge/providers/axelarscan";
+import { Env } from "../../../../../packages/env/src/types/env";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
@@ -16,6 +18,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
     let sourceJsonProvider: ethers.JsonRpcProvider;
     let destinationJsonProvider: ethers.JsonRpcProvider;
+    let axelarProvider: AxelarProvider;
     let sourceWallet: ethers.Wallet;
     let destinationWallet: ethers.Wallet;
     let sourceInterchainTokenFactory: InterchainTokenFactory;
@@ -70,7 +73,10 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         saltDestination = ethers.id(saltDestination);
 
         gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
-        gasLimit = 300000;
+        gasLimit = interchainTransferOptions.gasLimit;
+
+        axelarProvider = new AxelarProvider(sourceChain.env as Env);
+        console.log("connected to ", await axelarProvider.getEndpoint());
     });
 
     describe("from evm Source chain to evm Destination chain", () => {
@@ -110,10 +116,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         });
 
         it("should deploy remote interchain token in destination chain and emit InterchainTokenDeployed", async () => {
-            await executeTx(
+            const tx = await executeTx(
                 sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
                     value: gasValue,
-                    gasLimit: gasLimit,
                 }),
             );
 
@@ -133,6 +138,39 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             }
 
             deployedTokenAddressDestination = tokenDeployedEvent.args.tokenAddress;
+
+            const txHash = tx.receipt.hash;
+            console.log("Polling for txHash:", txHash);
+            const pollOpts = { delay: 60_000, maxIterations: 15, timeout: 30_000 };
+
+            const lifecycle = await polling(
+                async () => {
+                    const lifecycleInfo = await axelarProvider.fetchOutcome(txHash);
+                    console.log("Polled LifecycleInfo:", lifecycleInfo);
+                    return lifecycleInfo;
+                },
+                (res: any) => !(res && (res.status === "destination_executed" || res.error)),
+                pollOpts,
+            );
+
+            if (lifecycle && lifecycle.error) {
+                throw new Error(`Axelar error: ${JSON.stringify(lifecycle.error)}`);
+            }
+
+            const metrics = await axelarProvider.fetchMetrics(txHash);
+            console.log("Axelar Metrics:", metrics);
+
+            const fullStatus = await axelarProvider.fetchFullStatus(txHash);
+            console.log("Axelar FullStatus:", fullStatus);
+
+            const callInfo = await axelarProvider.fetchEvents(txHash);
+            console.log("Axelar CallInfo:", callInfo);
+
+            const isExecuted = await axelarProvider.isExecuted(txHash);
+            console.log("Axelar isExecuted:", isExecuted);
+
+            const isConfirmed = await axelarProvider.isConfirmed(txHash);
+            console.log("Axelar isConfirmed:", isConfirmed);
         });
 
         it("should revert when deploying an interchain token with the same salt value", async () => {
