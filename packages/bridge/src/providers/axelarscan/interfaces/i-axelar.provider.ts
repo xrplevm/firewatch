@@ -48,5 +48,5 @@ export interface IAxelarProvider {
      * Gets the Axelar GMP API endpoint URL.
      * @returns The endpoint URL as a string.
      */
-    getEndpoint(): Promise<string>;
+    getEndpoint(): string;
 }

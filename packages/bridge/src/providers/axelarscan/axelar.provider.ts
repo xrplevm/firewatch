@@ -80,7 +80,7 @@ export class AxelarProvider implements IAxelarProvider {
         return this.recoveryApi.isConfirmed(txHash);
     }
 
-    async getEndpoint(): Promise<string> {
-        return await this.recoveryApi.getAxelarGMPApiUrl;
+    getEndpoint(): string {
+        return this.recoveryApi.getAxelarGMPApiUrl;
     }
 }
