@@ -94,42 +94,66 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
         doorAddress: string,
         destinationChainId: string,
         destinationAddress: string,
+        options: { payload?: string; gasFeeAmount?: string } = {},
     ): Promise<Unconfirmed<XrplTransaction>> {
         try {
-            const submitTxResponse = await this.signAndSubmitTransaction<Payment>({
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("type"),
+                        MemoData: convertStringToHex("interchain_transfer"),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_address"),
+                        MemoData: destinationAddress,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_chain"),
+                        MemoData: convertStringToHex(destinationChainId),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("gas_fee_amount"),
+                        MemoData: convertStringToHex(token.isNative() ? "1700000" : (options.gasFeeAmount ?? "1700000")),
+                    },
+                },
+            ];
+
+            let issuedCurrencyAmount;
+            if (!token.isNative()) {
+                issuedCurrencyAmount = {
+                    currency: convertCurrencyCode(token.symbol),
+                    issuer: token.address!,
+                    value: amount,
+                };
+                console.log("issuedCurrencyAmount", issuedCurrencyAmount);
+            }
+
+            if (options.payload) {
+                memos.push({
+                    Memo: {
+                        MemoType: convertStringToHex("payload"),
+                        MemoData: options.payload,
+                    },
+                });
+            }
+            console.log("memos", memos);
+
+            const payment: Payment = {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
-                // TODO: Handle IOU decimal values
-                Amount: token.isNative()
-                    ? xrpToDrops(amount)
-                    : {
-                          currency: convertCurrencyCode(token.symbol),
-                          value: amount,
-                          issuer: token.address!,
-                      },
+                Amount: token.isNative() ? xrpToDrops(amount) : issuedCurrencyAmount!,
                 Destination: doorAddress,
-                Memos: [
-                    {
-                        Memo: {
-                            //
-                            MemoType: "64657374696E6174696F6E5F61646472657373", // hex(destination_address)
-                            MemoData: destinationAddress,
-                        },
-                    },
-                    {
-                        Memo: {
-                            MemoType: "64657374696E6174696F6E5F636861696E", // hex(destination_chain)
-                            MemoData: convertStringToHex(destinationChainId),
-                        },
-                    },
-                    // {
-                    //     Memo: {
-                    //         MemoType: "7061796C6F61645F68617368", // hex(payload_hash)
-                    //         MemoData: "0000000000000000000000000000000000000000000000000000000000000000",
-                    //     },
-                    // },
-                ],
-            });
+                Memos: memos,
+            };
+            console.log("amount drops: ", payment.Amount);
+
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 
             return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse, (txResponse) => ({
                 fee: (txResponse as ExtendedXrplTxResponse).Fee,
@@ -143,11 +167,66 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
      * @inheritdoc
      */
     async callContract(
-        _sourceGatewayAddress: string,
-        _destinationChainId: string,
-        _destinationContractAddress: string,
-        _payload: string,
+        sourceGatewayAddress: string,
+        destinationChainId: string,
+        destinationContractAddress: string,
+        payload: string,
+        amount: string,
+        token: Token,
     ): Promise<Unconfirmed<Transaction>> {
-        return {} as Unconfirmed<Transaction>;
+        try {
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("type"),
+                        MemoData: convertStringToHex("call_contract"),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_address"),
+                        MemoData: destinationContractAddress,
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("destination_chain"),
+                        MemoData: convertStringToHex(destinationChainId),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("payload"),
+                        MemoData: payload,
+                    },
+                },
+            ];
+            console.log("memos", memos);
+
+            let issuedCurrencyAmount;
+            if (!token.isNative()) {
+                issuedCurrencyAmount = {
+                    currency: convertCurrencyCode(token.symbol),
+                    issuer: token.address!,
+                    value: amount,
+                };
+                console.log("issuedCurrencyAmount", issuedCurrencyAmount);
+            }
+
+            const payment: Payment = {
+                TransactionType: "Payment",
+                Account: this.wallet.address,
+                Amount: token.isNative() ? xrpToDrops(amount) : issuedCurrencyAmount!,
+                Destination: sourceGatewayAddress,
+                Memos: memos,
+            };
+            console.log("amount", payment.Amount);
+
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
+
+            return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse);
+        } catch (e) {
+            return this.handleError(e);
+        }
     }
 }

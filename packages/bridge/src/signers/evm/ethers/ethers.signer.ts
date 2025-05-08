@@ -80,14 +80,19 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
 
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
 
+        // TODO: get gasValue and Value from gasService.estimateGasFee
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
             destinationChainId,
             destinationAddress,
             sendingAmount.toString(),
             "0x",
-            new BigNumber("0").toString(),
+            ethers.parseEther("5"),
+            { value: ethers.parseEther("5") },
         );
+        console.log("tx hash");
+        console.log(contractTx.hash);
+        console.log(contractTx);
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
             gasUsed: txReceipt!.gasUsed,
@@ -106,6 +111,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
     ): Promise<Unconfirmed<Transaction>> {
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
+        // TODO: add gas service
         // const gasService = this.getGasService();
         // const estimateGas = await gasService.getGasEstimate(
         // const payGas = await gasService.payNativeGasForContractCall

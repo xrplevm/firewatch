@@ -3,12 +3,8 @@ import { Contract } from "./contract";
 import { ContractWithFilters } from "../common";
 
 export const axelarExecutableExampleAbi = [
-    "constructor(address _gateway, address _gasReceiver)",
-    "function message() view returns (string)",
-    "function sourceChain() view returns (string)",
-    "function sourceAddress() view returns (string)",
-    "function gasService() view returns (address)",
-    "function setRemoteValue(string destinationChain, string destinationAddress, string _message) payable",
+    "function lastPayload() view returns (bytes)",
+    "function lastCommandId() view returns (bytes32)",
     "event Executed(bytes32 indexed commandId, string _from, string _message)",
 ];
 
@@ -17,16 +13,8 @@ export type IAxelarExecutableExampleFilters = {
 };
 
 export interface IAxelarExecutableExample extends ContractWithFilters<IAxelarExecutableExampleFilters> {
-    message(): Promise<string>;
-    sourceChain(): Promise<string>;
-    sourceAddress(): Promise<string>;
-    gasService(): Promise<string>;
-    setRemoteValue(
-        destinationChain: string,
-        destinationAddress: string,
-        _message: string,
-        overrides?: { value?: ethers.BigNumberish },
-    ): Promise<ethers.ContractTransactionResponse>;
+    lastPayload(): Promise<string>;
+    lastCommandId(): Promise<string>;
 }
 
 export class AxelarExecutableExample extends Contract<IAxelarExecutableExample> {
@@ -37,7 +25,7 @@ export class AxelarExecutableExample extends Contract<IAxelarExecutableExample> 
 
 // TODO remove:
 // xrpl-evm
-// Testnet: 0x5254aacbc2056b28f0188ab1cc4b8e9e46988b5d
-// Devnet: 0x6e729095c8ebd570bc06c6ad649a3f522450074d
+// Testnet:    0x31393E1428762BCa4224C015138CDEF9a6edbfe1
+// Devnet:
 // Avalanche:
-// Testnet/Devnet: 0x34210cefef05f60b7bd7b6793e54382dbed13ec5
+// Testnet/Devnet:
