@@ -23,8 +23,8 @@
             "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
             "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
             "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-            "callContractAddress": "0x1a0d17da6966e9b03845c3ef9f87621884bc6874",
-            "callContractWithTokenAddress": "0x1a0d17da6966e9b03845c3ef9f87621884bc6874",
+            "callContractAddress": "0x5254aacbc2056b28f0188ab1cc4b8e9e46988b5d",
+            "callContractWithTokenAddress": "0x5254aacbc2056b28f0188ab1cc4b8e9e46988b5d",
             "urls": {
                 "rpc": "https://rpc.testnet.xrplevm.org"
             },
@@ -49,7 +49,7 @@
             "interchainTokenDeployedAddress": "0x3F529fB73B168c260fc6ccEF73B909cfb8FCC155",
             "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
             "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
-            "callContractAddress": "0x1cd15e16400214bee948417f58ba1b3badb7dd7e",
+            "callContractAddress": "0x34210cefef05f60b7bd7b6793e54382dbed13ec5",
             "tokenId": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
             "urls": {
                 "rpc": "https://api.avax-test.network/ext/bc/C/rpc",

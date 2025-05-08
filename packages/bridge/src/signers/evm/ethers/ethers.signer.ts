@@ -106,7 +106,11 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
     ): Promise<Unconfirmed<Transaction>> {
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
-        const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload);
+        // const gasService = this.getGasService();
+        // const estimateGas = await gasService.getGasEstimate(
+        // const payGas = await gasService.payNativeGasForContractCall
+
+        const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload, {});
 
         return this.transactionParser.parseTransactionResponse(contractTx);
     }
