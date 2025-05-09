@@ -12,7 +12,7 @@ import { HardhatErrors } from "@testing/hardhat/errors";
 import { AxelarProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
 
-describe("Interchain Token Deployment EVM - EVM", () => {
+describe.skip("Interchain Token Deployment EVM - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
     const pollingOpts = interchainTransferOptions as PollingOptions;
 

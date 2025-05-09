@@ -1,4 +1,10 @@
-import { AxelarGMPRecoveryAPI, AxelarRecoveryAPIConfig, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import {
+    AxelarGMPRecoveryAPI,
+    AxelarRecoveryAPIConfig,
+    GMPStatusResponse,
+    AxelarQueryAPI,
+    AxelarQueryAPIFeeResponse,
+} from "@axelar-network/axelarjs-sdk";
 import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelar.provider.types";
 import { toSdkEnv } from "./helpers";
 import { Env } from "@firewatch/env/types";
@@ -82,5 +88,37 @@ export class AxelarProvider implements IAxelarProvider {
 
     getEndpoint(): string {
         return this.recoveryApi.getAxelarGMPApiUrl;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async estimateGasFee(params: {
+        sourceChain: string;
+        destinationChain: string;
+        gasToken: string; // e.g. "AXL" or native symbol
+        gasLimit: string | number; // estimated gas units your _execute_ will use
+        executeData?: string; // optional hex‐encoded payload
+    }): Promise<AxelarQueryAPIFeeResponse> {
+        const { sourceChain, destinationChain, gasToken, executeData } = params;
+        // normalize gasLimit to a number
+        const limit = typeof params.gasLimit === "string" ? Number(params.gasLimit) : params.gasLimit;
+
+        const api = new AxelarQueryAPI({
+            environment: this.recoveryApi.environment,
+        });
+
+        // signature: (sourceChain, destinationChain, gasLimit, gasMultiplier, sourceChainTokenSymbol, minGasPrice, executeData)
+        const feeResponse = await api.estimateGasFee(
+            sourceChain,
+            destinationChain,
+            limit,
+            "auto", // let SDK pick a multiplier
+            gasToken, // which token you’re using to pay gas
+            undefined, // minGasPriceOverride
+            executeData, // any payload bytes
+        );
+
+        return feeResponse as AxelarQueryAPIFeeResponse;
     }
 }

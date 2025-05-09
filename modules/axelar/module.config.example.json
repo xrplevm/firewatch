@@ -4,6 +4,32 @@
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
         "sourceChain": {
+            "name": "xrpl",
+            "chainId": 1,
+            "env": "testnet",
+            "type": "xrp",
+            "nativeToken": {
+                "symbol": "XRP",
+                "decimals": 18,
+                "name": "XRP",
+                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            },
+            "axelarGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
+            "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
+            "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
+            "interchainTokenDeployedAddress": "0x3F529fB73B168c260fc6ccEF73B909cfb8FCC155",
+            "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+            "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
+            "callContractAddress": "0x34210cefef05f60b7bd7b6793e54382dbed13ec5",
+            "tokenId": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
+            "urls": {
+                "ws": "wss://s.altnet.rippletest.net:51233"
+            },
+            "account": {
+                "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+            }
+        },
+        "destinationChain": {
             "id": "xrpl-evm",
             "name": "xrpl-evm",
             "chainId": 43113,
@@ -23,8 +49,8 @@
             "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
             "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
             "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-            "callContractAddress": "0x5254aacbc2056b28f0188ab1cc4b8e9e46988b5d",
-            "callContractWithTokenAddress": "0x5254aacbc2056b28f0188ab1cc4b8e9e46988b5d",
+            "axelarExecutableExampleAddress": "0x31393E1428762BCa4224C015138CDEF9a6edbfe1",
+            "interchainTokenExecutableExampleAddress": "0x1a0d17da6966e9b03845c3ef9f87621884bc6874",
             "urls": {
                 "rpc": "https://rpc.testnet.xrplevm.org"
             },
@@ -32,35 +58,8 @@
                 "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
             }
         },
-        "destinationChain": {
-            "name": "Avalanche",
-            "chainId": 43113,
-            "env": "testnet",
-            "type": "evm",
-            "nativeToken": {
-                "symbol": "XRP",
-                "decimals": 18,
-                "name": "XRP",
-                "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-            },
-            "axelarGatewayAddress": "0xC249632c2D40b9001FE907806902f63038B737Ab",
-            "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
-            "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
-            "interchainTokenDeployedAddress": "0x3F529fB73B168c260fc6ccEF73B909cfb8FCC155",
-            "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-            "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
-            "callContractAddress": "0x34210cefef05f60b7bd7b6793e54382dbed13ec5",
-            "tokenId": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
-            "urls": {
-                "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
-                "ws": "https://api.avax-test.network/ext/bc/C/rpc"
-            },
-            "account": {
-                "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
-            }
-        },
         "interchainTransferOptions": {
-            "amount": "1.33",
+            "amount": "0.033",
             "gasValue": "0.2",
             "gasLimit": 300000,
             "maxRetries": 50,

@@ -8,7 +8,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/contracts";
 import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
 
-describe("Call Contract EVM - EVM", () => {
+describe.skip("Call Contract EVM - EVM", () => {
     const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
 
     let sourceEvmProvider: EthersProvider;

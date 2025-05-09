@@ -49,4 +49,17 @@ export interface IAxelarProvider {
      * @returns The endpoint URL as a string.
      */
     getEndpoint(): string;
+
+    /**
+     * Estimates the gas fee for a cross-chain contract call using AxelarQueryAPI.
+     * @param params The parameters for the gas fee estimation (see AxelarQueryAPI.estimateGasFee).
+     * @returns The estimated gas fee response from AxelarQueryAPI.
+     */
+    estimateGasFee(params: {
+        sourceChain: string;
+        destinationChain: string;
+        gasToken: string;
+        gasLimit: string | number;
+        amount?: string | number;
+    }): Promise<any>; // Replace 'any' with AxelarQueryAPIFeeResponse if available
 }

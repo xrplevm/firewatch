@@ -119,7 +119,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 {
                     Memo: {
                         MemoType: convertStringToHex("gas_fee_amount"),
-                        MemoData: convertStringToHex(token.isNative() ? "1700000" : (options.gasFeeAmount ?? "1700000")),
+                        MemoData: convertStringToHex(token.isNative() ? "175095" : (options.gasFeeAmount ?? "175095")),
                     },
                 },
             ];

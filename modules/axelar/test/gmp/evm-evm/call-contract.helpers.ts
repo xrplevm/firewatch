@@ -33,7 +33,7 @@ export async function expectMessageUpdate(
     let finalMessage: string;
     await polling(
         async () => {
-            finalMessage = await destinationAxelarExecutableExample.message();
+            finalMessage = await destinationAxelarExecutableExample.lastPayload();
             console.log(`[expectMessageUpdate] Polled lastPayload:`, finalMessage, `| Expected:`, payload);
 
             return finalMessage === payload;
