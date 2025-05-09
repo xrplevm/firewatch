@@ -119,7 +119,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 {
                     Memo: {
                         MemoType: convertStringToHex("gas_fee_amount"),
-                        MemoData: convertStringToHex(token.isNative() ? "175095" : (options.gasFeeAmount ?? "175095")),
+                        MemoData: convertStringToHex(token.isNative() ? "0" : (options.gasFeeAmount ?? "0")),
                     },
                 },
             ];
@@ -131,6 +131,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                     issuer: token.address!,
                     value: amount,
                 };
+
                 console.log("issuedCurrencyAmount", issuedCurrencyAmount);
             }
 
@@ -210,6 +211,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                     issuer: token.address!,
                     value: amount,
                 };
+
                 console.log("issuedCurrencyAmount", issuedCurrencyAmount);
             }
 
@@ -221,6 +223,57 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 Memos: memos,
             };
             console.log("amount", payment.Amount);
+
+            const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
+
+            return this.transactionParser.parseSubmitTransactionResponse(submitTxResponse);
+        } catch (e) {
+            return this.handleError(e);
+        }
+    }
+
+    /**
+     * Sends an XRPL Payment transaction to add gas for a GMP message.
+     * @param gasFee The gas fee amount to send (as a string, in XRP or issued currency units).
+     * @param msgId The original GMP message ID to reference.
+     * @param destination The address to send the payment to (e.g., gateway or contract address).
+     * @param token The token to use for gas (optional).
+     * @returns The unconfirmed transaction object.
+     */
+    async addGas(gasFee: string, msgId: string, destination: string, token?: Token): Promise<Unconfirmed<Transaction>> {
+        try {
+            const memos = [
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("type"),
+                        MemoData: convertStringToHex("add_gas"),
+                    },
+                },
+                {
+                    Memo: {
+                        MemoType: convertStringToHex("msg_id"),
+                        MemoData: convertStringToHex(msgId),
+                    },
+                },
+            ];
+
+            let issuedCurrencyAmount;
+            if (token) {
+                issuedCurrencyAmount = {
+                    currency: convertCurrencyCode(token.symbol),
+                    issuer: token.address!,
+                    value: gasFee,
+                };
+            }
+
+            const payment: Payment = {
+                TransactionType: "Payment",
+                Account: this.wallet.address,
+                Amount: token ? issuedCurrencyAmount! : gasFee,
+                Destination: destination,
+                Memos: memos,
+            };
+            console.log("payment", payment);
 
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 

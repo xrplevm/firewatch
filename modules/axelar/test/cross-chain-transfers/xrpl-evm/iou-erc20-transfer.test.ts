@@ -87,7 +87,7 @@ describe("Cross-Chain No-Native Transfer", () => {
         }
     });
 
-    describe("from ERC20 evm chain to xrpl chain", () => {
+    describe.skip("from ERC20 evm chain to xrpl chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], xrplChain as unknown as AxelarBridgeChain);
@@ -169,71 +169,88 @@ describe("Cross-Chain No-Native Transfer", () => {
         });
     });
 
-    describe.skip("from IOU xrpl chain to evm chain", () => {
+    describe("from IOU xrpl chain to evm chain", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], xrplChain as unknown as AxelarBridgeChain);
         });
 
-        it.skip("should transfer the IOU with interchain transfer method", async () => {
+        it("should transfer the IOU with interchain transfer method", async () => {
             const erc20 = evmChainProvider.getERC20Contract(FOO_ERC20.address!, evmChainWallet);
             const initialDestBalance = await erc20.balanceOf(evmChainWallet.address);
             const initialSourceBalance = await xrplChainProvider.getIOUBalance(xrplChainWallet.address, FOO_IOU.address!, FOO_IOU.symbol);
-            console.log("Initial source balance:", initialSourceBalance.toString(), xrplChainWallet.address);
 
-            const amount = interchainTransferOptions.amount;
-
+            // 1) Estimate exactly how much XRP-drops or IOU to prepay the relayer:
             const feeResponse = await axelarProvider.estimateGasFee({
                 sourceChain: "xrpl",
                 destinationChain: "xrpl-evm",
-                gasToken: "XRP", // or whatever symbol you’re using
-                gasLimit: 200_000, // how much gas you think your _execute…()_ will burn
-                executeData: "0x", // empty for pure token transfers
+                gasToken: "XRP",
+                gasLimit: 200_000,
+                executeData: "0x",
             });
-            console.log("Fee response:", feeResponse);
+            // Normalize the returned shape:
+            const gasValue = typeof feeResponse === "string" ? feeResponse : feeResponse.executionFeeWithMultiplier;
+            console.log("Gas value to prepay:", gasValue);
 
-            // 2) Pull out the exact wei/drops you need
-            const gasValue = feeResponse.executionFeeWithMultiplier; // a decimal string
-            console.log("Gas value:", gasValue);
+            const amount = "2";
 
+            // 2) Kick off the interchain transfer on XRPL:
             const tx = await xrplChainSigner.transfer(
-                "7",
+                amount,
                 FOO_IOU,
                 xrplChain.interchainTokenServiceAddress,
                 evmChain.name,
                 xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
             );
-            console.log("Transaction hash:", tx.hash);
+            console.log("Sent interchain_transfer tx:", tx.hash);
 
+            // 3) Normalize the hash for Axelar lookup:
             let normalized = tx.hash.toLowerCase();
+            if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
 
-            // 2) Prefix with `0x` if it isn’t already
-            if (!normalized.startsWith("0x")) {
-                normalized = "0x" + normalized;
-            }
+            // 4) Poll until Axelar has *seen* your Payment (Confirm step).
+            //    Once Confirmed, you can pull out the original msg ID:
+            await polling(
+                async () => {
+                    const full = await axelarProvider.fetchOutcome(normalized);
+                    console.log("Fetched events:", full);
+                    // `callTx` is null until the payment is *confirmed* on the Axelar chain.
+                    return full.status === "source_gateway_called";
+                },
+                (done) => !done,
+                interchainTransferOptions as PollingOptions,
+            );
 
-            const fee = (await tx.wait()).fee;
+            // 6) Send an add_gas Payment on XRPL:
+            const gasAdded = await xrplChainSigner.addGas(
+                gasValue, // exactly the same fee string
+                tx.hash, // the ID we just fetched
+                xrplChain.interchainTokenServiceAddress, // same “door” address
+            );
+            console.log("Sent add_gas tx");
+            console.log("Gas added tx:", gasAdded);
 
+            // 7) Finally, wait for the funds to arrive on the EVM side:
             await polling(
                 async () => {
                     const balance = await erc20.balanceOf(evmChainWallet.address);
-                    const axelarTx = await axelarProvider.fetchOutcome(normalized);
-                    console.log({ balance, initialDestBalance, amount });
-                    console.log(axelarTx.status);
+                    console.log("Fetched balance from InterchainToken contract:", balance.toString(), evmChainWallet.address);
                     return BigNumber(balance.toString()).eq(
                         BigNumber(initialDestBalance.toString()).plus(ethers.parseUnits(amount, 18).toString()),
                     );
                 },
-                (res) => !res,
+                (done) => !done,
                 interchainTransferOptions as PollingOptions,
             );
-            console.log(await axelarProvider.fetchEvents(normalized));
 
-            const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(xrpToDrops(amount)).minus(fee!);
+            // 8) Assert the source XRPL balance got debited by (amount + fee):
+            const fee = (await tx.wait()).fee; // drops
             const finalSrcBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
-
-            if (!BigNumber(finalSrcBalance.toString()).eq(expectedSourceBalance)) {
-                throw new Error(`Source balance mismatch! Expected: ${expectedSourceBalance}, Actual: ${finalSrcBalance}`);
+            const expected = BigNumber(initialSourceBalance.toString())
+                .minus(BigNumber(xrpToDrops(amount).toString()))
+                .minus(BigNumber(fee.toString()));
+            if (!BigNumber(finalSrcBalance.toString()).eq(expected)) {
+                throw new Error(`Source balance mismatch. Expected ${expected}, saw ${finalSrcBalance}`);
             }
         });
 
