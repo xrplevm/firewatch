@@ -5,10 +5,10 @@ import {
     AxelarQueryAPI,
     AxelarQueryAPIFeeResponse,
 } from "@axelar-network/axelarjs-sdk";
-import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelar.provider.types";
+import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelarscan.provider.types";
 import { toSdkEnv } from "./helpers";
 import { Env } from "@firewatch/env/types";
-import { IAxelarProvider } from "./interfaces";
+import { IAxelarScanProvider } from "./interfaces";
 
 class PatchedRecoveryAPI extends AxelarGMPRecoveryAPI {
     private _overrideUrl?: string;
@@ -26,7 +26,7 @@ class PatchedRecoveryAPI extends AxelarGMPRecoveryAPI {
     }
 }
 
-export class AxelarProvider implements IAxelarProvider {
+export class AxelarScanProvider implements IAxelarScanProvider {
     private recoveryApi: PatchedRecoveryAPI;
 
     constructor(environment: Env, gmpApiUrl?: string) {
