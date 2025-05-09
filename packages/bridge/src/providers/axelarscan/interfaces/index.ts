@@ -1,1 +1,1 @@
-export * from "./i-axelar.provider";
+export * from "./i-axelarscan.provider";

@@ -9,7 +9,7 @@ import { pollForEvent } from "@shared/evm/utils";
 import BigNumber from "bignumber.js";
 import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
-import { AxelarProvider } from "@firewatch/bridge/providers/axelarscan";
+import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
@@ -18,7 +18,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
     let sourceJsonProvider: ethers.JsonRpcProvider;
     let destinationJsonProvider: ethers.JsonRpcProvider;
-    let axelarProvider: AxelarProvider;
+    let axelarScanProvider: AxelarScanProvider;
     let sourceWallet: ethers.Wallet;
     let destinationWallet: ethers.Wallet;
     let sourceInterchainTokenFactory: InterchainTokenFactory;
@@ -75,8 +75,8 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
         gasLimit = interchainTransferOptions.gasLimit;
 
-        axelarProvider = new AxelarProvider(sourceChain.env as Env);
-        console.log("connected to ", await axelarProvider.getEndpoint());
+        axelarScanProvider = new AxelarScanProvider(sourceChain.env as Env);
+        console.log("connected to ", await axelarScanProvider.getEndpoint());
     });
 
     describe("from evm Source chain to evm Destination chain", () => {
@@ -145,7 +145,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
             const lifecycle = await polling(
                 async () => {
-                    const lifecycleInfo = await axelarProvider.fetchOutcome(txHash);
+                    const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
                     console.log("Polled LifecycleInfo:", lifecycleInfo);
                     return lifecycleInfo;
                 },
@@ -157,19 +157,19 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 throw new Error(`Axelar error: ${JSON.stringify(lifecycle.error)}`);
             }
 
-            const metrics = await axelarProvider.fetchMetrics(txHash);
+            const metrics = await axelarScanProvider.fetchMetrics(txHash);
             console.log("Axelar Metrics:", metrics);
 
-            const fullStatus = await axelarProvider.fetchFullStatus(txHash);
+            const fullStatus = await axelarScanProvider.fetchFullStatus(txHash);
             console.log("Axelar FullStatus:", fullStatus);
 
-            const callInfo = await axelarProvider.fetchEvents(txHash);
+            const callInfo = await axelarScanProvider.fetchEvents(txHash);
             console.log("Axelar CallInfo:", callInfo);
 
-            const isExecuted = await axelarProvider.isExecuted(txHash);
+            const isExecuted = await axelarScanProvider.isExecuted(txHash);
             console.log("Axelar isExecuted:", isExecuted);
 
-            const isConfirmed = await axelarProvider.isConfirmed(txHash);
+            const isConfirmed = await axelarScanProvider.isConfirmed(txHash);
             console.log("Axelar isConfirmed:", isConfirmed);
         });
 

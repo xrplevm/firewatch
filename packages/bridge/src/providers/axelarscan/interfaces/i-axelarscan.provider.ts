@@ -1,7 +1,7 @@
 import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo, AxelarCallInfo, AxelarMetrics } from "../axelar.provider.types";
+import { LifecycleInfo, AxelarCallInfo, AxelarMetrics } from "../axelarscan.provider.types";
 
-export interface IAxelarProvider {
+export interface IAxelarScanProvider {
     /**
      * Fetches high-level lifecycle information for a GMP transaction.
      * @param txHash The transaction hash.

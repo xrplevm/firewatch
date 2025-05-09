@@ -1,7 +1,7 @@
 import { Environment as SdkEnv } from "@axelar-network/axelarjs-sdk";
 import { Env } from "@firewatch/env/types";
 import { ProviderError } from "../../core/error/provider.error";
-import { AxelarProviderErrors } from "../axelar.provider.errors";
+import { AxelarScanProviderErrors } from "../axelarscan.provider.errors";
 
 export function toSdkEnv(env: Env): SdkEnv {
     switch (env) {
@@ -12,8 +12,8 @@ export function toSdkEnv(env: Env): SdkEnv {
         case "devnet":
             return SdkEnv.DEVNET;
         case "localnet":
-            throw new ProviderError(AxelarProviderErrors.LOCALNET_NOT_SUPPORTED);
+            throw new ProviderError(AxelarScanProviderErrors.LOCALNET_NOT_SUPPORTED);
         default:
-            throw new ProviderError(AxelarProviderErrors.UNKNOWN_ENVIRONMENT);
+            throw new ProviderError(AxelarScanProviderErrors.UNKNOWN_ENVIRONMENT);
     }
 }
