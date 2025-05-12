@@ -1,0 +1,27 @@
+{
+    "network": {
+        "id": "xrplevm_testnet",
+        "name": "xrplevm_testnet",
+        "symbol": "XRP",
+        "env": "testnet",
+        "type": "cosmos",
+        "nativeToken": {
+            "name": "XRP",
+            "symbol": "XRP",
+            "decimals": 18
+        },
+        "urls": {
+            "rpc": "http://cosmos.xrplevm.org:26657"
+        }
+    },
+    "slashing": {
+        "slashDowntimeFraction": "0",
+        "slashDoubleSignFraction": "0"
+    },
+    "poa": {
+        "stakedAmount": "1000000"
+    },
+    "bank": {
+        "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+    }
+}
