@@ -67,7 +67,8 @@
         "ethers": "^6.13.5",
         "xchain-sdk": "^1.2.2",
         "xrpl": "3.0.0",
-        "zustand": "^5.0.0-rc.0"
+        "zustand": "^5.0.0-rc.0",
+        "@axelar-network/axelarjs-sdk": "0.17.2"
     },
     "devDependencies": {
         "@firewatch/core": "workspace:*",

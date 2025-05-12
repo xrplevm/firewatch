@@ -1,6 +1,6 @@
 import { ChainType } from "@shared/modules/chain";
 import { Chain } from "@firewatch/core/chain";
-import { Env } from "../../../../env/src/types/env";
+import { Env } from "@firewatch/env/types";
 import { AssertionErrors } from "./errors";
 
 /**

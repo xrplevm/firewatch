@@ -9,10 +9,13 @@
     "license": "ISC",
     "devDependencies": {
         "@firewatch/core": "workspace:*",
+        "@firewatch/error": "workspace:*",
+        "@firewatch/bridge": "workspace:*",
         "@nomiclabs/hardhat-ethers": "^2.2.2",
         "@nomiclabs/hardhat-waffle": "^2.0.3",
         "@shared/modules": "workspace:*",
         "@shared/eslint": "workspace:*",
+        "@shared/utils": "workspace:*",
         "@shared/tsconfig": "workspace:*",
         "@shared/evm": "workspace:*",
         "chai": "^4.5.0",
