@@ -3,6 +3,7 @@
         "url": "https://api.axelar.network",
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
+        "axelarScanOptions": { "delay": 60000, "maxIterations": 15, "timeout": 30000 },
         "sourceChain": {
             "id": "xrpl-evm",
             "name": "xrpl-evm",

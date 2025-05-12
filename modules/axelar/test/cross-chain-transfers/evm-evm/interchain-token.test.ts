@@ -1,8 +1,8 @@
 import { ethers, Contract } from "ethers";
 import config from "../../../module.config.example.json";
-import { polling, PollingOptions } from "@shared/utils";
+import { PollingOptions } from "@shared/utils";
 import { assertChainEnvironments, assertChainTypes } from "@testing/mocha/assertions";
-import { executeTx, expectRevert } from "@testing/hardhat/utils";
+import { executeTx, expectExecuted, expectRevert } from "@testing/hardhat/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken, InterchainTokenFactory, InterchainTokenService } from "@shared/evm/contracts";
 import { pollForEvent } from "@shared/evm/utils";
@@ -10,10 +10,10 @@ import BigNumber from "bignumber.js";
 import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
-import { Env } from "../../../../../packages/env/src/types/env";
+import { Env } from "@firewatch/env/types";
 
 describe("Interchain Token Deployment EVM - EVM", () => {
-    const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
+    const { sourceChain, destinationChain, interchainTransferOptions, axelarScanOptions } = config.axelar;
     const pollingOpts = interchainTransferOptions as PollingOptions;
 
     let sourceJsonProvider: ethers.JsonRpcProvider;
@@ -76,7 +76,6 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         gasLimit = interchainTransferOptions.gasLimit;
 
         axelarScanProvider = new AxelarScanProvider(sourceChain.env as Env);
-        console.log("connected to ", await axelarScanProvider.getEndpoint());
     });
 
     describe("from evm Source chain to evm Destination chain", () => {
@@ -140,37 +139,8 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             deployedTokenAddressDestination = tokenDeployedEvent.args.tokenAddress;
 
             const txHash = tx.receipt.hash;
-            console.log("Polling for txHash:", txHash);
-            const pollOpts = { delay: 60_000, maxIterations: 15, timeout: 30_000 };
 
-            const lifecycle = await polling(
-                async () => {
-                    const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
-                    console.log("Polled LifecycleInfo:", lifecycleInfo);
-                    return lifecycleInfo;
-                },
-                (res: any) => !(res && (res.status === "destination_executed" || res.error)),
-                pollOpts,
-            );
-
-            if (lifecycle && lifecycle.error) {
-                throw new Error(`Axelar error: ${JSON.stringify(lifecycle.error)}`);
-            }
-
-            const metrics = await axelarScanProvider.fetchMetrics(txHash);
-            console.log("Axelar Metrics:", metrics);
-
-            const fullStatus = await axelarScanProvider.fetchFullStatus(txHash);
-            console.log("Axelar FullStatus:", fullStatus);
-
-            const callInfo = await axelarScanProvider.fetchEvents(txHash);
-            console.log("Axelar CallInfo:", callInfo);
-
-            const isExecuted = await axelarScanProvider.isExecuted(txHash);
-            console.log("Axelar isExecuted:", isExecuted);
-
-            const isConfirmed = await axelarScanProvider.isConfirmed(txHash);
-            console.log("Axelar isConfirmed:", isConfirmed);
+            await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
         });
 
         it("should revert when deploying an interchain token with the same salt value", async () => {
@@ -219,11 +189,15 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 const recipientBytes = ethers.zeroPadBytes(destinationWallet.address, 20);
 
-                await executeTx(
+                const tx = await executeTx(
                     sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
                         gasLimit: gasLimit,
                     }),
                 );
+
+                const txHash = tx.receipt.hash;
+
+                await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
 
                 await assertInterchainBalanceUpdate(
                     destinationToken,
@@ -253,11 +227,14 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await executeTx(
+                const tx = await executeTx(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
                         gasLimit: gasLimit,
                     }),
                 );
+
+                const txHash = tx.receipt.hash;
+                await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
 
                 await assertInterchainBalanceUpdate(
                     sourceToken,
@@ -287,7 +264,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
         });
 
         it("should deploy a new interchain token in destination chain and emit the correct event", async () => {
-            const { receipt } = await executeTx(
+            const tx = await executeTx(
                 destinationInterchainTokenFactory.deployInterchainToken(
                     saltDestination,
                     "TestToken",
@@ -305,7 +282,7 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                     return Boolean(tokenId) && name === "TestToken" && symbol === "TTK";
                 },
                 pollingOpts,
-                receipt.blockNumber,
+                tx.receipt.blockNumber,
                 "latest",
             );
 
@@ -313,11 +290,14 @@ describe("Interchain Token Deployment EVM - EVM", () => {
                 throw new Error("TokenDeployed event was not emitted as expected.");
             }
 
+            const txHash = tx.receipt.hash;
+            await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+
             deployedTokenAddressDestination = tokenDeployedEvent.args.tokenAddress;
         });
 
         it("should deploy remote interchain token and emit the correct event", async () => {
-            await executeTx(
+            const tx = await executeTx(
                 destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
                     value: gasValue,
                     gasLimit: gasLimit,
@@ -338,6 +318,9 @@ describe("Interchain Token Deployment EVM - EVM", () => {
             if (!tokenDeployedEvent) {
                 throw new Error("Remote InterchainTokenDeployed event was not emitted as expected.");
             }
+
+            const txHash = tx.receipt.hash;
+            await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
 
             deployedTokenAddressSource = tokenDeployedEvent.args.tokenAddress;
         });
@@ -388,11 +371,14 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
 
-                await executeTx(
+                const tx = await executeTx(
                     destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
                         gasLimit: gasLimit,
                     }),
                 );
+
+                const txHash = tx.receipt.hash;
+                await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
 
                 await assertInterchainBalanceUpdate(
                     sourceToken,
@@ -422,11 +408,14 @@ describe("Interchain Token Deployment EVM - EVM", () => {
 
                 const recipientBytes = ethers.zeroPadBytes(destinationWallet.address, 20);
 
-                await executeTx(
+                const tx = await executeTx(
                     sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
                         gasLimit: gasLimit,
                     }),
                 );
+
+                const txHash = tx.receipt.hash;
+                await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
 
                 await assertInterchainBalanceUpdate(
                     destinationToken,
