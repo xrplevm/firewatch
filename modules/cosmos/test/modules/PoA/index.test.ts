@@ -1,11 +1,11 @@
 import { expect } from "chai";
 import { describe, it, before } from "mocha";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import moduleConfig from "../../../module.config.example.json";
+import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { PoAClient } from "../../../src/modules/poa/client";
-import { PoaModuleConfig } from "../../../src/modules/poa/config";
+import { PoAClient } from "../../../src/modules/PoA/client";
+import { PoAModuleConfig } from "../../../src/modules/PoA/config";
 
 describeOrSkip(
     "PoaModule",
@@ -18,7 +18,7 @@ describeOrSkip(
     () => {
         let poaClient: PoAClient;
         const network = moduleConfig.network;
-        let poaModule: PoaModuleConfig;
+        let poaModule: PoAModuleConfig;
 
         before(async () => {
             poaModule = moduleConfig.poa;
