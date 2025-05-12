@@ -93,32 +93,22 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async estimateGasFee(params: {
-        sourceChain: string;
-        destinationChain: string;
-        gasToken: string; // e.g. "AXL" or native symbol
-        gasLimit: string | number; // estimated gas units your _execute_ will use
-        executeData?: string; // optional hex‐encoded payload
-    }): Promise<AxelarQueryAPIFeeResponse> {
-        const { sourceChain, destinationChain, gasToken, executeData } = params;
-        // normalize gasLimit to a number
-        const limit = typeof params.gasLimit === "string" ? Number(params.gasLimit) : params.gasLimit;
+    async estimateGasFee(
+        sourceChain: string,
+        destinationChain: string,
+        gasToken: string,
+        gasLimit: string | number,
+        executeData?: string,
+    ): Promise<AxelarQueryAPIFeeResponse> {
+        const limit = typeof gasLimit === "string" ? Number(gasLimit) : gasLimit;
 
         const api = new AxelarQueryAPI({
             environment: this.recoveryApi.environment,
         });
 
-        // signature: (sourceChain, destinationChain, gasLimit, gasMultiplier, sourceChainTokenSymbol, minGasPrice, executeData)
-        const feeResponse = await api.estimateGasFee(
-            sourceChain,
-            destinationChain,
-            limit,
-            "auto", // let SDK pick a multiplier
-            gasToken, // which token you’re using to pay gas
-            undefined, // minGasPriceOverride
-            executeData, // any payload bytes
-        );
+        const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined, executeData);
 
+        //TODO: check if the response is valid (retunr just estimated fee)
         return feeResponse as AxelarQueryAPIFeeResponse;
     }
 }

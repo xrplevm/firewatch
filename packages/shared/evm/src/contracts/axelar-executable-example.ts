@@ -25,7 +25,7 @@ export class AxelarExecutableExample extends Contract<IAxelarExecutableExample> 
 
 // TODO remove:
 // xrpl-evm
-// Testnet:    0x31393E1428762BCa4224C015138CDEF9a6edbfe1
-// Devnet:
+// Testnet:
+// Devnet: 0xF1F190E66971C24bF35689a5Beefe804B9EC4955
 // Avalanche:
 // Testnet/Devnet:

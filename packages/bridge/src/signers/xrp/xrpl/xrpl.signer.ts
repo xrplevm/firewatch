@@ -119,7 +119,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 {
                     Memo: {
                         MemoType: convertStringToHex("gas_fee_amount"),
-                        MemoData: convertStringToHex(token.isNative() ? "0" : (options.gasFeeAmount ?? "0")),
+                        MemoData: convertStringToHex(token.isNative() ? "1700000" : (options.gasFeeAmount ?? "0")),
                     },
                 },
             ];
@@ -222,7 +222,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 Destination: sourceGatewayAddress,
                 Memos: memos,
             };
-            console.log("amount", payment.Amount);
+            console.log("payment", payment);
 
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 

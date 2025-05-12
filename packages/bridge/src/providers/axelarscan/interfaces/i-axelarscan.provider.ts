@@ -1,4 +1,4 @@
-import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { AxelarQueryAPIFeeResponse, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
 import { LifecycleInfo, AxelarCallInfo, AxelarMetrics } from "../axelarscan.provider.types";
 
 export interface IAxelarScanProvider {
@@ -52,14 +52,18 @@ export interface IAxelarScanProvider {
 
     /**
      * Estimates the gas fee for a cross-chain contract call using AxelarQueryAPI.
-     * @param params The parameters for the gas fee estimation (see AxelarQueryAPI.estimateGasFee).
-     * @returns The estimated gas fee response from AxelarQueryAPI.
+     * @param sourceChain The name of the source blockchain (e.g., 'ethereum', 'polygon').
+     * @param destinationChain The name of the destination blockchain (e.g., 'avalanche', 'fantom').
+     * @param gasToken The token symbol used to pay for gas (e.g., 'USDC', 'USDT').
+     * @param gasLimit The maximum amount of gas units that can be consumed for execution.
+     * @param amount Optional. The token amount to be transferred, if applicable.
+     * @returns The estimated gas fee response containing fee amount and token details.
      */
-    estimateGasFee(params: {
-        sourceChain: string;
-        destinationChain: string;
-        gasToken: string;
-        gasLimit: string | number;
-        amount?: string | number;
-    }): Promise<any>; // Replace 'any' with AxelarQueryAPIFeeResponse if available
+    estimateGasFee(
+        sourceChain: string,
+        destinationChain: string,
+        gasToken: string,
+        gasLimit: string | number,
+        amount?: string | number,
+    ): Promise<AxelarQueryAPIFeeResponse>; // Replace 'any' with GasEstimationResponse if available
 }

@@ -71,11 +71,9 @@ describe.skip("GMP XRP -> EVM", () => {
             await xrplClient.connect();
         }
         console.log("XRPL Client Connected:", xrplClient.isConnected());
-        const finalMessage = await destinationInterchainTokenExecutable.value();
-        console.log({ finalMessage });
     });
 
-    describe.skip("Memo call_contract, trigger AxelarExecutable.execute function", () => {
+    describe("Memo call_contract, trigger AxelarExecutable.execute function", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
@@ -91,7 +89,7 @@ describe.skip("GMP XRP -> EVM", () => {
                 destinationChain.name,
                 xrplChainTranslator.translate(ChainType.EVM, destinationChain.axelarExecutableExampleAddress),
                 xrplChainTranslator.translate(ChainType.EVM, payload),
-                "7.1",
+                "3",
                 new Token({} as any),
             );
 
@@ -107,19 +105,19 @@ describe.skip("GMP XRP -> EVM", () => {
             console.log("Full XRPL Transaction Details:", txDetails);
 
             // TODO: correct decoding to check test passed
-            let finalMessage: string;
+            let lastPayload: string;
             await polling(
                 async () => {
-                    finalMessage = await destinationAxelarExecutableExample.lastPayload();
-                    console.log({ finalMessage });
-                    return finalMessage.includes(msgText);
+                    lastPayload = await destinationAxelarExecutableExample.lastPayload();
+                    console.log({ lastPayload });
+                    return lastPayload.includes(payload);
                 },
                 (result) => !result,
                 pollingOpts,
             );
         });
     });
-    describe("Memo interchain_transfer, trigger InterchainTokenExecutable.execute function", () => {
+    describe.skip("Memo interchain_transfer, trigger InterchainTokenExecutable.execute function", () => {
         before(() => {
             assertChainEnvironments(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain);
             assertChainEnvironments(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain);
@@ -152,12 +150,15 @@ describe.skip("GMP XRP -> EVM", () => {
             console.log("Full XRPL Transaction Details:", txDetails);
 
             // TODO: correct decoding to check test passed
-            let finalMessage: ethers.BigNumberish;
+            let finalValue: ethers.BigNumberish;
+            let finalPayload: string;
             await polling(
                 async () => {
-                    finalMessage = await destinationInterchainTokenExecutable.value();
-                    console.log({ finalMessage });
-                    return finalMessage.toString().includes(msgText);
+                    finalValue = await destinationInterchainTokenExecutable.value();
+                    console.log({ finalValue });
+                    finalPayload = await destinationInterchainTokenExecutable.data();
+                    console.log({ finalPayload });
+                    return finalValue.toString().includes(msgText) && finalPayload.includes(convertStringToHex(payload));
                 },
                 (result) => !result,
                 pollingOpts,

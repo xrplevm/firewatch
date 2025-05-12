@@ -6,6 +6,7 @@ export const interchainTokenExecutableAbi = [
     "constructor(address interchainTokenService_)",
     "function interchainTokenService() view returns (address)",
     "function value() view returns (uint256)",
+    "function data() view returns (bytes)",
     "function executeWithInterchainToken(bytes32 commandId, string sourceChain, bytes sourceAddress, bytes data, bytes32 tokenId, address token, uint256 amount) external returns (bytes32)",
     "event DataReceived(bytes data, uint256 amount)",
 ];
@@ -17,6 +18,7 @@ export type IInterchainTokenExecutableFilters = {
 export interface IInterchainTokenExecutable extends ContractWithFilters<IInterchainTokenExecutableFilters> {
     interchainTokenService(): Promise<string>;
     value(): Promise<ethers.BigNumberish>;
+    data(): Promise<string>;
     executeWithInterchainToken(
         commandId: string,
         sourceChain: string,
@@ -35,5 +37,5 @@ export class InterchainTokenExecutable extends Contract<IInterchainTokenExecutab
 }
 
 // TODO remove:
-// Testnet: 0x1a0d17da6966e9b03845c3ef9f87621884bc6874
-// Devnet: 0xc3ca371ca074664eda4c4a5e6b56cc2b64ce9870
+// Testnet: 0xbDA483855025eB0b368ae6171d633420da4f43b0
+// Devnet: 0xa81D682d871C49a91Cc82B7456252Eb3F592E6f7

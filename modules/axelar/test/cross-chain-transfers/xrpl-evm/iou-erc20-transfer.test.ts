@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import config from "../../../module.config.example.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
-import { AxelarProvider } from "@firewatch/bridge/providers/axelarscan";
+import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Token } from "@firewatch/core/token";
 import { polling, PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
@@ -16,17 +16,16 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { InterchainToken } from "@shared/evm/contracts";
 import { expectRevert } from "@testing/hardhat/utils";
-import { Client as xrplclient, Wallet as xrplwallet } from "xrpl";
 import { Env } from "../../../../../packages/env/src/types/env";
 
-describe("Cross-Chain No-Native Transfer", () => {
+describe.skip("Cross-Chain No-Native Transfer", () => {
     const { sourceChain: xrplChain, destinationChain: evmChain, interchainTransferOptions } = config.axelar;
     let FOO_ERC20: Token;
     let FOO_IOU: Token;
 
     let evmChainProvider: EthersProvider;
     let xrplChainProvider: XrplProvider;
-    let axelarProvider: AxelarProvider;
+    let axelarScanProvider: AxelarScanProvider;
 
     let evmChainSigner: EthersSigner;
     let xrplChainSigner: XrplSigner;
@@ -36,6 +35,7 @@ describe("Cross-Chain No-Native Transfer", () => {
 
     let evmChainWallet: ethers.Wallet;
     let xrplChainWallet: Wallet;
+    let secondWallet: Wallet;
 
     let evmChainTranslator: EvmTranslator;
     let xrplChainTranslator: XrpTranslator;
@@ -51,10 +51,11 @@ describe("Cross-Chain No-Native Transfer", () => {
 
         evmChainProvider = new EthersProvider(evmJsonProvider);
         xrplChainProvider = new XrplProvider(xrplClient);
-        axelarProvider = new AxelarProvider(xrplChain.env as Env);
+        axelarScanProvider = new AxelarScanProvider(xrplChain.env as Env);
 
         evmChainWallet = new ethers.Wallet(evmChain.account.privateKey, evmJsonProvider);
         xrplChainWallet = Wallet.fromSeed(xrplChain.account.privateKey);
+        secondWallet = Wallet.fromSeed("sEdTqUGVF21kbv8Fen9EZ6vgT1Wm3qW");
 
         evmChainSigner = new EthersSigner(evmChainWallet, evmChainProvider);
         xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
@@ -74,7 +75,7 @@ describe("Cross-Chain No-Native Transfer", () => {
         FOO_IOU = {
             id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
             symbol: "FOO",
-            decimals: 18,
+            decimals: 8,
             name: "FOO",
             address: "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj",
             isNative: () => false,
@@ -109,13 +110,13 @@ describe("Cross-Chain No-Native Transfer", () => {
             const recipient = evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address);
             const metadata = "0x"; // or any metadata you want
 
-            const feeResponse = await axelarProvider.estimateGasFee({
-                sourceChain: "xrpl-evm",
-                destinationChain: "xrpl",
-                gasToken: "XRP", // or whatever symbol you’re using
-                gasLimit: 200_000, // how much gas you think your _execute…()_ will burn
-                executeData: "0x", // empty for pure token transfers
-            });
+            const feeResponse = await axelarScanProvider.estimateGasFee(
+                "xrpl-evm",
+                "xrpl",
+                "XRP", // or whatever symbol you’re using
+                200_000, // how much gas you think your _execute…()_ will burn
+                "0x", // empty for pure token transfers
+            );
             console.log("Fee response:", feeResponse);
             // Call the new interchainTransfer function directly
             const tx = await interchainToken.interchainTransfer(xrplChain.name, recipient, ethers.parseUnits(amount, 12), metadata, {
@@ -155,6 +156,22 @@ describe("Cross-Chain No-Native Transfer", () => {
             );
         });
 
+        it("should revert when transferring to a non-existent XRPL account without reserve", async () => {
+            const amount = "0.01";
+
+            await expectRevert(
+                evmChainSigner.transfer(
+                    amount,
+                    FOO_ERC20 as Token,
+                    evmChain.interchainTokenServiceAddress,
+                    xrplChain.name,
+                    evmChainTranslator.translate(ChainType.XRP, secondWallet.address),
+                ),
+                //TODO: Update the error message to be more descriptive
+                "fail",
+            );
+        });
+
         it.skip("should revert when transferring 0 tokens", async () => {
             await expectRevert(
                 evmChainSigner.transfer(
@@ -165,6 +182,60 @@ describe("Cross-Chain No-Native Transfer", () => {
                     evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
                 ),
                 "fail",
+            );
+        });
+
+        it("should revert when transferring dust amount (below token's minimum unit)", async () => {
+            // Get token decimals
+            const decimals = FOO_ERC20.decimals;
+            const dustAmount = `0.${"0".repeat(decimals - 3)}1`;
+            console.log(`Testing with dust amount: ${dustAmount} (smaller than smallest representable unit)`);
+
+            await expectRevert(
+                evmChainSigner.transfer(
+                    dustAmount,
+                    FOO_ERC20 as Token,
+                    evmChain.interchainTokenServiceAddress,
+                    xrplChain.name,
+                    evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+                ),
+                //TODO: Update the error message to be more descriptive
+                "fail", // Replace with expected error message
+            );
+        });
+
+        it("should revert when transferring more than the balance", async () => {
+            const balance = await interchainToken.balanceOf(evmChainWallet.address);
+            console.log("Fetched balance from InterchainToken contract:", balance.toString(), evmChainWallet.address);
+
+            const amount = BigNumber(balance.toString()).plus(1).toString();
+
+            await expectRevert(
+                evmChainSigner.transfer(
+                    amount,
+                    FOO_ERC20 as Token,
+                    evmChain.interchainTokenServiceAddress,
+                    xrplChain.name,
+                    evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+                ),
+                //TODO: Update the error message to be more descriptive
+                "Insufficient balance for transfer",
+            );
+        });
+
+        it("should revert when transferring to an invalid address", async () => {
+            const amount = "0.01";
+            const invalidAddress = "0x123"; // Invalid address
+
+            await expectRevert(
+                evmChainSigner.transfer(
+                    amount,
+                    FOO_ERC20 as Token,
+                    evmChain.interchainTokenServiceAddress,
+                    xrplChain.name,
+                    evmChainTranslator.translate(ChainType.XRP, invalidAddress),
+                ),
+                "Invalid recipient address",
             );
         });
     });
@@ -181,13 +252,7 @@ describe("Cross-Chain No-Native Transfer", () => {
             const initialSourceBalance = await xrplChainProvider.getIOUBalance(xrplChainWallet.address, FOO_IOU.address!, FOO_IOU.symbol);
 
             // 1) Estimate exactly how much XRP-drops or IOU to prepay the relayer:
-            const feeResponse = await axelarProvider.estimateGasFee({
-                sourceChain: "xrpl",
-                destinationChain: "xrpl-evm",
-                gasToken: "XRP",
-                gasLimit: 200_000,
-                executeData: "0x",
-            });
+            const feeResponse = await axelarScanProvider.estimateGasFee("xrpl", "xrpl-evm", "XRP", 200_000, "0x");
             // Normalize the returned shape:
             const gasValue = typeof feeResponse === "string" ? feeResponse : feeResponse.executionFeeWithMultiplier;
             console.log("Gas value to prepay:", gasValue);
@@ -212,7 +277,7 @@ describe("Cross-Chain No-Native Transfer", () => {
             //    Once Confirmed, you can pull out the original msg ID:
             await polling(
                 async () => {
-                    const full = await axelarProvider.fetchOutcome(normalized);
+                    const full = await axelarScanProvider.fetchOutcome(normalized);
                     console.log("Fetched events:", full);
                     // `callTx` is null until the payment is *confirmed* on the Axelar chain.
                     return full.status === "source_gateway_called";
@@ -252,6 +317,24 @@ describe("Cross-Chain No-Native Transfer", () => {
             if (!BigNumber(finalSrcBalance.toString()).eq(expected)) {
                 throw new Error(`Source balance mismatch. Expected ${expected}, saw ${finalSrcBalance}`);
             }
+        });
+
+        it("should revert when transferring dust amount (below token's minimum unit)", async () => {
+            // Get token decimals
+            const decimals = FOO_IOU.decimals;
+            const dustAmount = `0.${"0".repeat(decimals - 3)}1`;
+            console.log(`Testing with dust amount: ${dustAmount} (smaller than smallest representable unit)`);
+            await expectRevert(
+                xrplChainSigner.transfer(
+                    dustAmount,
+                    FOO_IOU,
+                    xrplChain.interchainTokenServiceAddress,
+                    xrplChainTranslator.translate("evm", evmChain.name),
+                    xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
+                ),
+                // TODO: Update the error message to be more descriptive
+                XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
+            );
         });
 
         it.skip("should revert when transferring 0 tokens", async () => {

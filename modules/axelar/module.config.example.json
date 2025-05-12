@@ -50,7 +50,7 @@
             "saltTokenFactory": "ITS Factory xrpl-evm-devnet devnet-amplifier v0",
             "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
             "axelarExecutableExampleAddress": "0x31393E1428762BCa4224C015138CDEF9a6edbfe1",
-            "interchainTokenExecutableExampleAddress": "0x1a0d17da6966e9b03845c3ef9f87621884bc6874",
+            "interchainTokenExecutableExampleAddress": "0xbDA483855025eB0b368ae6171d633420da4f43b0",
             "urls": {
                 "rpc": "https://rpc.testnet.xrplevm.org"
             },
