@@ -1,0 +1,119 @@
+{
+    "axelar": {
+        "url": "https://api.axelar.network",
+        "apiUrl": "https://api.axelar.network",
+        "gmpUrl": "https://gmp.axelar.network",
+        "pollingOptions": {
+            "maxRetries": 50,
+            "retryDelay": 10000,
+            "timeout": 1000000
+        }
+    },
+    "xrplEvmChain": {
+        "id": "xrpl-evm",
+        "name": "xrpl-evm",
+        "chainId": 43113,
+        "env": "testnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        },
+        "axelarGatewayAddress": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+        "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
+        "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
+        "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
+        "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+        "axelarExecutableExampleAddress": "0x34fC31B1D6F3FE37FcDE7D9Df967Ef01172C25e5",
+        "interchainTokenExecutableExampleAddress": "0x3d942C6834628F20B9708A2B3F56976C5d987BB9",
+        "interchainTransferOptions": {
+            "amount": "1",
+            "gasLimit": 1000000,
+            "gasValue": "0.5"
+        },
+        "urls": {
+            "rpc": "https://rpc.testnet.xrplevm.org"
+        },
+        "account": {
+            "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+        },
+        "pollingOptions": {
+            "maxRetries": 50,
+            "retryDelay": 10000,
+            "timeout": 1000000
+        }
+    },
+    "xrplChain": {
+        "name": "xrpl",
+        "chainId": 1,
+        "env": "testnet",
+        "type": "xrp",
+        "nativeToken": {
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+        },
+        "axelarGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
+        "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
+        "interchainTransferOptions": {
+            "amount": "3"
+        },
+        "urls": {
+            "ws": "wss://s.altnet.rippletest.net:51233"
+        },
+        "account": {
+            "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+        },
+        "pollingOptions": {
+            "maxRetries": 50,
+            "retryDelay": 10000,
+            "timeout": 1000000
+        }
+    },
+    "evmChain": {
+        "name": "Avalanche",
+        "chainId": 43113,
+        "env": "testnet",
+        "type": "evm",
+        "nativeToken": {
+            "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+        },
+        "axelarGatewayAddress": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+        "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
+        "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
+        "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+        "axelarExecutableExampleAddress": "",
+        "interchainTokenExecutableExampleAddress": "",
+        "tokenId": "",
+        "interchainTransferOptions": {
+            "amount": "1",
+            "gasLimit": 1000000,
+            "gasValue": "0.2"
+        },
+        "urls": {
+            "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
+            "ws": "https://api.avax-test.network/ext/bc/C/rpc"
+        },
+        "account": {
+            "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+        },
+        "pollingOptions": {
+            "maxRetries": 50,
+            "retryDelay": 10000,
+            "timeout": 1000000
+        }
+    },
+
+    "hardhat": {
+        "solidity": "0.8.20"
+    }
+}

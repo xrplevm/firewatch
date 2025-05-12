@@ -17,7 +17,6 @@ export type ChainObject = {
     env: Env;
     type: ChainType;
     nativeToken: TokenObject;
-    door: string;
     urls: ChainUrlsObject;
 };
 
@@ -30,7 +29,6 @@ export class Chain {
     type: ChainType;
     env: Env;
     nativeToken: Token;
-    door: string;
     urls: ChainUrlsObject;
 
     constructor(chain: ChainObject) {
@@ -42,7 +40,6 @@ export class Chain {
         this.type = chain.type;
         this.env = chain.env;
         this.nativeToken = new Token(chain.nativeToken);
-        this.door = chain.door;
         this.urls = chain.urls;
     }
 }

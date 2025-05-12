@@ -75,6 +75,10 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         doorAddress: string,
         destinationChainId: string,
         destinationAddress: string,
+        options?: {
+            gasLimit?: number;
+            gasValue?: string;
+        },
     ): Promise<Unconfirmed<EthersTransaction>> {
         const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
 
@@ -86,7 +90,11 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             destinationAddress,
             sendingAmount.toString(),
             "0x",
-            new BigNumber("0").toString(),
+            options?.gasValue ? options.gasValue : "0",
+            {
+                gasLimit: options?.gasLimit,
+                value: options?.gasValue ? options.gasValue : undefined,
+            },
         );
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
