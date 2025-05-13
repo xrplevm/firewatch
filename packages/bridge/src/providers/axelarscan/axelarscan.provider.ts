@@ -108,7 +108,7 @@ export class AxelarScanProvider implements IAxelarScanProvider {
 
         const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined, executeData);
 
-        //TODO: check if the response is valid (retunr just estimated fee)
+        //TODO: check if the response is valid (return just estimated fee)
         return feeResponse as AxelarQueryAPIFeeResponse;
     }
 }

@@ -61,8 +61,7 @@
         "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
         "interchainTransferOptions": {
             "amount": "3",
-            "reserveAmount": "1",
-            "gas_fee": "1700000"
+            "reserveAmount": "1"
         },
         "urls": {
             "ws": "wss://s.altnet.rippletest.net:51233"

@@ -80,17 +80,14 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             gasValue?: string;
         },
     ): Promise<Unconfirmed<EthersTransaction>> {
-        const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
-
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
 
-        // TODO: get gasValue and Value from gasService.estimateGasFee
-        const gasValue = options?.gasValue ? ethers.parseEther(options.gasValue) : ethers.parseEther("0.5");
+        const gasValue = options?.gasValue ? options.gasValue : ethers.parseEther("0.5");
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
             destinationChainId,
             destinationAddress,
-            sendingAmount.toString(),
+            amount,
             "0x",
             gasValue,
             { value: gasValue },
