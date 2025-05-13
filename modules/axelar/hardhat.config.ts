@@ -7,7 +7,7 @@ import moduleConfig from "./module.config.example.json";
 const config: HardhatUserConfig = {
     ...moduleConfig.hardhat,
     mocha: {
-        timeout: moduleConfig.axelar.interchainTransferOptions.timeout,
+        timeout: moduleConfig.axelar.pollingOptions.timeout,
     },
 };
 

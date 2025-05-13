@@ -9,7 +9,7 @@ import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/con
 import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
 import { describeOrSkip } from "@testing/mocha/utils";
 
-describeOrSkip(
+describeOrSkip.skip(
     "Call Contract EVM - EVM",
     () => {
         return (

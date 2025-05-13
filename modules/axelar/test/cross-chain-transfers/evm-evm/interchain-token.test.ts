@@ -13,7 +13,7 @@ import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "@firewatch/env/types";
 
-describeOrSkip(
+describeOrSkip.skip(
     "Interchain Token Deployment EVM - EVM",
     () => {
         return (

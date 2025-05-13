@@ -74,7 +74,7 @@ export class AxelarScanProvider implements IAxelarScanProvider {
         gasToken: string,
         gasLimit: string | number,
         executeData?: string,
-    ): Promise<AxelarQueryAPIFeeResponse> {
+    ): Promise<string> {
         const limit = typeof gasLimit === "string" ? Number(gasLimit) : gasLimit;
 
         const api = new AxelarQueryAPI({
@@ -83,7 +83,6 @@ export class AxelarScanProvider implements IAxelarScanProvider {
 
         const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined, executeData);
 
-        //TODO: check if the response is valid (return just estimated fee)
-        return feeResponse as AxelarQueryAPIFeeResponse;
+        return feeResponse as string;
     }
 }

@@ -150,7 +150,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
             const payment: Payment = {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
-                Amount: token.isNative() ? xrpToDrops(amount) : issuedCurrencyAmount!,
+                Amount: token.isNative() ? amount : issuedCurrencyAmount!,
                 Destination: doorAddress,
                 Memos: memos,
             };

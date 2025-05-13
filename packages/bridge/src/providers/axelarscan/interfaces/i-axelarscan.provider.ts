@@ -65,5 +65,5 @@ export interface IAxelarScanProvider {
         gasToken: string,
         gasLimit: string | number,
         amount?: string | number,
-    ): Promise<AxelarQueryAPIFeeResponse>; // Replace 'any' with GasEstimationResponse if available
+    ): Promise<string>; // Replace 'any' with GasEstimationResponse if available
 }

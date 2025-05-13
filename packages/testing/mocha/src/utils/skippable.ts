@@ -26,6 +26,15 @@ export function describeOrSkip(
     }
 }
 
+describeOrSkip.skip = (
+    name: string,
+    condition: boolean | (() => boolean),
+    fn: () => void,
+    describeFn = typeof describe !== "undefined" ? describe : mochaDescribe,
+) => {
+    describeFn.skip(name, fn);
+};
+
 /**
  * Runs the given test only if the given condition is true.
  * Otherwise, the test is skipped.

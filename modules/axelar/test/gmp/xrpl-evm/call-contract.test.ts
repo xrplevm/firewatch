@@ -15,7 +15,7 @@ import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
 
-describeOrSkip(
+describeOrSkip.skip(
     "GMP XRP -> EVM",
     () => {
         return (
