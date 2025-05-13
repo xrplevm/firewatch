@@ -49,8 +49,8 @@ describeOrSkip(
         let xrplChainTranslator: XrpTranslator;
 
         before(async () => {
-            assertChainTypes(["evm"], evmChain as unknown as AxelarBridgeChain);
-            assertChainTypes(["xrp"], xrplChain as unknown as AxelarBridgeChain);
+            isChainType(["evm"], evmChain as unknown as AxelarBridgeChain);
+            isChainType(["xrp"], xrplChain as unknown as AxelarBridgeChain);
 
             evmJsonProvider = new ethers.JsonRpcProvider(evmChain.urls.rpc);
             xrplClient = new Client(xrplChain.urls.ws);
