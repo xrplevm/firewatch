@@ -54,9 +54,8 @@
         "type": "xrp",
         "nativeToken": {
             "symbol": "XRP",
-            "decimals": 18,
-            "name": "XRP",
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            "decimals": 6,
+            "name": "XRP"
         },
         "axelarGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
         "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
@@ -81,11 +80,9 @@
         "env": "testnet",
         "type": "evm",
         "nativeToken": {
-            "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
-            "symbol": "XRP",
+            "symbol": "AVAX",
             "decimals": 18,
-            "name": "XRP",
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            "name": "AVAX"
         },
         "axelarGatewayAddress": "0xC249632c2D40b9001FE907806902f63038B737Ab",
         "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
@@ -112,7 +109,6 @@
             "timeout": 1000000
         }
     },
-
     "hardhat": {
         "solidity": "0.8.20"
     }

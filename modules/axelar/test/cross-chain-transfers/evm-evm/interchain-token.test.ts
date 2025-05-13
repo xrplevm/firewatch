@@ -197,7 +197,6 @@ describeOrSkip(
                                 gasLimit: xrplEvmChain.interchainTransferOptions.gasLimit,
                             }),
                         );
-                        evmInterchainTokenFactory;
 
                         await assertInterchainBalanceUpdate(
                             evmToken,

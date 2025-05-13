@@ -53,6 +53,11 @@
         "id": "xrpl-dev",
         "env": "devnet",
         "type": "xrp",
+        "nativeToken": {
+            "symbol": "XRP",
+            "decimals": 6,
+            "name": "XRP"
+        },
         "axelarAmplifierGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTransferOptions": {
@@ -76,10 +81,9 @@
         "env": "devnet",
         "type": "evm",
         "nativeToken": {
-            "symbol": "XRP",
+            "symbol": "AVAX",
             "decimals": 18,
-            "name": "XRP",
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            "name": "AVAX"
         },
         "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
         "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
@@ -106,7 +110,6 @@
             "timeout": 1000000
         }
     },
-
     "hardhat": {
         "solidity": "0.8.20"
     }

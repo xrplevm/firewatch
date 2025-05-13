@@ -43,7 +43,6 @@ describeOrSkip(
         let evmChainTranslator: EvmTranslator;
         let xrplChainTranslator: XrpTranslator;
 
-        let gasLimit: number;
         let gasValue: string;
 
         before(async () => {
@@ -65,7 +64,6 @@ describeOrSkip(
             evmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
 
-            gasLimit = sourceChain.interchainTransferOptions.gasLimit;
             gasValue = ethers.parseEther(sourceChain.interchainTransferOptions.gasValue).toString();
         });
 
