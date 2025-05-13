@@ -1,6 +1,9 @@
 import { TransactionReceipt, TransactionResponse, ContractTransactionResponse } from "ethers";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { HardhatErrors } from "../constants";
+import { polling, PollingOptions } from "@shared/utils";
+import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
+import { ProviderError } from "@firewatch/bridge/providers/error";
 
 type TxPromise = Promise<Unconfirmed<Transaction>> | Promise<ContractTransactionResponse>;
 
@@ -38,4 +41,30 @@ export async function executeTx(txPromise: Promise<TransactionResponse>): Promis
 
     const gasCost = receipt.gasUsed * receipt.gasPrice;
     return { receipt, gasCost };
+}
+
+/**
+ * Polls for the execution outcome of a transaction and ensures it was executed successfully.
+ * @param txHash The transaction hash to monitor.
+ * @param axelarScanProvider The provider to fetch the transaction outcome.
+ * @param pollingOptions Options for polling.
+ * @throws An error if the transaction execution fails or encounters an Axelar error.
+ */
+export async function expectExecuted(
+    txHash: string,
+    axelarScanProvider: AxelarScanProvider,
+    pollingOptions: PollingOptions,
+): Promise<void> {
+    const lifecycle = await polling(
+        async () => {
+            const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
+            return lifecycleInfo;
+        },
+        (res: any) => !(res && (res.status === "destination_executed" || res.error)),
+        pollingOptions,
+    );
+
+    if (lifecycle && lifecycle.error) {
+        throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lifecycle.error });
+    }
 }

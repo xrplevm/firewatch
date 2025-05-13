@@ -23,6 +23,7 @@
         "@firewatch/bridge": "workspace:*",
         "@firewatch/cli": "workspace:*",
         "@firewatch/core": "workspace:*",
+        "@firewatch/env": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/modules": "workspace:*",
         "@shared/tsconfig": "workspace:*",
