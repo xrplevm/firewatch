@@ -156,6 +156,7 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
             );
         });
 
+        //TODO delete?
         it("should revert when transferring to a non-existent XRPL account without reserve", async () => {
             const amount = "0.01";
 
@@ -185,10 +186,10 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
             );
         });
 
-        it("should revert when transferring dust amount (below token's minimum unit)", async () => {
+        it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
             // Get token decimals
-            const decimals = FOO_ERC20.decimals;
-            const dustAmount = `0.${"0".repeat(decimals - 3)}1`;
+            const decimals = FOO_IOU.decimals;
+            const dustAmount = `0.${"0".repeat(decimals)}1`;
             console.log(`Testing with dust amount: ${dustAmount} (smaller than smallest representable unit)`);
 
             await expectRevert(
@@ -319,10 +320,10 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
             }
         });
 
-        it("should revert when transferring dust amount (below token's minimum unit)", async () => {
+        it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
             // Get token decimals
             const decimals = FOO_IOU.decimals;
-            const dustAmount = `0.${"0".repeat(decimals - 3)}1`;
+            const dustAmount = `0.${"0".repeat(decimals)}1`;
             console.log(`Testing with dust amount: ${dustAmount} (smaller than smallest representable unit)`);
             await expectRevert(
                 xrplChainSigner.transfer(
@@ -336,6 +337,7 @@ describe.skip("Cross-Chain No-Native Transfer", () => {
                 XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
             );
         });
+        it("should get stuck in confirm step when gas_fee_amount is too low", async () => {});
 
         it.skip("should revert when transferring 0 tokens", async () => {
             await expectRevert(

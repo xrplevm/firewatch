@@ -84,10 +84,13 @@
 
 ## 4. IOU XRPL → EVM
 
-- IOU Payment without `gas_fee_amount` memo → stuck → no Confirm
+<!-- - IOU Payment without `gas_fee_amount` memo → stuck → no Confirm
     - [ ] Code
-    - [ ] Test
-- IOU Payment with `gas_fee_amount` too low → stuck → no Confirm - [ ] Code - [ ] Test
+    - [ ] Test -->
+
+<!-- - IOU Payment with `gas_fee_amount` too low → stuck → no Confirm
+    - [ ] Code
+    - [ ] Test -->
 
 <!-- - Re-adding insufficient gas via `add_gas` → still stuck
         - [ ] Code
@@ -96,17 +99,20 @@
     - [ ] Code
     - [ ] Test -->
 
-- After under-funding, top-up with the exact required amount → succeeds (Confirm → Execute)
+<!-- - After under-funding, top-up with the exact required amount → succeeds (Confirm → Execute)
     - [ ] Code
-    - [ ] Test
-- Missing `token_address` or `token_chain` memos → ignored → no Confirm
+    - [ ] Test -->
+
+<!-- - Missing `token_address` or `token_chain` memos → ignored → no Confirm
     - [ ] Code
-    - [ ] Test
-- Payment to non-existent EVM address → contract-call revert / error
+    - [ ] Test -->
+
+<!-- - Payment to non-existent EVM address → contract-call revert / error
     - [ ] Code
-    - [ ] Test
+    - [ ] Test -->
+
 - IOU dust amount (< smallest token unit) → failure on XRPL submit
-    - [ ] Code
+    - [x] Code
     - [ ] Test
 
 ## 5. GMP XRPL → EVM via `contract_call`
