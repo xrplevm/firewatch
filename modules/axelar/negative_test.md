@@ -19,6 +19,7 @@
     - [x] Code
     - [ ] Test
 - Transfer with decimal precision handling
+
     - Transfer amount with more decimals than supported (>6) → should truncate to 6 decimals
         - [x] Code
         - [ ] Test
@@ -26,22 +27,32 @@
         - [x] Code
         - [ ] Test
 
+- Payment with `gasValue` too low → stays stuck → no Confirm
+    - [ ] Code
+    - [ ] Test
+- After under-funding, add a small “add_gas”??????? top-up (still too little) → still fails
+    - [ ] Code
+    - [ ] Test
+- After under-funding, top-up with the exact required amount → succeeds (Confirm → Execute)
+    - [ ] Code
+    - [ ] Test
+
 ## 2. Native XRPL → EVM
 
 - Transfer dust (e.g. < 0.000001 XRP) → expect failure
     - [ ] Code
     - [ ] Test
-- Transfer exactly (balance – reserve) → expect success
+- Transfer exactly (balance + reserve) → expect success
     - [x] Code //TODO Calculate precise balance (fees)
     - [ ] Test
-- Transfer less than reserve → expect failure
+- Transfer less than reserve → expect failure ?????????
     - [x] Code
     - [ ] Test
 - Transfer with decimal precision handling
     - Transfer amount with 6 decimals → should extend to 18 decimals on EVM chain properly
         - [x] Code
         - [ ] Test
-    - Transfer amount with fewer than 6 decimals → should extend to 18 decimals on EVM chain properly
+    - Transfer amount with more than 6 decimals → should extend to 18 decimals on EVM chain properly
         - [ ] Code
         - [ ] Test
 - Payment without a valid `gas_fee_amount` memo → stuck at “Pay Gas” → never Confirm
@@ -117,22 +128,24 @@
 
 ## 5. GMP XRPL → EVM via `contract_call`
 
-- Memo `type=contract_call` missing or wrong → ignored → no Confirm
+<!-- - Memo `type=contract_call` missing or wrong → ignored → no Confirm
     - [ ] Code
     - [ ] Test
 - Memo `payload` missing → ignored → no Confirm
     - [ ] Code
     - [ ] Test
+- Incorrect hex-encoding of memos → ignored → no Confirm
+    - [ ] Code
+    - [ ] Test
 - Memo `destination_chain` or `destination_address` invalid/mismatched → ignored → no Confirm
     - [ ] Code
-    - [ ] Test
-- Memo `gas_fee_amount` missing → stuck at Pay Gas → no Confirm
+    - [ ] Test -->
+
+<!-- - Memo `gas_fee_amount` missing → stuck at Pay Gas → no Confirm
     - [ ] Code
-    - [ ] Test
+    - [ ] Test -->
+
 - Memo `gas_fee_amount` too low → stuck → no Confirm
-    - [ ] Code
-    - [ ] Test
-- Incorrect hex-encoding of memos → ignored → no Confirm
     - [ ] Code
     - [ ] Test
 - After under-funding, send `add_gas` with insufficient amount → still stuck
@@ -144,7 +157,7 @@
 
 ## 6. GMP XRPL → EVM via `interchain_transfer`
 
-- Memo `type=interchain_transfer` missing or wrong → ignored → no Confirm
+<!-- - Memo `type=interchain_transfer` missing or wrong → ignored → no Confirm
     - [ ] Code
     - [ ] Test
 - Missing `token_id` for interchain tokens → ignored → no Confirm
@@ -155,7 +168,8 @@
     - [ ] Test
 - Missing or malformed `gas_fee_amount` → stuck at Pay Gas → no Confirm
     - [ ] Code
-    - [ ] Test
+    - [ ] Test -->
+
 - Under-funded `gas_fee_amount` → stuck → no Confirm
     - [ ] Code
     - [ ] Test
