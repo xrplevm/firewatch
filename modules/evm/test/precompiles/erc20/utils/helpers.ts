@@ -13,7 +13,8 @@ import BigNumber from "bignumber.js";
  * @param ownerSigner Owner signer.
  * @param userSigner User signer.
  * @param chainEvn Network environment.
- * @param correctionFactor Multiplier for allowed cost difference.
+ * @param feeMultiplier Multiplier for allowed cost difference.
+ * @param residualThreshold Multiplier for allowed cost difference.
  */
 export async function resetOwnerState(
     ownerContract: Contract,

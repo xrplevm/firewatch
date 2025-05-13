@@ -9,7 +9,6 @@
     "license": "ISC",
     "devDependencies": {
         "@firewatch/core": "workspace:*",
-        "@firewatch/error": "workspace:*",
         "@firewatch/bridge": "workspace:*",
         "@nomiclabs/hardhat-ethers": "^2.2.2",
         "@nomiclabs/hardhat-waffle": "^2.0.3",
