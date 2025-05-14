@@ -12,7 +12,7 @@
     "xrplEvmChain": {
         "id": "xrpl-evm",
         "name": "xrpl-evm",
-        "chainId": 43113,
+        "chainId": 1449000,
         "env": "testnet",
         "type": "evm",
         "symbol": "XRP",
