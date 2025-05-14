@@ -12,7 +12,7 @@
     "xrplEvmChain": {
         "id": "xrpl-evm-devnet",
         "name": "xrpl-evm-devnet",
-        "chainId": 100,
+        "chainId": 1440002,
         "env": "devnet",
         "type": "evm",
         "symbol": "XRP",
