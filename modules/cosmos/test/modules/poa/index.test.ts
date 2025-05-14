@@ -4,8 +4,8 @@ import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { PoAClient } from "../../../src/modules/PoA/client";
-import { PoAModuleConfig } from "../../../src/modules/PoA/config";
+import { PoaClient } from "../../../src/modules/poa/client";
+import { PoaModuleConfig } from "../../../src/modules/poa/config";
 
 describeOrSkip(
     "PoaModule",
@@ -16,14 +16,14 @@ describeOrSkip(
         );
     },
     () => {
-        let poaClient: PoAClient;
+        let poaClient: PoaClient;
         const network = moduleConfig.network;
-        let poaModule: PoAModuleConfig;
+        let poaModule: PoaModuleConfig;
 
         before(async () => {
             poaModule = moduleConfig.poa;
 
-            poaClient = await PoAClient.connect(network.urls.rpc);
+            poaClient = await PoaClient.connect(network.urls.rpc);
         });
 
         describe("Validator staking and self-delegation", () => {
