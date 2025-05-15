@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { describe, it, before } from "mocha";
-import moduleConfig from "../../../module.config.example.json";
+import moduleConfig from "../../../module.config.json";
 import { BankClient } from "../../../src/modules/bank/client";
 import { Chain } from "@firewatch/core/chain";
 import { BankModuleConfig } from "../../../src/modules/bank/config";

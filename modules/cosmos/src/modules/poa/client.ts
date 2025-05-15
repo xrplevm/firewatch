@@ -3,10 +3,10 @@ import { QueryValidatorDelegationsResponse, QueryClientImpl as StakingQueryClien
 import { BaseQueryClient } from "../common/client";
 
 /**
- * PoAClient extends StargateClient and adds custom staking query methods.
+ * PoaClient extends StargateClient and adds custom staking query methods.
  */
-// The PoAClient will use composition rather than inheritance.
-export class PoAClient {
+// The PoaClient will use composition rather than inheritance.
+export class PoaClient {
     readonly stakingQuery: StakingQueryClient;
 
     private constructor(stakingQuery: StakingQueryClient) {
@@ -14,14 +14,14 @@ export class PoAClient {
     }
 
     /**
-     * Static async factory method to create a PoAClient instance.
+     * Static async factory method to create a PoaClient instance.
      * @param rpcUrl The Tendermint RPC endpoint URL.
-     * @returns A Promise that resolves to a fully initialized PoAClient.
+     * @returns A Promise that resolves to a fully initialized PoaClient.
      */
-    static async connect(rpcUrl: string): Promise<PoAClient> {
+    static async connect(rpcUrl: string): Promise<PoaClient> {
         const baseClient = await BaseQueryClient.connect(rpcUrl);
         const slashingQuery = new StakingQueryClient(baseClient.rpcClient);
-        return new PoAClient(slashingQuery);
+        return new PoaClient(slashingQuery);
     }
 
     /**
