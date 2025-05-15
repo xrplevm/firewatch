@@ -2,18 +2,18 @@ import { ethers, Contract, BigNumberish } from "ethers";
 import config from "../../../module.config.example.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import { executeTx, expectExecuted, expectRevert } from "@testing/hardhat/utils";
+import { executeTx, expectRevert } from "@testing/hardhat/utils";
+import { expectBalanceUpdate, expectExecuted } from "@shared/evm/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken, InterchainTokenFactory, InterchainTokenService } from "@shared/evm/contracts";
 import { pollForEvent } from "@shared/evm/utils";
 import BigNumber from "bignumber.js";
-import { assertInterchainBalanceUpdate } from "./interchain-token.helpers";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "@firewatch/env/types";
 
-describeOrSkip.skip(
+describeOrSkip(
     "Interchain Token Deployment EVM - EVM",
     () => {
         return (
@@ -87,7 +87,7 @@ describeOrSkip.skip(
             gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
             gasLimit = interchainTransferOptions.gasLimit;
             deployAmount = ethers.parseUnits("1000", 18);
-            transferAmount = ethers.parseUnits("1", 18);
+            transferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, 18);
 
             axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
         });
@@ -135,6 +135,7 @@ describeOrSkip.skip(
                     const tx = await executeTx(
                         xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
                             value: gasValue,
+                            gasLimit: gasLimit,
                         }),
                     );
 
@@ -205,6 +206,7 @@ describeOrSkip.skip(
 
                         const tx = await executeTx(
                             xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
+                                value: gasValue,
                                 gasLimit: gasLimit,
                             }),
                         );
@@ -213,11 +215,9 @@ describeOrSkip.skip(
 
                         await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                        await assertInterchainBalanceUpdate(
-                            evmToken,
-                            evmWallet.address,
-                            initialDestBalance,
-                            new BigNumber(transferAmount.toString()),
+                        await expectBalanceUpdate(
+                            async () => (await evmToken.balanceOf(evmWallet.address)).toString(),
+                            initialDestBalance.plus(new BigNumber(transferAmount.toString())).toString(),
                             pollingOpts,
                         );
                     });
@@ -235,6 +235,7 @@ describeOrSkip.skip(
 
                         const tx = await executeTx(
                             evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
+                                value: gasValue,
                                 gasLimit: gasLimit,
                             }),
                         );
@@ -242,11 +243,9 @@ describeOrSkip.skip(
                         const txHash = tx.receipt.hash;
                         await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                        await assertInterchainBalanceUpdate(
-                            xrplEvmToken,
-                            xrplEvmWallet.address,
-                            initialXrplEvmBalance,
-                            new BigNumber(transferAmount.toString()),
+                        await expectBalanceUpdate(
+                            async () => (await xrplEvmToken.balanceOf(xrplEvmWallet.address)).toString(),
+                            initialXrplEvmBalance.plus(new BigNumber(transferAmount.toString())).toString(),
                             pollingOpts,
                         );
                     });
@@ -297,9 +296,6 @@ describeOrSkip.skip(
                         throw new Error("TokenDeployed event was not emitted as expected.");
                     }
 
-                    const txHash = tx.receipt.hash;
-                    await expectExecuted(txHash, axelarScanProvider, pollingOpts);
-
                     deployedTokenAddressEvm = tokenDeployedEvent.args.tokenAddress;
                 });
 
@@ -310,7 +306,6 @@ describeOrSkip.skip(
                             gasLimit: evmChain.interchainTransferOptions.gasLimit,
                         }),
                     );
-
                     const tokenDeployedEvent = await pollForEvent(
                         xrplEvmInterchainTokenService as unknown as Contract,
                         "InterchainTokenDeployed",
@@ -368,6 +363,7 @@ describeOrSkip.skip(
 
                         const tx = await executeTx(
                             evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
+                                value: gasValue,
                                 gasLimit: gasLimit,
                             }),
                         );
@@ -375,11 +371,9 @@ describeOrSkip.skip(
                         const txHash = tx.receipt.hash;
                         await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                        await assertInterchainBalanceUpdate(
-                            xrplEvmToken,
-                            xrplEvmWallet.address,
-                            initialXrplEvmBalance,
-                            new BigNumber(transferAmount.toString()),
+                        await expectBalanceUpdate(
+                            async () => (await xrplEvmToken.balanceOf(xrplEvmWallet.address)).toString(),
+                            initialXrplEvmBalance.plus(new BigNumber(transferAmount.toString())).toString(),
                             pollingOpts,
                         );
                     });
@@ -399,6 +393,7 @@ describeOrSkip.skip(
 
                         const tx = await executeTx(
                             xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
+                                value: gasValue,
                                 gasLimit: gasLimit,
                             }),
                         );
@@ -406,11 +401,9 @@ describeOrSkip.skip(
                         const txHash = tx.receipt.hash;
                         await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                        await assertInterchainBalanceUpdate(
-                            evmToken,
-                            evmWallet.address,
-                            initialDestBalance,
-                            new BigNumber(transferAmount.toString()),
+                        await expectBalanceUpdate(
+                            async () => (await evmToken.balanceOf(evmWallet.address)).toString(),
+                            initialDestBalance.plus(new BigNumber(transferAmount.toString())).toString(),
                             pollingOpts,
                         );
                     });
