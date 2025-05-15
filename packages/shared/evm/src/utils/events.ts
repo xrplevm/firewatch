@@ -95,3 +95,27 @@ export function getEventArgs(receipt: TransactionReceipt, iface: Interface, even
     }
     return undefined;
 }
+
+/**
+ * Finds the log index of the first event with the specified name in the transaction receipt.
+ * @param receipt The transaction receipt containing logs.
+ * @param iface An ethers Interface instance for the contract.
+ * @param eventName The name of the event to find.
+ * @returns The log index (number) if found, otherwise undefined.
+ */
+export function findLogIndex(
+    receipt: TransactionReceipt,
+    abi: Array<string | Record<string, any>>, // plain ABI
+    eventName: string,
+): number | undefined {
+    const iface = new Interface(abi);
+    for (const log of receipt.logs) {
+        try {
+            const parsed = iface.parseLog(log);
+            if (parsed && parsed.name === eventName) {
+                return (log as any).index;
+            }
+        } catch {}
+    }
+    return undefined;
+}
