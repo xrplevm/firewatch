@@ -1,4 +1,4 @@
-import { ERC20PrecompileConfig } from "../../precompiles/erc20/config/config";
+import { ERC20PrecompileConfig } from "../precompiles/erc20/config/config";
 import { HardhatModuleConfig } from "@testing/hardhat/config";
 import { Chain } from "@firewatch/core/chain";
 import { Account } from "@firewatch/core/account";
