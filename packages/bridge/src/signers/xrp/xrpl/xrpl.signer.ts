@@ -2,7 +2,7 @@ import { IXrplSigner } from "./interfaces/i-xrpl.signer";
 import { XrplSignerErrors } from "./xrpl.signer.errors";
 import { SignerError } from "../../core/error";
 import { XrplTransactionParser } from "../../../transaction-parsers/xrp/xrpl/xrpl.transaction-parser";
-import { convertStringToHex, Payment, SubmittableTransaction, TrustSet, Wallet, xrpToDrops } from "xrpl";
+import { convertStringToHex, dropsToXrp, Payment, SubmittableTransaction, TrustSet, Wallet, xrpToDrops } from "xrpl";
 import { IXrplSignerProvider } from "./interfaces/i-xrpl-signer.provider";
 import { SubmitTransactionResponse } from "@shared/xrpl/transaction";
 import { convertCurrencyCode } from "@shared/xrpl/currency-code";
@@ -131,10 +131,8 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 issuedCurrencyAmount = {
                     currency: convertCurrencyCode(token.symbol),
                     issuer: token.address!,
-                    value: amount,
+                    value: dropsToXrp(amount).toString(),
                 };
-
-                console.log("issuedCurrencyAmount", issuedCurrencyAmount);
             }
 
             if (options.payload) {
@@ -145,7 +143,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                     },
                 });
             }
-            console.log("memos", memos);
 
             const payment: Payment = {
                 TransactionType: "Payment",
@@ -154,7 +151,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 Destination: doorAddress,
                 Memos: memos,
             };
-            console.log("amount drops: ", payment.Amount);
 
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 
@@ -204,7 +200,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                     },
                 },
             ];
-            console.log("memos", memos);
 
             let issuedCurrencyAmount;
             if (!token.isNative()) {
@@ -213,18 +208,15 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                     issuer: token.address!,
                     value: amount,
                 };
-
-                console.log("issuedCurrencyAmount", issuedCurrencyAmount);
             }
 
             const payment: Payment = {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
-                Amount: token.isNative() ? xrpToDrops(amount) : issuedCurrencyAmount!,
+                Amount: token.isNative() ? amount : issuedCurrencyAmount!,
                 Destination: sourceGatewayAddress,
                 Memos: memos,
             };
-            console.log("payment", payment);
 
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 
@@ -242,7 +234,7 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
      * @param token The token to use for gas (optional).
      * @returns The unconfirmed transaction object.
      */
-    async addGas(gasFee: string, msgId: string, destination: string, token?: Token): Promise<Unconfirmed<Transaction>> {
+    async addGas(gasFee: string, msgId: string, destination: string, token: Token): Promise<Unconfirmed<Transaction>> {
         try {
             const memos = [
                 {
@@ -254,13 +246,13 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
                 {
                     Memo: {
                         MemoType: convertStringToHex("msg_id"),
-                        MemoData: convertStringToHex(msgId),
+                        MemoData: msgId,
                     },
                 },
             ];
 
             let issuedCurrencyAmount;
-            if (token) {
+            if (!token.isNative()) {
                 issuedCurrencyAmount = {
                     currency: convertCurrencyCode(token.symbol),
                     issuer: token.address!,
@@ -271,11 +263,10 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
             const payment: Payment = {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
-                Amount: token ? issuedCurrencyAmount! : gasFee,
+                Amount: token.isNative() ? gasFee : issuedCurrencyAmount!,
                 Destination: destination,
                 Memos: memos,
             };
-            console.log("payment", payment);
 
             const submitTxResponse = await this.signAndSubmitTransaction<Payment>(payment);
 
