@@ -14,6 +14,8 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
+import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
+import { Env } from "@firewatch/env/types";
 
 describeOrSkip.skip(
     "GMP XRP -> EVM",
@@ -28,6 +30,7 @@ describeOrSkip.skip(
 
         let evmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
+        let axelarScanProvider: AxelarScanProvider;
 
         let evmChainSigner: EthersSigner;
         let xrplChainSigner: XrplSigner;
@@ -47,20 +50,19 @@ describeOrSkip.skip(
         let destAxExecAddress: string;
         let destIntTokenExecAddress: string;
 
+        let xrplTransferAmount: string;
+
         const pollingOpts = config.xrplEvmChain as PollingOptions;
 
         before(async () => {
-            const {
-                urls: destUrls,
-                axelarExecutableExampleAddress, // Remove the rename here
-                interchainTokenExecutableExampleAddress, // Remove the rename here
-            } = xrplEvmChain;
+            const { urls: destUrls, axelarExecutableExampleAddress, interchainTokenExecutableExampleAddress } = xrplEvmChain;
 
             destAxExecAddress = axelarExecutableExampleAddress;
             destIntTokenExecAddress = interchainTokenExecutableExampleAddress;
 
             xrplClient = new Client(xrplChain.urls.ws);
             evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
+            axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
             xrplChainProvider = new XrplProvider(xrplClient);
             evmChainProvider = new EthersProvider(evmJsonProvider);
@@ -77,11 +79,7 @@ describeOrSkip.skip(
             destinationAxelarExecutableExample = new AxelarExecutableExample(destAxExecAddress, evmChainWallet);
             destinationInterchainTokenExecutable = new InterchainTokenExecutable(destIntTokenExecAddress, evmChainWallet);
 
-            if (!xrplClient.isConnected()) {
-                console.log("Connecting to XRPL...");
-                await xrplClient.connect();
-            }
-            console.log("XRPL Client Connected:", xrplClient.isConnected());
+            xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
         });
 
         describeOrSkip(
@@ -103,27 +101,15 @@ describeOrSkip.skip(
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, destAxExecAddress),
                         xrplChainTranslator.translate(ChainType.EVM, payload),
-                        "3",
+                        xrplTransferAmount,
                         new Token({} as any),
                     );
 
-                    const confirmedTx = await tx.wait();
-                    console.log("Transaction Sent:", tx.hash);
-                    console.log("Transaction Confirmed:", confirmedTx);
-                    const txDetails = await xrplClient.request({
-                        command: "tx",
-                        transaction: confirmedTx.hash,
-                        binary: false,
-                    });
-
-                    console.log("Full XRPL Transaction Details:", txDetails);
-
-                    // TODO: correct decoding to check test passed
                     let lastPayload: string;
                     await polling(
                         async () => {
                             lastPayload = await destinationAxelarExecutableExample.lastPayload();
-                            console.log({ lastPayload });
+
                             return lastPayload.includes(payload);
                         },
                         (result) => !result,
@@ -146,10 +132,9 @@ describeOrSkip.skip(
                     const msgText = `Hello from the source chain! ${Date.now()}`;
                     const abiCoder = new AbiCoder();
                     const payload = abiCoder.encode(["string"], [msgText]);
-                    const amount = "12";
 
                     const tx = await xrplChainSigner.transfer(
-                        amount,
+                        xrplTransferAmount,
                         new Token({} as any),
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
@@ -157,26 +142,13 @@ describeOrSkip.skip(
                         { payload: convertStringToHex(payload) },
                     );
 
-                    const confirmedTx = await tx.wait();
-                    console.log("Transaction Sent:", tx.hash);
-                    console.log("Transaction Confirmed:", confirmedTx);
-                    const txDetails = await xrplClient.request({
-                        command: "tx",
-                        transaction: confirmedTx.hash,
-                        binary: false,
-                    });
-
-                    console.log("Full XRPL Transaction Details:", txDetails);
-
                     // TODO: correct decoding to check test passed
                     let finalValue: ethers.BigNumberish;
                     let finalPayload: string;
                     await polling(
                         async () => {
                             finalValue = await destinationInterchainTokenExecutable.value();
-                            console.log({ finalValue });
                             finalPayload = await destinationInterchainTokenExecutable.data();
-                            console.log({ finalPayload });
                             return finalValue.toString().includes(msgText) && finalPayload.includes(convertStringToHex(payload));
                         },
                         (result) => !result,

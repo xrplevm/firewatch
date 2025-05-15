@@ -11,6 +11,7 @@
     },
     "license": "ISC",
     "dependencies": {
+        "@ethersproject/providers": "^5.8.0",
         "@nomicfoundation/hardhat-ethers": "^3.0.8",
         "@nomicfoundation/hardhat-toolbox": "^5.0.0",
         "bignumber.js": "^9.1.2",
@@ -25,9 +26,9 @@
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
         "@shared/eslint": "workspace:*",
+        "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",
         "@shared/tsconfig": "workspace:*",
-        "@shared/evm": "workspace:*",
         "@shared/utils": "workspace:*",
         "@testing/hardhat": "workspace:*",
         "@testing/mocha": "workspace:*",

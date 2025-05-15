@@ -12,7 +12,7 @@
     "xrplEvmChain": {
         "id": "xrpl-evm",
         "name": "xrpl-evm",
-        "chainId": 43113,
+        "chainId": 1449000,
         "env": "testnet",
         "type": "evm",
         "symbol": "XRP",
@@ -23,6 +23,13 @@
             "name": "XRP",
             "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         },
+        "fooErc20": {
+            "id": "0xc8895f8ceb0cae9da15bb9d2bc5859a184ca0f61c88560488355c8a7364deef8",
+            "symbol": "FOO",
+            "decimals": 15,
+            "name": "FOO",
+            "address": "0xE26D509C661c4F16FaFfBB1eAce1Fa1CdA8cc146"
+        },
         "axelarGatewayAddress": "0xe432150cce91c13a887f7D836923d5597adD8E31",
         "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
         "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
@@ -31,7 +38,7 @@
         "axelarExecutableExampleAddress": "0x34fC31B1D6F3FE37FcDE7D9Df967Ef01172C25e5",
         "interchainTokenExecutableExampleAddress": "0x3d942C6834628F20B9708A2B3F56976C5d987BB9",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.002",
             "gasLimit": 1000000,
             "gasValue": "0.5"
         },
@@ -56,6 +63,13 @@
             "symbol": "XRP",
             "decimals": 6,
             "name": "XRP"
+        },
+        "fooIou": {
+            "id": "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+            "symbol": "FOO",
+            "decimals": 15,
+            "name": "FOO",
+            "address": "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj"
         },
         "axelarGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
         "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",

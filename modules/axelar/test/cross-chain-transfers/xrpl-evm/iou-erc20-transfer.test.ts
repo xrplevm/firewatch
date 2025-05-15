@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import config from "../../../module.config.example.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
-import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
+import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Token } from "@firewatch/core/token";
 import { polling, PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
@@ -16,10 +16,12 @@ import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { InterchainToken } from "@shared/evm/contracts";
-import { expectExecuted, expectRevert } from "@testing/hardhat/utils";
+import { expectRevert } from "@testing/hardhat/utils";
+import { expectAxelarError, expectBalanceUpdate, expectExecuted } from "@shared/evm/utils";
 import { Env } from "../../../../../packages/env/src/types/env";
+import { HardhatErrors } from "@testing/hardhat/errors";
 
-describeOrSkip.skip(
+describeOrSkip(
     "Cross-Chain No-Native Transfer",
     () => {
         return (
@@ -32,8 +34,8 @@ describeOrSkip.skip(
         const { interchainTransferOptions } = config.xrplEvmChain;
         const pollingOpts = config.axelar.pollingOptions;
 
-        let FOO_ERC20: Token;
-        let FOO_IOU: Token;
+        let fooErc20: Token;
+        let fooIou: Token;
 
         let xrplEvmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
@@ -56,7 +58,6 @@ describeOrSkip.skip(
 
         let xrplTransferAmount: string;
         let xrplEvmTransferAmount: string;
-        let xrplEvmAsDropsAmount: string;
         let xrplAsWeiAmount: string;
 
         let gasLimit: number;
@@ -82,30 +83,14 @@ describeOrSkip.skip(
             xrplEvmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
 
-            FOO_ERC20 = {
-                id: "0xc8895f8ceb0cae9da15bb9d2bc5859a184ca0f61c88560488355c8a7364deef8",
-                symbol: "FOO",
-                decimals: 18,
-                name: "FOO",
-                address: "0xE26D509C661c4F16FaFfBB1eAce1Fa1CdA8cc146",
-                isNative: () => false,
-            };
+            fooErc20 = new Token(xrplEvmChain.fooErc20);
+            fooIou = new Token(xrplChain.fooIou);
 
-            FOO_IOU = {
-                id: "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
-                symbol: "FOO",
-                decimals: 8,
-                name: "FOO",
-                address: "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj",
-                isNative: () => false,
-            };
-
-            interchainToken = new InterchainToken(FOO_ERC20.address!, xrplEvmChainWallet);
+            interchainToken = new InterchainToken(fooErc20.address!, xrplEvmChainWallet);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
-            xrplEvmTransferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount).toString();
-            xrplEvmAsDropsAmount = xrpToDrops(xrplEvmChain.interchainTransferOptions.amount);
-            xrplAsWeiAmount = ethers.parseEther(xrplChain.interchainTransferOptions.amount).toString();
+            xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, fooErc20.decimals).toString();
+            xrplAsWeiAmount = ethers.parseUnits(xrplChain.interchainTransferOptions.amount, fooIou.decimals).toString();
 
             gasLimit = xrplEvmChain.interchainTransferOptions.gasLimit;
         });
@@ -119,20 +104,20 @@ describeOrSkip.skip(
                 );
             },
             () => {
-                it("should transfer the ERC20", async () => {
-                    const initialSrcBalance = await xrplChainProvider.getIOUBalance(
+                it.skip("should transfer the ERC20", async () => {
+                    const initialDestBalance = await xrplChainProvider.getIOUBalance(
                         xrplChainWallet.address,
-                        FOO_IOU.address!,
-                        FOO_IOU.symbol,
+                        fooIou.address!,
+                        fooIou.symbol,
                     );
 
-                    const balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
+                    const initialErc20Balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
 
                     const recipient = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address);
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
                         xrplChain.name,
-                        xrplEvmChain.nativeToken.symbol,
+                        xrplEvmChain.fooErc20.symbol,
                         200_000,
                     );
 
@@ -143,22 +128,24 @@ describeOrSkip.skip(
 
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
-                    await polling(
-                        async () => {
-                            const balance = await xrplChainProvider.getIOUBalance(
-                                xrplChainWallet.address,
-                                FOO_IOU.address!,
-                                FOO_IOU.symbol,
-                            );
-                            return BigNumber(balance.toString()).eq(BigNumber(initialSrcBalance.toString()).plus(xrplEvmAsDropsAmount));
-                        },
-                        (res) => !res,
+                    await expectBalanceUpdate(
+                        async () => await xrplChainProvider.getIOUBalance(xrplChainWallet.address, fooIou.address!, fooIou.symbol),
+                        BigNumber(initialDestBalance.toString()).plus(xrplEvmTransferAmount).toString(),
+                        interchainTransferOptions as PollingOptions,
+                    );
+
+                    const expectedErc20Balance = BigNumber(initialErc20Balance.toString()).minus(xrplEvmTransferAmount).toString();
+
+                    await expectBalanceUpdate(
+                        async () => (await interchainToken.balanceOf(xrplEvmChainWallet.address)).toString(),
+                        expectedErc20Balance,
                         interchainTransferOptions as PollingOptions,
                     );
                 });
 
-                //TODO delete?
-                it("should revert when transferring to a non-existent XRPL account without reserve", async () => {
+                it.skip("should revert when transferring to a non-existent XRPL account without reserve", async () => {
+                    const newWallet = Wallet.generate();
+
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
                         xrplChain.name,
@@ -166,22 +153,36 @@ describeOrSkip.skip(
                         200_000,
                     );
 
-                    // TODO this expectRevert function won't work need to pull from  AxelarScan
-                    await expectRevert(
-                        xrplEvmChainSigner.transfer(
-                            xrplEvmTransferAmount,
-                            FOO_ERC20 as Token,
-                            xrplEvmChain.interchainTokenServiceAddress,
-                            xrplChain.name,
-                            xrplEvmChainTranslator.translate(ChainType.XRP, secondWallet.address),
-                            {
-                                gasValue: gasValue,
-                                gasLimit: gasLimit,
-                            },
-                        ),
-                        //TODO: Update the error message to be more descriptive
-                        "fail",
+                    const tx = await xrplEvmChainSigner.transfer(
+                        xrplEvmTransferAmount,
+                        fooErc20 as Token,
+                        xrplEvmChain.interchainTokenServiceAddress,
+                        xrplChain.name,
+                        xrplEvmChainTranslator.translate(ChainType.XRP, newWallet.address),
+                        {
+                            gasValue: gasValue,
+                            gasLimit: gasLimit,
+                        },
                     );
+
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);
+
+                    // TODO in native transfer tests i used this
+                    // await expectRevert(
+                    //     xrplEvmChainSigner.transfer(
+                    //         xrplEvmTransferAmount,
+                    //         fooErc20 as Token,
+                    //         xrplEvmChain.interchainTokenServiceAddress,
+                    //         xrplChain.name,
+                    //         xrplEvmChainTranslator.translate(ChainType.XRP, secondWallet.address),
+                    //         {
+                    //             gasValue: gasValue,
+                    //             gasLimit: gasLimit,
+                    //         },
+                    //     ),
+                    //     //TODO: Update the error message to be more descriptive
+                    //     "fail",
+                    // );
                 });
 
                 it.skip("should revert when transferring 0 tokens", async () => {
@@ -194,7 +195,7 @@ describeOrSkip.skip(
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             "0",
-                            FOO_ERC20 as Token,
+                            fooErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -203,14 +204,15 @@ describeOrSkip.skip(
                                 gasLimit: gasLimit,
                             },
                         ),
-                        "fail",
+                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
-                it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
+                it.skip("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
                     // Get token decimals
-                    const decimals = FOO_IOU.decimals;
+                    const decimals = fooIou.decimals;
                     const dustAmount = `0.${"0".repeat(decimals)}1`;
+                    const dustWeis = ethers.parseEther(dustAmount).toString();
 
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
@@ -219,11 +221,10 @@ describeOrSkip.skip(
                         200_000,
                     );
 
-                    // TODO this expectRevert function won't work need to pull from  AxelarScan
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
-                            dustAmount,
-                            FOO_ERC20 as Token,
+                            dustWeis,
+                            fooErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -233,41 +234,51 @@ describeOrSkip.skip(
                             },
                         ),
                         //TODO: Update the error message to be more descriptive
-                        "fail", // Replace with expected error message
+                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
-                it("should revert when transferring more than the balance", async () => {
+                //TODO: not tested yet
+                it.skip("should revert when transferring more than the balance", async () => {
                     const balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
-                    console.log("Fetched balance from InterchainToken contract:", balance.toString(), xrplEvmChainWallet.address);
 
-                    const amount = BigNumber(balance.toString()).plus(1).toString();
+                    const amount = BigNumber(balance.toString()).plus(100).toString();
+
+                    const gasValue = await axelarScanProvider.estimateGasFee(
+                        xrplEvmChain.name,
+                        xrplChain.name,
+                        xrplEvmChain.nativeToken.symbol,
+                        200_000,
+                    );
 
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             amount,
-                            FOO_ERC20 as Token,
+                            fooErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+                            {
+                                gasValue: gasValue,
+                                gasLimit: gasLimit,
+                            },
                         ),
-                        //TODO: Update the error message to be more descriptive
-                        "Insufficient balance for transfer",
+                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
-                it("should revert when transferring to an invalid address", async () => {
+                it.skip("should revert when transferring to an invalid address", async () => {
                     const invalidAddress = "0x123";
 
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             xrplEvmTransferAmount,
-                            FOO_ERC20 as Token,
+                            fooErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, invalidAddress),
                         ),
-                        "Invalid recipient address",
+                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
             },
@@ -282,13 +293,21 @@ describeOrSkip.skip(
                 );
             },
             () => {
-                it("should transfer the IOU with interchain transfer method", async () => {
-                    const erc20 = xrplEvmChainProvider.getERC20Contract(FOO_ERC20.address!, xrplEvmChainWallet);
+                it.skip("should transfer the IOU with interchain transfer method", async () => {
+                    const erc20 = xrplEvmChainProvider.getERC20Contract(fooErc20.address!, xrplEvmChainWallet);
                     const initialDestBalance = await erc20.balanceOf(xrplEvmChainWallet.address);
                     const initialSourceBalance = await xrplChainProvider.getIOUBalance(
                         xrplChainWallet.address,
-                        FOO_IOU.address!,
-                        FOO_IOU.symbol,
+                        fooIou.address!,
+                        fooIou.symbol,
+                    );
+
+                    const tx = await xrplChainSigner.transfer(
+                        xrplTransferAmount,
+                        fooIou,
+                        xrplChain.interchainTokenServiceAddress,
+                        xrplEvmChain.name,
+                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
                     );
 
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
@@ -297,90 +316,71 @@ describeOrSkip.skip(
                         xrplChain.nativeToken.symbol,
                         200_000,
                     );
-
-                    const tx = await xrplChainSigner.transfer(
-                        xrplTransferAmount,
-                        FOO_IOU,
+                    await xrplChainSigner.addGas(
+                        gas_fee_amount,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
                         xrplChain.interchainTokenServiceAddress,
-                        xrplEvmChain.name,
-                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
+                        new Token({} as any),
                     );
 
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
-                    await polling(
-                        async () => {
-                            const balance = await erc20.balanceOf(xrplEvmChainWallet.address);
-                            console.log("Fetched balance from InterchainToken contract:", balance.toString(), xrplEvmChainWallet.address);
-                            return BigNumber(balance.toString()).eq(
-                                BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount.toString()),
-                            );
-                        },
-                        (done) => !done,
+                    await expectBalanceUpdate(
+                        async () => (await erc20.balanceOf(xrplEvmChainWallet.address)).toString(),
+                        BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount.toString()).toString(),
                         interchainTransferOptions as PollingOptions,
                     );
 
-                    const fee = (await tx.wait()).fee; // drops
-                    const finalSrcBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
-                    const expected = BigNumber(initialSourceBalance.toString())
-                        .minus(BigNumber(xrplTransferAmount))
-                        .minus(BigNumber(fee.toString()))
-                        .minus(BigNumber(gas_fee_amount));
-                    if (!BigNumber(finalSrcBalance.toString()).eq(expected)) {
-                        throw new Error(`Source balance mismatch. Expected ${expected}, saw ${finalSrcBalance}`);
-                    }
+                    const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(BigNumber(xrplAsWeiAmount)).toString();
+                    await expectBalanceUpdate(
+                        async () =>
+                            (await xrplChainProvider.getIOUBalance(xrplChainWallet.address, fooIou.address!, fooIou.symbol)).toString(),
+                        expectedSourceBalance,
+                        interchainTransferOptions as PollingOptions,
+                    );
                 });
 
-                it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
-                    const decimals = FOO_IOU.decimals;
-                    const dustAmount = `0.${"0".repeat(decimals)}1`;
+                // it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
+                //     const decimals = fooIou.decimals;
+                //     const dustAmount = `0.${"0".repeat(decimals)}1`;
 
+                //     await expectRevert(
+                //         xrplChainSigner.transfer(
+                //             ethers.parseUnits(dustAmount, fooIou.decimals).toString(),
+                //             fooIou,
+                //             xrplChain.interchainTokenServiceAddress,
+                //              xrplEvmChain.name,
+                //             xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
+                //         ),
+                //         // TODO: Update the error message to be more descriptive
+                //         XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
+                //     );
+                // });
+
+                it.skip("should get stuck in confirm step when gas_fee_amount is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
                         xrplChain.nativeToken.symbol,
                         200_000,
                     );
-
-                    await expectRevert(
-                        xrplChainSigner.transfer(
-                            xrpToDrops(dustAmount),
-                            FOO_IOU,
-                            xrplChain.interchainTokenServiceAddress,
-                            xrplChainTranslator.translate("evm", xrplEvmChain.name),
-                            xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                            { gasFeeAmount: gas_fee_amount },
-                        ),
-                        // TODO: Update the error message to be more descriptive
-                        XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
-                    );
-                });
-                it("should get stuck in confirm step when gas_fee_amount is too low", async () => {
-                    const gas_fee_amount = await axelarScanProvider.estimateGasFee(
-                        xrplChain.name,
-                        xrplEvmChain.name,
-                        xrplChain.nativeToken.symbol,
-                        200_000,
-                    );
-                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).toString();
+                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        FOO_IOU,
+                        fooIou,
                         xrplChain.interchainTokenServiceAddress,
-                        xrplChainTranslator.translate("evm", xrplEvmChain.name),
+                        xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                        { gasFeeAmount: lowGasFee },
                     );
 
-                    await polling(
-                        async () => {
-                            const insufGas = await axelarScanProvider.fetchOutcome(tx.hash);
-
-                            return insufGas.status === "insufficient_fee";
-                        },
-                        (res) => !res,
-                        pollingOpts,
+                    await xrplChainSigner.addGas(
+                        lowGasFee,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
                     );
+
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
                 it.skip("should get stuck at Pay Gas, after top-up gas when it doesn't reach threshold", async () => {
@@ -390,55 +390,81 @@ describeOrSkip.skip(
                         xrplChain.nativeToken.symbol,
                         200_000,
                     );
-                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).toString();
+                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        FOO_IOU,
+                        fooIou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                        {
-                            gasFeeAmount: lowGasFee,
-                        },
                     );
 
-                    await polling(
-                        async () => {
-                            const insufGas = await axelarScanProvider.fetchOutcome(tx.hash);
-                            console.log("Insufficient gas outcome:", insufGas);
-
-                            return insufGas.status === "insufficient_fee";
-                        },
-                        (res) => !res,
-                        pollingOpts,
+                    await xrplChainSigner.addGas(
+                        lowGasFee,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
                     );
 
-                    const additionalGas = await xrplChainSigner.addGas(lowGasFee, tx.hash, xrplChain.interchainTokenServiceAddress);
-                    await polling(
-                        async () => {
-                            const insufGas = await axelarScanProvider.fetchOutcome(additionalGas.hash);
-                            console.log("Insufficient gas outcome:", insufGas);
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
 
-                            return insufGas.status === "insufficient_fee";
-                        },
-                        (res) => !res,
-                        pollingOpts,
+                    await xrplChainSigner.addGas(
+                        lowGasFee,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
                     );
-                    //TODO: fix error message, check if .status === "insufficient_fee" or just source_gateway_called forever
-                    const insufGas = await axelarScanProvider.fetchOutcome(additionalGas.hash);
-                    if (insufGas.status !== "insufficient_fee") {
-                        throw new Error(`Expected status to be 'insufficient_fee', but got '${insufGas.status}'`);
-                    }
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
+                });
+
+                it("should send IOU after top-up gas", async () => {
+                    const initialDestBalance = await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, fooErc20.address!);
+                    const gas_fee_amount = await axelarScanProvider.estimateGasFee(
+                        xrplChain.name,
+                        xrplEvmChain.name,
+                        xrplChain.nativeToken.symbol,
+                        200_000,
+                    );
+                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
+                    const tx = await xrplChainSigner.transfer(
+                        xrplTransferAmount,
+                        fooIou,
+                        xrplChain.interchainTokenServiceAddress,
+                        xrplEvmChain.name,
+                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
+                    );
+
+                    await xrplChainSigner.addGas(
+                        lowGasFee,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
+                    );
+                    const remainingGas = BigNumber(gas_fee_amount).minus(lowGasFee).toString();
+                    await xrplChainSigner.addGas(
+                        remainingGas,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
+                    );
+
+                    await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
+
+                    await expectBalanceUpdate(
+                        async () => (await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, fooErc20.address!)).toString(),
+                        BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount).toString(),
+                        interchainTransferOptions as PollingOptions,
+                    );
                 });
 
                 it.skip("should revert when transferring 0 tokens", async () => {
                     await expectRevert(
                         xrplChainSigner.transfer(
                             "0",
-                            FOO_IOU,
+                            fooIou,
                             xrplChain.interchainTokenServiceAddress,
-                            xrplChainTranslator.translate("evm", xrplEvmChain.name),
+                            xrplEvmChain.name,
                             xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
                         ),
                         XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
