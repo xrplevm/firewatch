@@ -1,4 +1,4 @@
-import { GasPaidInfo, GMPError, GMPStatus, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { GasPaidInfo, GMPError, GMPStatus, GMPStatusResponse, EvmChain } from "@axelar-network/axelarjs-sdk";
 
 export type LifecycleInfo = {
     status: GMPStatus | string;
@@ -17,3 +17,5 @@ export type AxelarCallInfo = {
     executed?: GMPStatusResponse["executed"];
     callback?: GMPStatusResponse["callback"];
 };
+
+export type ExtendedEvmChain = EvmChain | "xrpl-evm";

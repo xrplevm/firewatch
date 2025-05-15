@@ -55,6 +55,7 @@
         "./mocks/providers": "./test/mocks/providers/index.ts"
     },
     "peerDependencies": {
+        "@axelar-network/axelarjs-sdk": "0.17.2",
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
         "@shared/evm": "workspace:*",
@@ -67,8 +68,7 @@
         "ethers": "^6.13.5",
         "xchain-sdk": "^1.2.2",
         "xrpl": "3.0.0",
-        "zustand": "^5.0.0-rc.0",
-        "@axelar-network/axelarjs-sdk": "0.17.2"
+        "zustand": "^5.0.0-rc.0"
     },
     "devDependencies": {
         "@firewatch/core": "workspace:*",
@@ -91,5 +91,8 @@
         "xchain-sdk": "^1.2.2",
         "xrpl": "3.0.0",
         "zustand": "^5.0.0-rc.0"
+    },
+    "dependencies": {
+        "@ethersproject/providers": "^5.8.0"
     }
 }

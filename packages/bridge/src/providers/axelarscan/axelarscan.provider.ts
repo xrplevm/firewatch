@@ -1,11 +1,5 @@
-import {
-    AxelarGMPRecoveryAPI,
-    AxelarRecoveryAPIConfig,
-    GMPStatusResponse,
-    AxelarQueryAPI,
-    AxelarQueryAPIFeeResponse,
-} from "@axelar-network/axelarjs-sdk";
-import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelarscan.provider.types";
+import { GMPStatusResponse, AxelarQueryAPI, TxResult, AddGasOptions, EvmChain } from "@axelar-network/axelarjs-sdk";
+import { AxelarCallInfo, LifecycleInfo, AxelarMetrics, ExtendedEvmChain } from "./axelarscan.provider.types";
 import { PatchedRecoveryAPI } from "./utils/patched-recovery.api";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
