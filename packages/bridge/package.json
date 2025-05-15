@@ -20,6 +20,8 @@
         "./providers": "./src/providers/index.ts",
         "./providers/error": "./src/providers/core/error/index.ts",
         "./providers/interfaces": "./src/providers/core/interfaces/index.ts",
+        "./providers/axelarscan": "./src/providers/axelarscan/index.ts",
+        "./providers/axelarscan/interfaces": "./src/providers/axelarscan/interfaces/index.ts",
         "./providers/evm/interfaces": "./src/providers/evm/interfaces/index.ts",
         "./providers/evm/ethers": "./src/providers/evm/ethers/index.ts",
         "./providers/evm/ethers/interfaces": "./src/providers/evm/ethers/interfaces/index.ts",
@@ -54,6 +56,7 @@
     },
     "peerDependencies": {
         "@firewatch/core": "workspace:*",
+        "@firewatch/env": "workspace:*",
         "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",
         "@shared/number": "workspace:*",
@@ -64,7 +67,8 @@
         "ethers": "^6.13.5",
         "xchain-sdk": "^1.2.2",
         "xrpl": "3.0.0",
-        "zustand": "^5.0.0-rc.0"
+        "zustand": "^5.0.0-rc.0",
+        "@axelar-network/axelarjs-sdk": "0.17.2"
     },
     "devDependencies": {
         "@firewatch/core": "workspace:*",
