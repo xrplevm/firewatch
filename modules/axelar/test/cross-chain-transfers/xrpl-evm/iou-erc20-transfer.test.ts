@@ -320,7 +320,7 @@ describeOrSkip(
                     );
                 });
 
-                it("should get stuck in confirm step when gas_fee_amount is too low", async () => {
+                it("should stall at the confirmation step if the gas fee is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,

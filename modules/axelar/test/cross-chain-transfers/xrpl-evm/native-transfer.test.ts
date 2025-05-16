@@ -288,7 +288,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
-                it("should success when topping up gas in a stuck transfer", async () => {
+                it("should succeed in resuming a stuck transfer after topping up gas", async () => {
                     const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
@@ -509,7 +509,7 @@ describeOrSkip(
                     );
                 });
 
-                it("should should get stuck at Pay Gas, when low gas_fee_amount send", async () => {
+                it("should stall at the “Pay Gas” step if the gas fee is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -566,7 +566,7 @@ describeOrSkip(
                     await expectAxelarError(additionalGas.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
-                it("should success after top-up gas when it reach threshold", async () => {
+                it("should succeed after topping up gas once the threshold is reached", async () => {
                     const initialDestBalance = await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address);
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
