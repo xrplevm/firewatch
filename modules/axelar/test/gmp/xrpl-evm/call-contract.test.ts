@@ -17,7 +17,7 @@ import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "@firewatch/env/types";
 
-describeOrSkip.skip(
+describeOrSkip(
     "GMP XRP -> EVM",
     () => {
         return (
@@ -82,7 +82,7 @@ describeOrSkip.skip(
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
         });
 
-        describeOrSkip(
+        describeOrSkip.skip(
             "Memo call_contract, trigger AxelarExecutable.execute function",
             () => {
                 return (
@@ -94,9 +94,9 @@ describeOrSkip.skip(
                 it("should update destination state", async () => {
                     const msgText = `Hello from the source chain! ${Date.now()}`;
                     const abiCoder = new AbiCoder();
-                    const payload = abiCoder.encode(["string"], [msgText]);
 
-                    const tx = await xrplChainSigner.callContract(
+                    const payload = abiCoder.encode(["string"], [msgText]);
+                    await xrplChainSigner.callContract(
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, destAxExecAddress),
@@ -105,14 +105,16 @@ describeOrSkip.skip(
                         new Token({} as any),
                     );
 
-                    let lastPayload: string;
                     await polling(
                         async () => {
-                            lastPayload = await destinationAxelarExecutableExample.lastPayload();
+                            const lastPayload = await destinationAxelarExecutableExample.lastPayload();
+                            const asciiHex = ethers.toUtf8String(lastPayload);
+                            const abiHex = "0x" + asciiHex;
 
-                            return lastPayload.includes(payload);
+                            const [decoded] = abiCoder.decode(["string"], abiHex);
+                            return decoded.includes(msgText);
                         },
-                        (result) => !result,
+                        (done) => !done,
                         pollingOpts,
                     );
                 });
@@ -133,25 +135,31 @@ describeOrSkip.skip(
                     const abiCoder = new AbiCoder();
                     const payload = abiCoder.encode(["string"], [msgText]);
 
-                    const tx = await xrplChainSigner.transfer(
+                    await xrplChainSigner.transfer(
                         xrplTransferAmount,
                         new Token({} as any),
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.interchainTokenExecutableExampleAddress),
-                        { payload: convertStringToHex(payload) },
+                        { payload: xrplChainTranslator.translate(ChainType.EVM, payload) },
                     );
 
-                    // TODO: correct decoding to check test passed
-                    let finalValue: ethers.BigNumberish;
-                    let finalPayload: string;
+                    let decodedMsg: string;
+
                     await polling(
                         async () => {
-                            finalValue = await destinationInterchainTokenExecutable.value();
-                            finalPayload = await destinationInterchainTokenExecutable.data();
-                            return finalValue.toString().includes(msgText) && finalPayload.includes(convertStringToHex(payload));
+                            const finalPayload = await destinationInterchainTokenExecutable.data();
+                            let asciiHex = ethers.toUtf8String(finalPayload);
+                            if (asciiHex.startsWith("0x")) {
+                                asciiHex = asciiHex.slice(2);
+                            }
+                            const abiHex = "0x" + asciiHex;
+
+                            [decodedMsg] = abiCoder.decode(["string"], abiHex);
+
+                            return decodedMsg === msgText;
                         },
-                        (result) => !result,
+                        (done) => !done,
                         pollingOpts,
                     );
                 });
