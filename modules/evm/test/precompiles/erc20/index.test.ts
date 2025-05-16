@@ -5,10 +5,11 @@ import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
-import moduleConfig from "../../../module.config.example.json";
+import moduleConfig from "../../../module.config.json";
 import { getEventArgs } from "@shared/evm/utils";
-import { assertChainEnvironments } from "@testing/mocha/assertions";
+import { isChainEnvironment } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";
+import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 
 /**
  * Test Context:
@@ -76,33 +77,39 @@ describe("ERC20", () => {
     });
 
     describe("name", () => {
-        it("should return the correct name", async () => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
-            const tokenName = await ownerContract.name();
-            expect(tokenName).to.equal("XRP");
-        });
+        itOrSkip(
+            "should return the correct name",
+            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            async () => {
+                const tokenName = await ownerContract.name();
+                expect(tokenName).to.equal("XRP");
+            },
+        );
     });
 
     describe("symbol", () => {
-        it("should return the correct symbol", async () => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
-            const tokenSymbol = await ownerContract.symbol();
-            expect(tokenSymbol).to.equal("XRP");
-        });
+        itOrSkip(
+            "should return the correct symbol",
+            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            async () => {
+                const tokenSymbol = await ownerContract.symbol();
+                expect(tokenSymbol).to.equal("XRP");
+            },
+        );
     });
 
     describe("decimals", () => {
-        it("should return the correct decimals", async () => {
-            assertChainEnvironments(["devnet", "testnet", "mainnet"], chain as unknown as Chain);
-            const tokenDecimals = await ownerContract.decimals();
-            expect(tokenDecimals).to.equal(18);
-        });
+        itOrSkip(
+            "should return the correct decimals",
+            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            async () => {
+                const tokenDecimals = await ownerContract.decimals();
+                expect(tokenDecimals).to.equal(18);
+            },
+        );
     });
 
-    describe("mint coins", () => {
-        before(() => {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
-        });
+    describeOrSkip("mint coins", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -138,10 +145,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burn coins", () => {
-        before(() => {
-            assertChainEnvironments(["localnet", "devnet", "testnet"], chain as unknown as Chain);
-        });
+    describeOrSkip("burn coins", isChainEnvironment(["localnet", "devnet", "testnet"], chain as unknown as Chain), () => {
         it("should burn specified amount", async () => {
             const beforeBalance = await userContract.balanceOf(userSigner.address);
 
@@ -161,10 +165,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burn (owner-only burn)", () => {
-        before(() => {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
-        });
+    describeOrSkip("burn (owner-only burn)", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -194,10 +195,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("burnFrom", () => {
-        before(() => {
-            assertChainEnvironments(["localnet", "devnet", "testnet"], chain as unknown as Chain);
-        });
+    describeOrSkip("burnFrom", isChainEnvironment(["localnet", "devnet", "testnet"], chain as unknown as Chain), () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -235,10 +233,7 @@ describe("ERC20", () => {
         });
     });
 
-    describe("transferOwnership", () => {
-        before(function () {
-            assertChainEnvironments(["localnet"], chain as unknown as Chain);
-        });
+    describeOrSkip("transferOwnership", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
