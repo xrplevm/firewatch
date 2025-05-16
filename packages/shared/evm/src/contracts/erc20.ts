@@ -8,6 +8,7 @@ export const erc20Abi = [
     "function balanceOf(address account) external view returns (uint256)",
     "function approve(address spender, uint256 amount) external returns (bool)",
     "function allowance(address owner, address spender) external view returns (uint256)",
+    "function totalSupply() external view returns (uint256)",
 
     "event Transfer(address indexed from, address indexed to, uint256 value)",
 ];
@@ -22,6 +23,7 @@ export interface IERC20 extends ContractWithFilters<IERC20Filters> {
     allowance(owner: string, spender: string): Promise<ethers.BigNumberish>;
     mint(account: string, amount: ethers.BigNumberish): Promise<ethers.ContractTransaction>;
     burn(account: string, amount: ethers.BigNumberish): Promise<ethers.ContractTransaction>;
+    totalSupply(): Promise<ethers.BigNumberish>;
 }
 
 export class ERC20 extends Contract<IERC20> {

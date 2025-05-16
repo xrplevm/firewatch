@@ -17,7 +17,6 @@
         "./health": "./src/health/index.ts",
         "./network": "./src/network/index.ts"
     },
-    "peerDependencies": {},
     "devDependencies": {
         "@shared/eslint": "workspace:*",
         "@shared/tsconfig": "workspace:*",
