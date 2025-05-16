@@ -24,7 +24,6 @@ export async function expectBalanceUpdate(
         pollingOptions,
     );
 
-    // Final check after polling
     const final = await getBalanceFn();
     const finalBN = BigNumber(final.toString());
     const expectedBN = BigNumber(expectedBalance.toString());

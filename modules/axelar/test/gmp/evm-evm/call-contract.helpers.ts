@@ -47,7 +47,6 @@ export async function expectMessageUpdate(
             const finalEncoded = await destinationAxelarExecutableExample.lastPayload();
 
             if (!finalEncoded || finalEncoded === "0x") {
-                // Not delivered yet, keep polling
                 return false;
             }
 

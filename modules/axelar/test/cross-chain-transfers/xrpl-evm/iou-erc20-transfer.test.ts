@@ -192,7 +192,6 @@ describeOrSkip(
                 });
 
                 it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
-                    // Get token decimals
                     const decimals = fooIou.decimals;
                     const dustAmount = `0.${"0".repeat(decimals)}1`;
                     const dustWeis = ethers.parseEther(dustAmount).toString();

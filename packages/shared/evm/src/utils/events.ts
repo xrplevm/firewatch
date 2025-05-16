@@ -103,11 +103,7 @@ export function getEventArgs(receipt: TransactionReceipt, iface: Interface, even
  * @param eventName The name of the event to find.
  * @returns The log index (number) if found, otherwise undefined.
  */
-export function findLogIndex(
-    receipt: TransactionReceipt,
-    abi: Array<string | Record<string, any>>, // plain ABI
-    eventName: string,
-): number | undefined {
+export function findLogIndex(receipt: TransactionReceipt, abi: Array<string | Record<string, any>>, eventName: string): number | undefined {
     const iface = new Interface(abi);
     for (const log of receipt.logs) {
         try {

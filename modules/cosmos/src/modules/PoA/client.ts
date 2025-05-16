@@ -5,7 +5,6 @@ import { BaseQueryClient } from "../common/client";
 /**
  * PoAClient extends StargateClient and adds custom staking query methods.
  */
-// The PoAClient will use composition rather than inheritance.
 export class PoAClient {
     readonly stakingQuery: StakingQueryClient;
 

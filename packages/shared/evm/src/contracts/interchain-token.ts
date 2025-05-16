@@ -18,7 +18,7 @@ export interface IInterchainToken extends IERC20 {
     decimals(): Promise<number>;
     interchainTransfer(
         destinationChain: string,
-        recipient: string, // Hex string representing the recipient bytes
+        recipient: string,
         amount: ethers.BigNumberish,
         metadata: string,
         options?: {
