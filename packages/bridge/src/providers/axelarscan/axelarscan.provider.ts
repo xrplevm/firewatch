@@ -55,6 +55,9 @@ export class AxelarScanProvider implements IAxelarScanProvider {
         return await this.recoveryApi.isConfirmed(txHash);
     }
 
+    /**
+     * @inheritdoc
+     */
     getEndpoint(): string {
         return this.recoveryApi.getAxelarGMPApiUrl;
     }
