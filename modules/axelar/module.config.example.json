@@ -40,7 +40,7 @@
         "interchainTransferOptions": {
             "amount": "0.002",
             "gasLimit": 1000000,
-            "gasValue": "0.5"
+            "gasValue": "0.3"
         },
         "urls": {
             "rpc": "https://rpc.testnet.xrplevm.org"
@@ -103,8 +103,8 @@
         "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
         "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
         "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-        "axelarExecutableExampleAddress": "",
-        "interchainTokenExecutableExampleAddress": "",
+        "axelarExecutableExampleAddress": "0x230A4780C8e88cED1bBF4CE301f71E11121C5Da5",
+        "interchainTokenExecutableExampleAddress": "0x6B1C57Ae145b03f1FFB54D8eD72DC5C2B958E2d5",
         "tokenId": "",
         "interchainTransferOptions": {
             "amount": "1",

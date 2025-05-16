@@ -119,7 +119,7 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
     ): Promise<Unconfirmed<Transaction>> {
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
-        const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload, {});
+        const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload);
 
         return this.transactionParser.parseTransactionResponse(contractTx);
     }
