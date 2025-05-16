@@ -22,10 +22,3 @@ export class AxelarExecutableExample extends Contract<IAxelarExecutableExample> 
         super(address, axelarExecutableExampleAbi, signerOrProvider);
     }
 }
-
-// TODO remove:
-// xrpl-evm
-// Testnet:
-// Devnet: 0xF1F190E66971C24bF35689a5Beefe804B9EC4955
-// Avalanche:
-// Testnet/Devnet:

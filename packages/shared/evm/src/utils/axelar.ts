@@ -17,7 +17,7 @@ export async function expectExecuted(
     const lifecycle = await polling(
         async () => {
             const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
-            console.log("Lifecycle Info:", lifecycleInfo.status);
+
             return lifecycleInfo;
         },
         (res: any) => !(res && (res.status === "destination_executed" || res.error)),
@@ -46,7 +46,7 @@ export async function expectAxelarError(
     const lifecycle = await polling(
         async () => {
             const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
-            console.log("Lifecycle Info:", lifecycleInfo.status, lifecycleInfo.error);
+
             return lifecycleInfo;
         },
         (res: any) => !(res && res.error),

@@ -35,7 +35,3 @@ export class InterchainTokenExecutable extends Contract<IInterchainTokenExecutab
         super(address, interchainTokenExecutableAbi, signerOrProvider);
     }
 }
-
-// TODO remove:
-// Testnet: 0xbDA483855025eB0b368ae6171d633420da4f43b0
-// Devnet: 0xa81D682d871C49a91Cc82B7456252Eb3F592E6f7

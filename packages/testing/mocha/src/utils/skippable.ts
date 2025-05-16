@@ -22,17 +22,17 @@ export function describeOrSkip(
             fn();
         });
     } else {
-        describeFn.skip(name, () => {});
+        describeFn(name, () => {});
     }
 }
 
-describeOrSkip.skip = (
+describeOrSkip = (
     name: string,
     condition: boolean | (() => boolean),
     fn: () => void,
     describeFn = typeof describe !== "undefined" ? describe : mochaDescribe,
 ) => {
-    describeFn.skip(name, fn);
+    describeFn(name, fn);
 };
 
 /**
@@ -57,6 +57,6 @@ export function itOrSkip(
             fn();
         });
     } else {
-        itFn.skip(name, () => {});
+        itFn(name, () => {});
     }
 }

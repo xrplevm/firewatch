@@ -12,9 +12,8 @@ export class EvmTranslator implements ITranslator {
         if (chainType === ChainType.EVM) {
             return address;
         } else if (chainType === ChainType.XRP) {
-            console.log("address", address);
-            const clean = address.startsWith("0x") ? address.slice(2) : address;
-            return `0x${convertStringToHex(clean)}`;
+            const formattedAddress = address.startsWith("0x") ? address.slice(2) : address;
+            return `0x${convertStringToHex(formattedAddress)}`;
         } else {
             throw new TranslatorError(TranslatorErrors.UNSUPPORTED_CHAIN_TYPE);
         }

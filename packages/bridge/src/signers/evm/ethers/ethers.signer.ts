@@ -97,10 +97,6 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             gasValue,
             { value: gasValue },
         );
-        console.log("tx hash");
-        console.log(contractTx.hash);
-        console.log(contractTx);
-        console.log("amount", amount);
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({
             gasUsed: txReceipt!.gasUsed,

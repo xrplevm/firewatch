@@ -82,7 +82,7 @@ describeOrSkip(
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
         });
 
-        describeOrSkip.skip(
+        describeOrSkip(
             "Memo call_contract, trigger AxelarExecutable.execute function",
             () => {
                 return (

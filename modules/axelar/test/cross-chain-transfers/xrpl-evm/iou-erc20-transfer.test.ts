@@ -104,7 +104,7 @@ describeOrSkip(
                 );
             },
             () => {
-                it.skip("should transfer the ERC20", async () => {
+                it("should transfer the ERC20", async () => {
                     const initialDestBalance = await xrplChainProvider.getIOUBalance(
                         xrplChainWallet.address,
                         fooIou.address!,
@@ -143,7 +143,7 @@ describeOrSkip(
                     );
                 });
 
-                it.skip("should revert when transferring to a non-existent XRPL account without reserve", async () => {
+                it("should revert when transferring to a non-existent XRPL account without reserve", async () => {
                     const newWallet = Wallet.generate();
 
                     const gasValue = await axelarScanProvider.estimateGasFee(
@@ -166,26 +166,9 @@ describeOrSkip(
                     );
 
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);
-
-                    // TODO in native transfer tests i used this
-                    // await expectRevert(
-                    //     xrplEvmChainSigner.transfer(
-                    //         xrplEvmTransferAmount,
-                    //         fooErc20 as Token,
-                    //         xrplEvmChain.interchainTokenServiceAddress,
-                    //         xrplChain.name,
-                    //         xrplEvmChainTranslator.translate(ChainType.XRP, secondWallet.address),
-                    //         {
-                    //             gasValue: gasValue,
-                    //             gasLimit: gasLimit,
-                    //         },
-                    //     ),
-                    //     //TODO: Update the error message to be more descriptive
-                    //     "fail",
-                    // );
                 });
 
-                it.skip("should revert when transferring 0 tokens", async () => {
+                it("should revert when transferring 0 tokens", async () => {
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
                         xrplChain.name,
@@ -208,7 +191,7 @@ describeOrSkip(
                     );
                 });
 
-                it.skip("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
+                it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
                     // Get token decimals
                     const decimals = fooIou.decimals;
                     const dustAmount = `0.${"0".repeat(decimals)}1`;
@@ -233,13 +216,11 @@ describeOrSkip(
                                 gasLimit: gasLimit,
                             },
                         ),
-                        //TODO: Update the error message to be more descriptive
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
-                //TODO: not tested yet
-                it.skip("should revert when transferring more than the balance", async () => {
+                it("should revert when transferring more than the balance", async () => {
                     const balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
 
                     const amount = BigNumber(balance.toString()).plus(100).toString();
@@ -267,7 +248,7 @@ describeOrSkip(
                     );
                 });
 
-                it.skip("should revert when transferring to an invalid address", async () => {
+                it("should revert when transferring to an invalid address", async () => {
                     const invalidAddress = "0x123";
 
                     await expectRevert(
@@ -293,7 +274,7 @@ describeOrSkip(
                 );
             },
             () => {
-                it.skip("should transfer the IOU with interchain transfer method", async () => {
+                it("should transfer the IOU with interchain transfer method", async () => {
                     const erc20 = xrplEvmChainProvider.getERC20Contract(fooErc20.address!, xrplEvmChainWallet);
                     const initialDestBalance = await erc20.balanceOf(xrplEvmChainWallet.address);
                     const initialSourceBalance = await xrplChainProvider.getIOUBalance(
@@ -340,24 +321,7 @@ describeOrSkip(
                     );
                 });
 
-                // it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
-                //     const decimals = fooIou.decimals;
-                //     const dustAmount = `0.${"0".repeat(decimals)}1`;
-
-                //     await expectRevert(
-                //         xrplChainSigner.transfer(
-                //             ethers.parseUnits(dustAmount, fooIou.decimals).toString(),
-                //             fooIou,
-                //             xrplChain.interchainTokenServiceAddress,
-                //              xrplEvmChain.name,
-                //             xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                //         ),
-                //         // TODO: Update the error message to be more descriptive
-                //         XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
-                //     );
-                // });
-
-                it.skip("should get stuck in confirm step when gas_fee_amount is too low", async () => {
+                it("should get stuck in confirm step when gas_fee_amount is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -383,7 +347,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
-                it.skip("should get stuck at Pay Gas, after top-up gas when it doesn't reach threshold", async () => {
+                it("should get stuck at Pay Gas, after top-up gas when it doesn't reach threshold", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -458,7 +422,7 @@ describeOrSkip(
                     );
                 });
 
-                it.skip("should revert when transferring 0 tokens", async () => {
+                it("should revert when transferring 0 tokens", async () => {
                     await expectRevert(
                         xrplChainSigner.transfer(
                             "0",

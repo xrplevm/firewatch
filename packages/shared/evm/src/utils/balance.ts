@@ -18,7 +18,6 @@ export async function expectBalanceUpdate(
             const current = await getBalanceFn();
             const currentBN = BigNumber(current.toString());
             const expectedBN = BigNumber(expectedBalance.toString());
-            console.log(`Polling balance: current=${currentBN.toString()}, expected=${expectedBN.toString()}`);
             return currentBN.eq(expectedBN);
         },
         (matched: boolean) => !matched,

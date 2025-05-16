@@ -9,7 +9,7 @@ import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/con
 import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
 import { describeOrSkip } from "@testing/mocha/utils";
 
-describeOrSkip.skip(
+describeOrSkip(
     "Call Contract EVM - EVM",
     () => {
         return (
@@ -43,6 +43,10 @@ describeOrSkip.skip(
         let destChain: string;
         let srcAxelarExecutableExampleAddress: string;
         let destAxelarExecutableExampleAddress: string;
+        let srcAxelarGasServiceAddress: string;
+        let dstAxelarGasServiceAddress: string;
+
+        let amount: string;
 
         const pollingOpts = config.evmChain as PollingOptions;
 
@@ -51,6 +55,7 @@ describeOrSkip.skip(
                 urls: xrplEvmUrls,
                 account: xrplEvmAccount,
                 axelarGatewayAddress: xrplEvmGatewayAddress,
+                axelarGasServiceAddress: xrplEvmGasServiceAddress,
                 axelarExecutableExampleAddress: xrplEvmExecutableAddress,
                 name: xrplEvmName,
             } = xrplEvmChain;
@@ -59,6 +64,7 @@ describeOrSkip.skip(
                 urls: evmUrls,
                 account: evmAccount,
                 axelarGatewayAddress: evmGatewayAddress,
+                axelarGasServiceAddress: evmGasServiceAddress,
                 axelarExecutableExampleAddress: evmExecutableAddress,
                 name: evmName,
             } = evmChain;
@@ -89,6 +95,11 @@ describeOrSkip.skip(
 
             srcAxelarExecutableExampleAddress = xrplEvmExecutableAddress;
             destAxelarExecutableExampleAddress = evmExecutableAddress;
+
+            srcAxelarGasServiceAddress = xrplEvmGasServiceAddress;
+            dstAxelarGasServiceAddress = evmGasServiceAddress;
+
+            amount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.gasValue).toString();
         });
 
         describeOrSkip(
@@ -105,11 +116,13 @@ describeOrSkip.skip(
                     await expectMessageUpdate(
                         sourceEvmSigner,
                         destinationAxelarExecutableExample,
+                        srcAxelarGasServiceAddress,
                         srcGateway,
                         destChain,
                         destAxelarExecutableExampleAddress,
                         payloadTxt,
                         pollingOpts,
+                        amount,
                     );
                 });
 
@@ -118,11 +131,13 @@ describeOrSkip.skip(
                     await expectMessageUpdate(
                         sourceEvmSigner,
                         destinationAxelarExecutableExample,
+                        srcAxelarGasServiceAddress,
                         srcGateway,
                         destChain,
                         destAxelarExecutableExampleAddress,
                         payloadTxt,
                         pollingOpts,
+                        amount,
                     );
                 });
 
@@ -131,6 +146,7 @@ describeOrSkip.skip(
                     await expectEventEmission(
                         sourceEvmSigner,
                         srcGateway,
+                        srcAxelarGasServiceAddress,
                         destChain,
                         destinationAxelarExecutableExample,
                         destAxelarExecutableExampleAddress,
@@ -138,6 +154,7 @@ describeOrSkip.skip(
                         payloadTxt,
                         sourceWallet.address,
                         pollingOpts,
+                        amount,
                     );
                 });
             },
@@ -156,11 +173,13 @@ describeOrSkip.skip(
                     await expectMessageUpdate(
                         destinationEvmSigner,
                         sourceAxelarExecutableExample,
+                        dstAxelarGasServiceAddress,
                         destGateway,
                         srcChain,
                         srcAxelarExecutableExampleAddress,
                         payloadTxt,
                         pollingOpts,
+                        amount,
                     );
                 });
 
@@ -169,11 +188,13 @@ describeOrSkip.skip(
                     await expectMessageUpdate(
                         destinationEvmSigner,
                         sourceAxelarExecutableExample,
+                        dstAxelarGasServiceAddress,
                         destGateway,
                         srcChain,
                         srcAxelarExecutableExampleAddress,
                         payloadTxt,
                         pollingOpts,
+                        amount,
                     );
                 });
 
@@ -182,6 +203,7 @@ describeOrSkip.skip(
                     await expectEventEmission(
                         destinationEvmSigner,
                         destGateway,
+                        dstAxelarGasServiceAddress,
                         srcChain,
                         sourceAxelarExecutableExample,
                         srcAxelarExecutableExampleAddress,
@@ -189,6 +211,7 @@ describeOrSkip.skip(
                         payloadTxt,
                         destinationWallet.address,
                         pollingOpts,
+                        amount,
                     );
                 });
             },
