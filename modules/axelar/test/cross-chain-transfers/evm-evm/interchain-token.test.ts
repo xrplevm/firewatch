@@ -1,5 +1,5 @@
-import { ethers, Contract } from "ethers";
-import config from "../../../module.config.example.json";
+import { ethers, Contract, BigNumberish } from "ethers";
+import config from "../../../module.config.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { executeTx, expectExecuted, expectRevert } from "@testing/hardhat/utils";
@@ -17,96 +17,105 @@ describeOrSkip(
     "Interchain Token Deployment EVM - EVM",
     () => {
         return (
-            isChainType(["evm"], config.axelar.sourceChain as unknown as AxelarBridgeChain) &&
-            isChainType(["evm"], config.axelar.destinationChain as unknown as AxelarBridgeChain)
+            isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
+            isChainType(["evm"], config.evmChain as unknown as AxelarBridgeChain)
         );
     },
     () => {
-        const { sourceChain, destinationChain, interchainTransferOptions, axelarScanOptions } = config.axelar;
-        const pollingOpts = interchainTransferOptions as PollingOptions;
+        const { xrplEvmChain, evmChain } = config;
+        const pollingOpts = evmChain.interchainTransferOptions as PollingOptions;
 
-        let sourceJsonProvider: ethers.JsonRpcProvider;
-        let destinationJsonProvider: ethers.JsonRpcProvider;
+        let xrplEvmJsonProvider: ethers.JsonRpcProvider;
+        let evmJsonProvider: ethers.JsonRpcProvider;
+        let xrplEvmWallet: ethers.Wallet;
+        let evmWallet: ethers.Wallet;
+        let xrplEvmInterchainTokenFactory: InterchainTokenFactory;
+        let evmInterchainTokenFactory: InterchainTokenFactory;
+        let xrplEvmInterchainTokenService: InterchainTokenService;
+        let evmInterchainTokenService: InterchainTokenService;
+
         let axelarScanProvider: AxelarScanProvider;
-        let sourceWallet: ethers.Wallet;
-        let destinationWallet: ethers.Wallet;
-        let sourceInterchainTokenFactory: InterchainTokenFactory;
-        let destinationInterchainTokenFactory: InterchainTokenFactory;
-        let sourceInterchainTokenService: InterchainTokenService;
-        let destinationInterchainTokenService: InterchainTokenService;
 
-        let deployedTokenAddressSource: string;
-        let deployedTokenAddressDestination: string;
+        let deployedTokenAddressXrplEvm: string;
+        let deployedTokenAddressEvm: string;
 
-        let saltSource: string;
-        let saltDestination: string;
+        let xrplEvmRecipient: string;
+        let evmRecipient: string;
 
-        let nonce: number;
-        let gasValue: bigint;
+        let saltXrplEvm: string;
+        let saltEvm: string;
+
+        let transferAmount: BigNumberish;
+        let deployAmount: BigNumberish;
+        let gasValue: BigNumberish;
         let gasLimit: number;
 
         before(async () => {
             const {
-                urls: sourceUrls,
-                account: sourceAccount,
-                interchainTokenFactory: sourceFactoryAddress,
-                interchainTokenServiceAddress: sourceTokenServiceAddress,
-            } = sourceChain;
+                urls: xrplEvmUrls,
+                account: xrplEvmAccount,
+                interchainTokenFactory: xrplEvmFactoryAddress,
+                interchainTokenServiceAddress: xrplEvmTokenServiceAddress,
+            } = xrplEvmChain;
             const {
                 urls: destUrls,
                 account: destAccount,
                 interchainTokenServiceAddress: destTokenServiceAddress,
                 interchainTokenFactory: destFactoryAddress,
-            } = destinationChain;
+            } = evmChain;
 
-            sourceJsonProvider = new ethers.JsonRpcProvider(sourceUrls.rpc);
-            destinationJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
+            xrplEvmJsonProvider = new ethers.JsonRpcProvider(xrplEvmUrls.rpc);
+            evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
 
-            sourceWallet = new ethers.Wallet(sourceAccount.privateKey, sourceJsonProvider);
-            destinationWallet = new ethers.Wallet(destAccount.privateKey, destinationJsonProvider);
+            xrplEvmWallet = new ethers.Wallet(xrplEvmAccount.privateKey, xrplEvmJsonProvider);
+            evmWallet = new ethers.Wallet(destAccount.privateKey, evmJsonProvider);
 
-            sourceInterchainTokenFactory = new InterchainTokenFactory(sourceFactoryAddress, sourceWallet);
-            destinationInterchainTokenFactory = new InterchainTokenFactory(destFactoryAddress, destinationWallet);
+            xrplEvmInterchainTokenFactory = new InterchainTokenFactory(xrplEvmFactoryAddress, xrplEvmWallet);
+            evmInterchainTokenFactory = new InterchainTokenFactory(destFactoryAddress, evmWallet);
 
-            sourceInterchainTokenService = new InterchainTokenService(sourceTokenServiceAddress, sourceWallet);
-            destinationInterchainTokenService = new InterchainTokenService(destTokenServiceAddress, destinationWallet);
+            xrplEvmInterchainTokenService = new InterchainTokenService(xrplEvmTokenServiceAddress, xrplEvmWallet);
+            evmInterchainTokenService = new InterchainTokenService(destTokenServiceAddress, evmWallet);
 
-            nonce = Date.now();
-            saltSource = `${sourceChain.saltTokenFactory}_${nonce}`;
-            saltSource = ethers.id(saltSource);
+            xrplEvmRecipient = ethers.zeroPadBytes(xrplEvmWallet.address, 20);
+            evmRecipient = ethers.zeroPadBytes(evmWallet.address, 20);
 
-            saltDestination = `${destinationChain.saltTokenFactory}_${nonce}`;
-            saltDestination = ethers.id(saltDestination);
+            saltXrplEvm = `xrplEvm_${Date.now()}`;
+            saltXrplEvm = ethers.id(saltXrplEvm);
 
-            gasValue = ethers.parseUnits(interchainTransferOptions.gasValue, "ether");
-            gasLimit = interchainTransferOptions.gasLimit;
+            saltEvm = `evm_${Date.now()}`;
+            saltEvm = ethers.id(saltEvm);
 
-            axelarScanProvider = new AxelarScanProvider(sourceChain.env as Env);
+            transferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount);
+            deployAmount = ethers.parseEther("1000");
+            gasValue = ethers.parseEther(xrplEvmChain.interchainTransferOptions.gasValue);
+            gasLimit = xrplEvmChain.interchainTransferOptions.gasLimit;
+
+            axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
         });
 
         describeOrSkip(
-            "from evm Source chain to evm Destination chain",
+            "from xrpl-evm as Source chain to evm as Destination chain",
             () => {
                 return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain)
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain) &&
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
                 );
             },
             () => {
-                it("should deploy a new interchain token in source chain and emit InterchainTokenDeployed", async () => {
+                it("should deploy a new interchain token in xrpl-evm chain and emit InterchainTokenDeployed", async () => {
                     await executeTx(
-                        sourceInterchainTokenFactory.deployInterchainToken(
-                            saltSource,
+                        xrplEvmInterchainTokenFactory.deployInterchainToken(
+                            saltXrplEvm,
                             "TestToken",
                             "TTK",
                             18,
-                            ethers.parseUnits("1000", 18),
-                            sourceWallet.address,
+                            deployAmount,
+                            xrplEvmWallet.address,
                         ),
                     );
 
                     const tokenDeployedEvent = await pollForEvent(
-                        sourceInterchainTokenService as unknown as Contract,
+                        xrplEvmInterchainTokenService as unknown as Contract,
                         "InterchainTokenDeployed",
                         (decoded) => {
                             const { tokenId, name, symbol } = decoded.args;
@@ -120,18 +129,18 @@ describeOrSkip(
                         throw new Error("TokenDeployed event was not emitted as expected.");
                     }
 
-                    deployedTokenAddressSource = tokenDeployedEvent.args.tokenAddress;
+                    deployedTokenAddressXrplEvm = tokenDeployedEvent.args.tokenAddress;
                 });
 
                 it("should deploy remote interchain token in destination chain and emit InterchainTokenDeployed", async () => {
                     const tx = await executeTx(
-                        sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
+                        xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
                             value: gasValue,
                         }),
                     );
 
                     const tokenDeployedEvent = await pollForEvent(
-                        destinationInterchainTokenService as unknown as Contract,
+                        evmInterchainTokenService as unknown as Contract,
                         "InterchainTokenDeployed",
                         (decoded) => {
                             const { tokenId, name, symbol } = decoded.args;
@@ -145,22 +154,22 @@ describeOrSkip(
                         throw new Error("TokenDeployed event was not emitted as expected.");
                     }
 
-                    deployedTokenAddressDestination = tokenDeployedEvent.args.tokenAddress;
+                    deployedTokenAddressEvm = tokenDeployedEvent.args.tokenAddress;
 
                     const txHash = tx.receipt.hash;
 
-                    await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                    await expectExecuted(txHash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when deploying an interchain token with the same salt value", async () => {
                     await expectRevert(
-                        sourceInterchainTokenFactory.deployInterchainToken(
-                            saltSource,
+                        xrplEvmInterchainTokenFactory.deployInterchainToken(
+                            saltXrplEvm,
                             "TestToken",
                             "TTK",
                             18,
-                            ethers.parseUnits("1000", 18),
-                            sourceWallet.address,
+                            deployAmount,
+                            xrplEvmWallet.address,
                         ),
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
@@ -168,98 +177,86 @@ describeOrSkip(
 
                 it("should revert when deploying a remote interchain token with the same salt value", async () => {
                     await expectRevert(
-                        sourceInterchainTokenFactory.deployRemoteInterchainToken(saltSource, destinationChain.name, gasValue, {
+                        xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
                             value: gasValue,
-                            gasLimit: gasLimit,
+                            gasLimit: xrplEvmChain.interchainTransferOptions.gasLimit,
                         }),
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
                 describe("Token Transfers", () => {
-                    let sourceToken: InterchainToken;
-                    let destinationToken: InterchainToken;
+                    let xrplEvmToken: InterchainToken;
+                    let evmToken: InterchainToken;
 
                     before(() => {
-                        if (!deployedTokenAddressSource || !deployedTokenAddressDestination) {
+                        if (!deployedTokenAddressXrplEvm || !deployedTokenAddressEvm) {
                             throw new Error("Deployed token addresses are not registered.");
                         }
 
-                        sourceToken = new InterchainToken(deployedTokenAddressSource, sourceWallet);
-                        destinationToken = new InterchainToken(deployedTokenAddressDestination, destinationWallet);
+                        xrplEvmToken = new InterchainToken(deployedTokenAddressXrplEvm, xrplEvmWallet);
+                        evmToken = new InterchainToken(deployedTokenAddressEvm, evmWallet);
                     });
 
-                    it("should transfer tokens from Source to Destination via interchainTransfer", async () => {
-                        const transferAmountStr = "100";
-                        const transferAmount = ethers.parseUnits(transferAmountStr, 18);
-
-                        const initialDestBalanceRaw = await destinationToken.balanceOf(destinationWallet.address);
+                    it("should transfer tokens from XrplEvm to Evm via interchainTransfer", async () => {
+                        const initialDestBalanceRaw = await evmToken.balanceOf(evmWallet.address);
                         const initialDestBalance = new BigNumber(initialDestBalanceRaw.toString());
 
-                        const recipientBytes = ethers.zeroPadBytes(destinationWallet.address, 20);
+                        const recipientBytes = ethers.zeroPadBytes(evmWallet.address, 20);
 
                         const tx = await executeTx(
-                            sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
+                            xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
                                 gasLimit: gasLimit,
                             }),
                         );
 
                         const txHash = tx.receipt.hash;
 
-                        await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                        await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
                         await assertInterchainBalanceUpdate(
-                            destinationToken,
-                            destinationWallet.address,
+                            evmToken,
+                            evmWallet.address,
                             initialDestBalance,
                             new BigNumber(transferAmount.toString()),
                             pollingOpts,
                         );
                     });
 
-                    it("should revert when attempting to transfer 0 tokens from Source to Destination", async () => {
-                        const transferAmount = ethers.parseUnits("0", 18);
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
-
+                    it("should revert when attempting to transfer 0 tokens from XrplEvm to Evm", async () => {
                         await expectRevert(
-                            sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
+                            xrplEvmToken.interchainTransfer(xrplEvmChain.name, evmRecipient, "0", "0x"),
                             HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                         );
                     });
 
-                    it("should transfer tokens from Destination to Source via interchainTransfer", async () => {
-                        const transferAmountStr = "2";
-                        const transferAmount = ethers.parseUnits(transferAmountStr, 18);
+                    it("should transfer tokens from Evm to XrplEvm via interchainTransfer", async () => {
+                        const initialXrplEvmBalanceRaw = await xrplEvmToken.balanceOf(xrplEvmWallet.address);
+                        const initialXrplEvmBalance = new BigNumber(initialXrplEvmBalanceRaw.toString());
 
-                        const initialSourceBalanceRaw = await sourceToken.balanceOf(sourceWallet.address);
-                        const initialSourceBalance = new BigNumber(initialSourceBalanceRaw.toString());
-
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
+                        const recipientBytes = ethers.zeroPadBytes(xrplEvmWallet.address, 20);
 
                         const tx = await executeTx(
-                            destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
+                            evmToken.interchainTransfer(xrplEvmChain.name, recipientBytes, transferAmount, "0x", {
                                 gasLimit: gasLimit,
                             }),
                         );
 
                         const txHash = tx.receipt.hash;
-                        await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                        await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
                         await assertInterchainBalanceUpdate(
-                            sourceToken,
-                            sourceWallet.address,
-                            initialSourceBalance,
+                            xrplEvmToken,
+                            xrplEvmWallet.address,
+                            initialXrplEvmBalance,
                             new BigNumber(transferAmount.toString()),
                             pollingOpts,
                         );
                     });
 
-                    it("should revert when attempting to transfer 0 tokens from Destination to Source", async () => {
-                        const transferAmount = ethers.parseUnits("0", 18);
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
-
+                    it("should revert when attempting to transfer 0 tokens from Evm to XrplEvm", async () => {
                         await expectRevert(
-                            destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
+                            evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, "0", "0x"),
                             HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                         );
                     });
@@ -268,27 +265,27 @@ describeOrSkip(
         );
 
         describeOrSkip(
-            "from evm Destination chain to evm Source chain",
+            "from evm as Source chain to xrpl-evm as Destination chain",
             () => {
                 return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain)
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain) &&
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
                 );
             },
             () => {
                 it("should deploy a new interchain token in destination chain and emit the correct event", async () => {
                     const tx = await executeTx(
-                        destinationInterchainTokenFactory.deployInterchainToken(
-                            saltDestination,
+                        evmInterchainTokenFactory.deployInterchainToken(
+                            saltEvm,
                             "TestToken",
                             "TTK",
                             18,
                             ethers.parseUnits("1000", 18),
-                            destinationWallet.address,
+                            evmWallet.address,
                         ),
                     );
                     const tokenDeployedEvent = await pollForEvent(
-                        destinationInterchainTokenService as unknown as Contract,
+                        evmInterchainTokenService as unknown as Contract,
                         "InterchainTokenDeployed",
                         (decoded) => {
                             const { tokenId, name, symbol } = decoded.args;
@@ -304,21 +301,21 @@ describeOrSkip(
                     }
 
                     const txHash = tx.receipt.hash;
-                    await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                    await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                    deployedTokenAddressDestination = tokenDeployedEvent.args.tokenAddress;
+                    deployedTokenAddressEvm = tokenDeployedEvent.args.tokenAddress;
                 });
 
                 it("should deploy remote interchain token and emit the correct event", async () => {
                     const tx = await executeTx(
-                        destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
+                        evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
                             value: gasValue,
-                            gasLimit: gasLimit,
+                            gasLimit: evmChain.interchainTransferOptions.gasLimit,
                         }),
                     );
 
                     const tokenDeployedEvent = await pollForEvent(
-                        sourceInterchainTokenService as unknown as Contract,
+                        xrplEvmInterchainTokenService as unknown as Contract,
                         "InterchainTokenDeployed",
                         (decoded) => {
                             const { tokenId, name, symbol } = decoded.args;
@@ -333,118 +330,99 @@ describeOrSkip(
                     }
 
                     const txHash = tx.receipt.hash;
-                    await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                    await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
-                    deployedTokenAddressSource = tokenDeployedEvent.args.tokenAddress;
+                    deployedTokenAddressEvm = tokenDeployedEvent.args.tokenAddress;
                 });
 
                 it("should revert when deploying an interchain token with the same salt value", async () => {
                     await expectRevert(
-                        destinationInterchainTokenFactory.deployInterchainToken(
-                            saltDestination,
-                            "TestToken",
-                            "TTK",
-                            18,
-                            ethers.parseUnits("1000", 18),
-                            destinationWallet.address,
-                        ),
+                        evmInterchainTokenFactory.deployInterchainToken(saltEvm, "TestToken", "TTK", 18, deployAmount, evmWallet.address),
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
                 it("should revert when deploying a remote interchain token with the same salt value", async () => {
                     await expectRevert(
-                        destinationInterchainTokenFactory.deployRemoteInterchainToken(saltDestination, sourceChain.name, gasValue, {
+                        evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
                             value: gasValue,
-                            gasLimit: gasLimit,
+                            gasLimit: evmChain.interchainTransferOptions.gasLimit,
                         }),
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
                 });
 
                 describe("Token Transfers", () => {
-                    let sourceToken: InterchainToken;
-                    let destinationToken: InterchainToken;
+                    let xrplEvmToken: InterchainToken;
+                    let evmToken: InterchainToken;
 
                     before(() => {
-                        if (!deployedTokenAddressSource || !deployedTokenAddressDestination) {
+                        if (!deployedTokenAddressXrplEvm || !deployedTokenAddressEvm) {
                             throw new Error("Deployed token addresses are not registered.");
                         }
 
-                        sourceToken = new InterchainToken(deployedTokenAddressSource, sourceWallet);
-                        destinationToken = new InterchainToken(deployedTokenAddressDestination, destinationWallet);
+                        xrplEvmToken = new InterchainToken(deployedTokenAddressXrplEvm, xrplEvmWallet);
+                        evmToken = new InterchainToken(deployedTokenAddressEvm, evmWallet);
                     });
 
-                    it("should transfer tokens from Destination to Source via interchainTransfer", async () => {
-                        const transferAmountStr = "100";
-                        const transferAmount = ethers.parseUnits(transferAmountStr, 18);
+                    it("should transfer tokens from Evm to XrplEvm via interchainTransfer", async () => {
+                        const initialXrplEvmBalanceRaw = await xrplEvmToken.balanceOf(xrplEvmWallet.address);
+                        const initialXrplEvmBalance = new BigNumber(initialXrplEvmBalanceRaw.toString());
 
-                        const initialSourceBalanceRaw = await sourceToken.balanceOf(sourceWallet.address);
-                        const initialSourceBalance = new BigNumber(initialSourceBalanceRaw.toString());
-
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
+                        const recipientBytes = ethers.zeroPadBytes(xrplEvmWallet.address, 20);
 
                         const tx = await executeTx(
-                            destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x", {
+                            evmToken.interchainTransfer(xrplEvmChain.name, recipientBytes, transferAmount, "0x", {
                                 gasLimit: gasLimit,
                             }),
                         );
 
                         const txHash = tx.receipt.hash;
-                        await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                        await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
                         await assertInterchainBalanceUpdate(
-                            sourceToken,
-                            sourceWallet.address,
-                            initialSourceBalance,
+                            xrplEvmToken,
+                            xrplEvmWallet.address,
+                            initialXrplEvmBalance,
                             new BigNumber(transferAmount.toString()),
                             pollingOpts,
                         );
                     });
 
-                    it("should revert when attempting to transfer 0 tokens from Destination to Source", async () => {
-                        const transferAmount = ethers.parseUnits("0", 18);
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
-
+                    it("should revert when attempting to transfer 0 tokens from Evm to XrplEvm", async () => {
                         await expectRevert(
-                            destinationToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
+                            evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, "0", "0x"),
                             HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                         );
                     });
 
-                    it("should transfer tokens from Source to Destination via interchainTransfer", async () => {
-                        const transferAmountStr = "2";
-                        const transferAmount = ethers.parseUnits(transferAmountStr, 18);
-
-                        const initialDestBalanceRaw = await destinationToken.balanceOf(destinationWallet.address);
+                    it("should transfer tokens from XrplEvm to Evm via interchainTransfer", async () => {
+                        const initialDestBalanceRaw = await evmToken.balanceOf(evmWallet.address);
                         const initialDestBalance = new BigNumber(initialDestBalanceRaw.toString());
 
-                        const recipientBytes = ethers.zeroPadBytes(destinationWallet.address, 20);
+                        const recipientBytes = ethers.zeroPadBytes(evmWallet.address, 20);
 
                         const tx = await executeTx(
-                            sourceToken.interchainTransfer(destinationChain.name, recipientBytes, transferAmount, "0x", {
+                            xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
                                 gasLimit: gasLimit,
                             }),
                         );
 
                         const txHash = tx.receipt.hash;
-                        await expectExecuted(txHash, axelarScanProvider, axelarScanOptions);
+                        await expectExecuted(txHash, axelarScanProvider, pollingOpts);
 
                         await assertInterchainBalanceUpdate(
-                            destinationToken,
-                            destinationWallet.address,
+                            evmToken,
+                            evmWallet.address,
                             initialDestBalance,
                             new BigNumber(transferAmount.toString()),
                             pollingOpts,
                         );
                     });
 
-                    it("should revert when attempting to transfer 0 tokens from Source to Destination", async () => {
-                        const transferAmount = ethers.parseUnits("0", 18);
-                        const recipientBytes = ethers.zeroPadBytes(sourceWallet.address, 20);
-
+                    it("should revert when attempting to transfer 0 tokens from XrplEvm to Evm", async () => {
                         await expectRevert(
-                            sourceToken.interchainTransfer(sourceChain.name, recipientBytes, transferAmount, "0x"),
+                            xrplEvmToken.interchainTransfer(xrplEvmChain.name, evmRecipient, "0", "0x"),
                             HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                         );
                     });

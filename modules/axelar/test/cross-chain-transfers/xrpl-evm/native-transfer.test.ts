@@ -2,11 +2,11 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import config from "../../../module.config.example.json";
-import { Client, Wallet, xrpToDrops } from "xrpl";
+import config from "../../../module.config.json";
+import { Client, convertStringToHex, dropsToXrp, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
-import { polling, PollingOptions } from "@shared/utils";
+import { polling } from "@shared/utils";
 import BigNumber from "bignumber.js";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
@@ -21,12 +21,12 @@ describeOrSkip(
     "Cross-Chain Native Transfer",
     () => {
         return (
-            isChainType(["evm"], config.axelar.sourceChain as unknown as AxelarBridgeChain) &&
-            isChainType(["xrp"], config.axelar.destinationChain as unknown as AxelarBridgeChain)
+            isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
+            isChainType(["xrp"], config.xrplChain as unknown as AxelarBridgeChain)
         );
     },
     () => {
-        const { sourceChain, destinationChain, interchainTransferOptions } = config.axelar;
+        const { xrplEvmChain: sourceChain, xrplChain: destinationChain } = config;
 
         let evmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
@@ -42,6 +42,8 @@ describeOrSkip(
 
         let evmChainTranslator: EvmTranslator;
         let xrplChainTranslator: XrpTranslator;
+
+        let gasValue: string;
 
         before(async () => {
             isChainType(["evm"], sourceChain as unknown as AxelarBridgeChain);
@@ -61,14 +63,16 @@ describeOrSkip(
 
             evmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
+
+            gasValue = ethers.parseEther(sourceChain.interchainTransferOptions.gasValue).toString();
         });
 
         describeOrSkip(
             "from evm chain to xrpl chain",
             () => {
                 return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain)
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain) &&
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain)
                 );
             },
             () => {
@@ -76,14 +80,17 @@ describeOrSkip(
                     const initialSrcBalance = await evmChainProvider.getNativeBalance(evmChainWallet.address);
                     const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
-                    const amount = interchainTransferOptions.amount;
+                    const amount = sourceChain.interchainTransferOptions.amount;
 
                     const tx = await evmChainSigner.transfer(
                         amount,
                         sourceChain.nativeToken as Token,
                         sourceChain.interchainTokenServiceAddress,
                         destinationChain.name,
-                        evmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
+                        "0x" + convertStringToHex(xrplChainWallet.address),
+                        {
+                            gasValue: gasValue,
+                        },
                     );
 
                     const receipt = await tx.wait();
@@ -95,7 +102,8 @@ describeOrSkip(
 
                     const expectedSrcBalance = BigNumber(initialSrcBalance)
                         .minus(BigNumber(amountInBase18.toString()))
-                        .minus(BigNumber(gasCost.toString()));
+                        .minus(BigNumber(gasCost.toString()))
+                        .minus(BigNumber(gasValue));
 
                     if (!BigNumber(finalSrcBalance).eq(expectedSrcBalance)) {
                         throw new Error(`Source balance mismatch! Expected: ${expectedSrcBalance}, Actual: ${finalSrcBalance}`);
@@ -107,7 +115,7 @@ describeOrSkip(
                             return BigNumber(balance.toString()).eq(BigNumber(initialDestBalance.toString()).plus(xrpToDrops(amount)));
                         },
                         (res) => !res,
-                        interchainTransferOptions as PollingOptions,
+                        destinationChain.pollingOptions,
                     );
                 });
 
@@ -130,8 +138,8 @@ describeOrSkip(
             "from xrpl chain to evm chain",
             () => {
                 return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], config.axelar.sourceChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], config.axelar.destinationChain as unknown as AxelarBridgeChain)
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], sourceChain as unknown as AxelarBridgeChain) &&
+                    isChainEnvironment(["devnet", "testnet", "mainnet"], destinationChain as unknown as AxelarBridgeChain)
                 );
             },
             () => {
@@ -140,7 +148,7 @@ describeOrSkip(
                     const initialDestBalance = await erc20.balanceOf(evmChainWallet.address);
                     const initialSourceBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
-                    const amount = interchainTransferOptions.amount;
+                    const amount = destinationChain.interchainTransferOptions.amount;
 
                     const tx = await xrplChainSigner.transfer(
                         amount,
@@ -150,20 +158,35 @@ describeOrSkip(
                         xrplChainTranslator.translate(ChainType.EVM, evmChainWallet.address),
                     );
 
-                    const fee = (await tx.wait()).fee;
+                    const receipt = await tx.wait();
+                    const fee = receipt.fee;
+
+                    const gasValueDrops = (destinationChain.interchainTransferOptions as any).gasValue
+                        ? xrpToDrops((destinationChain.interchainTransferOptions as any).gasValue)
+                        : "1700000";
+
+                    const gasValueXrp = dropsToXrp(gasValueDrops);
+                    const gasValueEth = ethers.parseUnits(gasValueXrp.toString(), 18).toString();
 
                     await polling(
                         async () => {
                             const balance = await erc20.balanceOf(evmChainWallet.address);
-                            return BigNumber(balance.toString()).eq(
-                                BigNumber(initialDestBalance.toString()).plus(ethers.parseUnits(amount, 18).toString()),
-                            );
+
+                            const expectedDestBalance = BigNumber(initialDestBalance.toString())
+                                .plus(BigNumber(ethers.parseUnits(amount, 18).toString()))
+                                .minus(BigNumber(gasValueEth));
+
+                            const isEqual = BigNumber(balance.toString()).eq(expectedDestBalance);
+
+                            return isEqual;
                         },
                         (res) => !res,
-                        interchainTransferOptions as PollingOptions,
+                        sourceChain.pollingOptions,
                     );
 
-                    const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(xrpToDrops(amount)).minus(fee!);
+                    const expectedSourceBalance = BigNumber(initialSourceBalance.toString())
+                        .minus(xrpToDrops(amount))
+                        .minus(BigNumber(fee.toString()));
                     const finalSrcBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
 
                     if (!BigNumber(finalSrcBalance.toString()).eq(expectedSourceBalance)) {
