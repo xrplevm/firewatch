@@ -5,7 +5,7 @@ import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
-import moduleConfig from "../../../module.config.example.json";
+import moduleConfig from "../../../module.config.json";
 import { getEventArgs } from "@shared/evm/utils";
 import { isChainEnvironment } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";

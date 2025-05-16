@@ -12,7 +12,8 @@ export class XrpTranslator implements ITranslator {
         if (chainType === ChainType.XRP) {
             return address;
         } else if (chainType === ChainType.EVM) {
-            return address.startsWith("0x") ? address.slice(2).toUpperCase() : convertStringToHex(address);
+            const formattedAddress = address.startsWith("0x") ? address.slice(2) : address;
+            return convertStringToHex(formattedAddress);
         } else {
             throw new TranslatorError(TranslatorErrors.UNSUPPORTED_CHAIN_TYPE);
         }
