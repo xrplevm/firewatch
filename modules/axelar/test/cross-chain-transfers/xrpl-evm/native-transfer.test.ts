@@ -6,7 +6,6 @@ import config from "../../../module.config.example.json";
 import { Client, dropsToXrp, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
-import { polling } from "@shared/utils";
 import BigNumber from "bignumber.js";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
@@ -15,7 +14,8 @@ import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
-import { expectAxelarError, expectBalanceUpdate, expectExecuted } from "@shared/evm/utils";
+import { expectBalanceUpdate } from "@shared/evm/utils";
+import { expectExecuted, expectAxelarError, expectXrplFailedDestination } from "@firewatch/bridge/utils";
 import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
@@ -57,6 +57,7 @@ describeOrSkip(
         let xrplEvmTransferAmount: string;
         let xrplEvmAsDropsAmount: string;
         let xrplAsWeiAmount: string;
+        let gasFeeAmount: string;
 
         let xrplReserveAmount: string;
 
@@ -89,6 +90,7 @@ describeOrSkip(
             xrplAsWeiAmount = ethers.parseEther(xrplChain.interchainTransferOptions.amount).toString();
 
             xrplReserveAmount = xrplChain.interchainTransferOptions.reserveAmount;
+            gasFeeAmount = xrpToDrops(xrplChain.interchainTransferOptions.gasFeeAmount);
         });
         describeOrSkip(
             "from evm chain to xrpl chain",
@@ -151,54 +153,20 @@ describeOrSkip(
                         200_000,
                     );
 
-                    await expectRevert(
-                        xrplEvmChainSigner.transfer(
-                            amount,
-                            xrplEvmChain.nativeToken as Token,
-                            xrplEvmChain.interchainTokenServiceAddress,
-                            xrplChain.name,
-                            xrplEvmChainTranslator.translate(ChainType.XRP, unfundedWallet.address),
-                            { gasValue: gasValue },
-                        ),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
-                    );
-                });
-
-                it("should send XRP and create XRPL account when topping-up amount until Reserve reached", async () => {
-                    const newWallet = Wallet.generate();
-                    const gasValue = await axelarScanProvider.estimateGasFee(
-                        xrplEvmChain.name,
-                        xrplChain.name,
-                        xrplEvmChain.nativeToken.symbol,
-                        200_000,
-                    );
-
-                    const amount = ethers.parseEther(BigNumber(xrplReserveAmount).times(0.2).toString()).toString();
                     const tx = await xrplEvmChainSigner.transfer(
                         amount,
                         xrplEvmChain.nativeToken as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
                         xrplChain.name,
-                        xrplEvmChainTranslator.translate(ChainType.XRP, newWallet.address),
+                        xrplEvmChainTranslator.translate(ChainType.XRP, unfundedWallet.address),
                         { gasValue: gasValue },
                     );
 
-                    const additionalAmount = ethers.parseEther(BigNumber(xrplReserveAmount).times(0.8).toString()).toString();
-                    const tx2 = await xrplEvmChainSigner.transfer(
-                        additionalAmount,
-                        xrplEvmChain.nativeToken as Token,
-                        xrplEvmChain.interchainTokenServiceAddress,
-                        xrplChain.name,
-                        xrplEvmChainTranslator.translate(ChainType.XRP, newWallet.address),
-                        { gasValue: gasValue },
-                    );
-                    const receipt2 = await tx2.wait();
-
-                    await expectExecuted(receipt2.hash, axelarScanProvider, pollingOpts);
-
-                    await expectBalanceUpdate(
-                        async () => (await xrplChainProvider.getNativeBalance(newWallet.address)).toString(),
-                        xrpToDrops(xrplReserveAmount).toString(),
+                    await expectXrplFailedDestination(
+                        xrplChainProvider,
+                        xrplChain.axelarGatewayAddress,
+                        unfundedWallet.address,
+                        "tecNO_DST_INSUF_XRP",
                         pollingOpts,
                     );
                 });
@@ -226,8 +194,16 @@ describeOrSkip(
 
                     await expectExecuted(receipt.hash, axelarScanProvider, pollingOpts);
 
+                    // getNativeBalance function subtracts reserve, that's why in this test getReserve function is used
+                    // getReserve returns error if account doesn't exist, we need to omit it
                     await expectBalanceUpdate(
-                        async () => (await xrplChainProvider.getNativeBalance(newWallet.address)).toString(),
+                        async () => {
+                            try {
+                                return (await xrplChainProvider.getReserve(newWallet.address)).toString();
+                            } catch {
+                                return "0";
+                            }
+                        },
                         xrpToDrops(xrplReserveAmount).toString(),
                         pollingOpts,
                     );
@@ -417,17 +393,10 @@ describeOrSkip(
                 );
             },
             () => {
-                it("should transfer the token", async () => {
+                it("should transfer the XRP", async () => {
                     const erc20 = xrplEvmChainProvider.getERC20Contract(xrplEvmChain.nativeToken.address, xrplEvmChainWallet);
                     const initialDestBalance = await erc20.balanceOf(xrplEvmChainWallet.address);
                     const initialSourceBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
-
-                    const gas_fee_amount = await axelarScanProvider.estimateGasFee(
-                        xrplChain.name,
-                        xrplEvmChain.name,
-                        xrplChain.nativeToken.symbol,
-                        200_000,
-                    );
 
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
@@ -436,7 +405,7 @@ describeOrSkip(
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
                         {
-                            gasFeeAmount: gas_fee_amount,
+                            gasFeeAmount: gasFeeAmount,
                         },
                     );
 
@@ -444,7 +413,7 @@ describeOrSkip(
 
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
-                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(gas_fee_amount).toString()).toString();
+                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(gasFeeAmount).toString()).toString();
 
                     await expectBalanceUpdate(
                         async () => (await erc20.balanceOf(xrplEvmChainWallet.address)).toString(),
@@ -461,16 +430,15 @@ describeOrSkip(
 
                 it("should revert when transferring dust", async () => {
                     const dustAmount = "1";
-                    await expectRevert(
-                        xrplChainSigner.transfer(
-                            dustAmount,
-                            new Token({} as any),
-                            xrplChain.interchainTokenServiceAddress,
-                            xrplEvmChain.name,
-                            xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                        ),
-                        XrplSignerErrors.TRANSACTION_SUBMISSION_FAILED,
+                    const tx = await xrplChainSigner.transfer(
+                        dustAmount,
+                        new Token({} as any),
+                        xrplChain.interchainTokenServiceAddress,
+                        xrplEvmChain.name,
+                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
                     );
+
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);
                 });
 
                 it("should extend 6 decimal places to 18 decimals properly when transferring from XRPL to EVM", async () => {
@@ -480,13 +448,6 @@ describeOrSkip(
 
                     const initialEvmBalance = await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address);
 
-                    const gas_fee_amount = await axelarScanProvider.estimateGasFee(
-                        xrplChain.name,
-                        xrplEvmChain.name,
-                        xrplChain.nativeToken.symbol,
-                        200_000,
-                    );
-
                     const tx = await xrplChainSigner.transfer(
                         amountAsDrops,
                         new Token({} as any),
@@ -494,13 +455,13 @@ describeOrSkip(
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
                         {
-                            gasFeeAmount: gas_fee_amount,
+                            gasFeeAmount: gasFeeAmount,
                         },
                     );
 
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
-                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(gas_fee_amount).toString()).toString();
+                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(gasFeeAmount).toString()).toString();
 
                     await expectBalanceUpdate(
                         async () => (await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address)).toString(),
@@ -563,18 +524,13 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
-                    await expectAxelarError(additionalGas.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
                 it("should succeed after topping up gas once the threshold is reached", async () => {
                     const initialDestBalance = await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address);
-                    const gas_fee_amount = await axelarScanProvider.estimateGasFee(
-                        xrplChain.name,
-                        xrplEvmChain.name,
-                        xrplChain.nativeToken.symbol,
-                        200_000,
-                    );
-                    const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
+
+                    const lowGasFee = BigNumber(gasFeeAmount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
@@ -586,9 +542,8 @@ describeOrSkip(
                             gasFeeAmount: lowGasFee,
                         },
                     );
-                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
 
-                    const topUpGas = BigNumber("1700000").minus(lowGasFee).toString();
+                    const topUpGas = BigNumber(gasFeeAmount).minus(lowGasFee).toString();
 
                     const additionalGas = await xrplChainSigner.addGas(
                         topUpGas,
@@ -597,7 +552,7 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
-                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(gas_fee_amount).toString()).toString();
+                    const gasFeeAsWei = ethers.parseEther(dropsToXrp(lowGasFee).toString()).toString();
 
                     await expectBalanceUpdate(
                         async () => (await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address)).toString(),

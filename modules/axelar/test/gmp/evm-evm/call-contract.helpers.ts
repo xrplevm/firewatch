@@ -41,11 +41,9 @@ export async function expectMessageUpdate(
     const addGas = await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
 
     let decodedMsg: string;
-
     await polling(
         async () => {
             const finalEncoded = await destinationAxelarExecutableExample.lastPayload();
-
             if (!finalEncoded || finalEncoded === "0x") {
                 return false;
             }

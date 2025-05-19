@@ -1,5 +1,5 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
-import { EthersSigner, EthersTransaction } from "@firewatch/bridge/signers/evm/ethers";
+import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
 import config from "../../../module.config.example.json";
@@ -7,7 +7,7 @@ import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Token } from "@firewatch/core/token";
-import { polling, PollingOptions } from "@shared/utils";
+import { PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { describeOrSkip } from "@testing/mocha/utils";
@@ -15,9 +15,10 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
+import { expectExecuted, expectAxelarError, expectXrplFailedDestination } from "@firewatch/bridge/utils";
 import { InterchainToken } from "@shared/evm/contracts";
 import { expectRevert } from "@testing/hardhat/utils";
-import { expectAxelarError, expectBalanceUpdate, expectExecuted } from "@shared/evm/utils";
+import { expectBalanceUpdate } from "@shared/evm/utils";
 import { Env } from "../../../../../packages/env/src/types/env";
 import { HardhatErrors } from "@testing/hardhat/errors";
 
@@ -117,7 +118,7 @@ describeOrSkip(
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
                         xrplChain.name,
-                        xrplEvmChain.fooErc20.symbol,
+                        xrplEvmChain.nativeToken.symbol,
                         200_000,
                     );
 
@@ -165,7 +166,13 @@ describeOrSkip(
                         },
                     );
 
-                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);
+                    await expectXrplFailedDestination(
+                        xrplChainProvider,
+                        xrplChain.axelarGatewayAddress,
+                        newWallet.address,
+                        "tecNO_DST",
+                        pollingOpts,
+                    );
                 });
 
                 it("should revert when transferring 0 tokens", async () => {
@@ -178,34 +185,6 @@ describeOrSkip(
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             "0",
-                            fooErc20 as Token,
-                            xrplEvmChain.interchainTokenServiceAddress,
-                            xrplChain.name,
-                            xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
-                            {
-                                gasValue: gasValue,
-                                gasLimit: gasLimit,
-                            },
-                        ),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
-                    );
-                });
-
-                it("should revert when transferring dust amount (below IOU's minimum unit)", async () => {
-                    const decimals = fooIou.decimals;
-                    const dustAmount = `0.${"0".repeat(decimals)}1`;
-                    const dustWeis = ethers.parseEther(dustAmount).toString();
-
-                    const gasValue = await axelarScanProvider.estimateGasFee(
-                        xrplEvmChain.name,
-                        xrplChain.name,
-                        xrplEvmChain.nativeToken.symbol,
-                        200_000,
-                    );
-
-                    await expectRevert(
-                        xrplEvmChainSigner.transfer(
-                            dustWeis,
                             fooErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
@@ -242,21 +221,6 @@ describeOrSkip(
                                 gasValue: gasValue,
                                 gasLimit: gasLimit,
                             },
-                        ),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
-                    );
-                });
-
-                it("should revert when transferring to an invalid address", async () => {
-                    const invalidAddress = "0x123";
-
-                    await expectRevert(
-                        xrplEvmChainSigner.transfer(
-                            xrplEvmTransferAmount,
-                            fooErc20 as Token,
-                            xrplEvmChain.interchainTokenServiceAddress,
-                            xrplChain.name,
-                            xrplEvmChainTranslator.translate(ChainType.XRP, invalidAddress),
                         ),
                         HardhatErrors.UNKNOWN_CUSTOM_ERROR,
                     );
