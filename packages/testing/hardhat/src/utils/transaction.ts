@@ -14,11 +14,17 @@ export async function expectRevert(tx: TxPromise, expectedError: string): Promis
     try {
         const txResponse = await tx;
         await txResponse.wait();
+
         throw new Error(`Expected transaction to revert with '${expectedError}', but it did not.`);
     } catch (error: unknown) {
-        const errMsg = error instanceof Error ? error.message : String(error);
-        if (!errMsg.includes(expectedError)) {
-            throw new Error(`Expected error message to include '${expectedError}', but got: ${errMsg}`);
+        const msg = error instanceof Error ? error.message : String(error);
+
+        if (msg.startsWith("Expected transaction to revert")) {
+            throw error;
+        }
+
+        if (!msg.includes(expectedError)) {
+            throw new Error(`Expected revert with '${expectedError}', but got: '${msg}'`);
         }
     }
 }

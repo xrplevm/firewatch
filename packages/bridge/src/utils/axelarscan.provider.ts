@@ -46,7 +46,6 @@ export async function expectAxelarError(
     const lifecycle = await polling(
         async () => {
             const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
-
             return lifecycleInfo;
         },
         (res: any) => !(res && res.error),
