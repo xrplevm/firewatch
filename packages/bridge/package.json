@@ -51,6 +51,7 @@
         "./translators/evm": "./src/translators/evm/index.ts",
         "./translators/xrp/interfaces": "./src/translators/xrp/interfaces/index.ts",
         "./translators/xrp": "./src/translators/xrp/index.ts",
+        "./utils": "./src/utils/index.ts",
         "./automock/providers": "./test/automock/providers.automock.ts",
         "./mocks/providers": "./test/mocks/providers/index.ts"
     },
