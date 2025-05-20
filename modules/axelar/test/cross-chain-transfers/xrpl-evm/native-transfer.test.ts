@@ -261,6 +261,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
+                // TODO: Axelar not recognizing the addGas txs, not sure if it shouldn't, or is malfunctioning
                 it("should succeed in resuming a stuck transfer after topping up gas", async () => {
                     const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
                     const gasValue = await axelarScanProvider.estimateGasFee(
@@ -420,6 +421,7 @@ describeOrSkip(
                     );
                 });
 
+                // TODO: Axelar not recognizing the txs, not sure if it shouldn't, or is malfunctioning
                 it("should revert when transferring dust", async () => {
                     const dustAmount = "1";
                     const tx = await xrplChainSigner.transfer(
@@ -428,6 +430,9 @@ describeOrSkip(
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
+                        {
+                            gasFeeAmount: gasFeeAmount,
+                        },
                     );
 
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);

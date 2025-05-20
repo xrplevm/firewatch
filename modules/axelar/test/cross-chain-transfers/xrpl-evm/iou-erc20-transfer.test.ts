@@ -199,7 +199,7 @@ describeOrSkip(
                     );
                 });
 
-                it.only("should revert when transferring more than the balance", async () => {
+                it("should revert when transferring more than the balance", async () => {
                     const balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
 
                     const amount = BigNumber(balance.toString()).plus(100).toString();

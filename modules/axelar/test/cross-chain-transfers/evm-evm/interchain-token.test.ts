@@ -186,7 +186,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.TOKEN_ALREADY_DEPLOYED, pollingOpts);
                 });
 
-                describe.skip("Token Transfers", () => {
+                describe("Token Transfers", () => {
                     let xrplEvmToken: InterchainToken;
                     let evmToken: InterchainToken;
 

@@ -29,9 +29,6 @@ importers:
 
   modules/axelar:
     dependencies:
-      '@ethersproject/providers':
-        specifier: ^5.8.0
-        version: 5.8.0(bufferutil@4.0.5)(utf-8-validate@5.0.7)
       '@nomicfoundation/hardhat-ethers':
         specifier: ^3.0.8
         version: 3.0.8(ethers@6.13.5(bufferutil@4.0.5)(utf-8-validate@5.0.7))(hardhat@2.22.18(bufferutil@4.0.5)(ts-node@10.9.2(@types/node@22.13.4)(typescript@5.8.3))(typescript@5.8.3)(utf-8-validate@5.0.7))
@@ -185,9 +182,6 @@ importers:
       '@axelar-network/axelarjs-sdk':
         specifier: 0.17.2
         version: 0.17.2(bufferutil@4.0.5)(typescript@5.8.3)(utf-8-validate@5.0.7)
-      '@ethersproject/providers':
-        specifier: ^5.8.0
-        version: 5.8.0(bufferutil@4.0.5)(utf-8-validate@5.0.7)
       '@firewatch/env':
         specifier: workspace:*
         version: link:../env
@@ -352,13 +346,7 @@ importers:
       ethers:
         specifier: ^6.13.5
         version: 6.13.5(bufferutil@4.0.5)(utf-8-validate@5.0.7)
-      xrpl:
-        specifier: 3.0.0
-        version: 3.0.0(bufferutil@4.0.5)(utf-8-validate@5.0.7)
     devDependencies:
-      '@firewatch/bridge':
-        specifier: workspace:*
-        version: link:../../bridge
       '@firewatch/core':
         specifier: workspace:*
         version: link:../../core
@@ -506,9 +494,6 @@ importers:
         specifier: ^6.13.5
         version: 6.13.5(bufferutil@4.0.5)(utf-8-validate@5.0.7)
     devDependencies:
-      '@firewatch/bridge':
-        specifier: workspace:*
-        version: link:../../bridge
       '@firewatch/core':
         specifier: workspace:*
         version: link:../../core
