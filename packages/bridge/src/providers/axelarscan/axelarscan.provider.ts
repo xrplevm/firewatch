@@ -30,20 +30,14 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async estimateGasFee(
-        sourceChain: string,
-        destinationChain: string,
-        gasToken: string,
-        gasLimit: string | number,
-        executeData?: string,
-    ): Promise<string> {
+    async estimateGasFee(sourceChain: string, destinationChain: string, gasToken: string, gasLimit: string | number): Promise<string> {
         const limit = typeof gasLimit === "string" ? Number(gasLimit) : gasLimit;
 
         const api = new AxelarQueryAPI({
             environment: this.recoveryApi.environment,
         });
 
-        const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined, executeData);
+        const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined);
 
         return feeResponse as string;
     }

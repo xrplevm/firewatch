@@ -20,14 +20,7 @@ export interface IAxelarScanProvider {
      * @param destinationChain The name of the destination blockchain (e.g., 'avalanche', 'fantom').
      * @param gasToken The token symbol used to pay for gas (e.g., 'USDC', 'USDT').
      * @param gasLimit The maximum amount of gas units that can be consumed for execution.
-     * @param amount Optional. The token amount to be transferred, if applicable.
      * @returns The estimated gas fee response containing fee amount and token details.
      */
-    estimateGasFee(
-        sourceChain: string,
-        destinationChain: string,
-        gasToken: string,
-        gasLimit: string | number,
-        amount?: string | number,
-    ): Promise<string>;
+    estimateGasFee(sourceChain: string, destinationChain: string, gasToken: string, gasLimit: string | number): Promise<string>;
 }
