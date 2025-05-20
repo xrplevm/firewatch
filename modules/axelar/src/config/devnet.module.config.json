@@ -38,9 +38,9 @@
         "axelarExecutableExampleAddress": "0x1e705Ca6de0080442eC502358dfEF3fB61c4d46A",
         "interchainTokenExecutableExampleAddress": "0x2A5c0D0908DF7Ec7Ee8E497Cf06D4bC597F6c5ee",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.00001",
             "gasLimit": 1000000,
-            "gasValue": "0.2"
+            "gasValue": "0.3"
         },
         "urls": {
             "rpc": "https://rpc.xrplevm.org"
@@ -75,7 +75,9 @@
         "axelarAmplifierGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTransferOptions": {
-            "amount": "1"
+            "amount": "3",
+            "reserveAmount": "1",
+            "gasFeeAmount": "1.7"
         },
         "urls": {
             "ws": "wss://s.devnet.rippletest.net:51233"
@@ -107,7 +109,7 @@
         "axelarExecutableExampleAddress": "0x230A4780C8e88cED1bBF4CE301f71E11121C5Da5",
         "interchainTokenExecutableExampleAddress": "0x6B1C57Ae145b03f1FFB54D8eD72DC5C2B958E2d5",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.00001",
             "gasLimit": 1000000,
             "gasValue": "0.2"
         },

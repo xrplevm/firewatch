@@ -37,7 +37,7 @@
         "axelarExecutableExampleAddress": "",
         "interchainTokenExecutableExampleAddress": "",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.00001",
             "gasLimit": 1000000,
             "gasValue": "0.2"
         },
@@ -73,8 +73,9 @@
         "axelarGatewayAddress": "",
         "interchainTokenServiceAddress": "",
         "interchainTransferOptions": {
-            "amount": "1",
-            "gasValue": "0.2"
+            "amount": "3",
+            "reserveAmount": "1",
+            "gasFeeAmount": "1.7"
         },
         "urls": {
             "ws": "wss://s.altnet.rippletest.net:51233"
@@ -106,7 +107,7 @@
         "interchainTokenExecutableExampleAddress": "",
         "tokenId": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.00001",
             "gasLimit": 1000000,
             "gasValue": "0.2"
         },

@@ -27,7 +27,9 @@ describeOrSkip(
     () => {
         return (
             isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
-            isChainType(["xrp"], config.xrplChain as unknown as AxelarBridgeChain)
+            isChainType(["xrp"], config.xrplChain as unknown as AxelarBridgeChain) &&
+            // There's no white listed IOU-ERC20 on devnet
+            isChainEnvironment(["testnet", "mainnet"], config.xrplEvmChain as unknown as AxelarBridgeChain)
         );
     },
     () => {

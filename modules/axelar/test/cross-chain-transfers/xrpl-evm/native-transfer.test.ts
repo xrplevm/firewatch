@@ -405,7 +405,6 @@ describeOrSkip(
                             gasFeeAmount: gasFeeAmount,
                         },
                     );
-
                     const receipt = await tx.wait();
                     const fee = receipt.fee;
 

@@ -38,7 +38,7 @@
         "axelarExecutableExampleAddress": "0x34fC31B1D6F3FE37FcDE7D9Df967Ef01172C25e5",
         "interchainTokenExecutableExampleAddress": "0x3d942C6834628F20B9708A2B3F56976C5d987BB9",
         "interchainTransferOptions": {
-            "amount": "0.002",
+            "amount": "0.00001",
             "gasLimit": 1000000,
             "gasValue": "0.3"
         },
@@ -108,7 +108,7 @@
         "interchainTokenExecutableExampleAddress": "0x6B1C57Ae145b03f1FFB54D8eD72DC5C2B958E2d5",
         "tokenId": "",
         "interchainTransferOptions": {
-            "amount": "1",
+            "amount": "0.00001",
             "gasLimit": 1000000,
             "gasValue": "0.2"
         },
