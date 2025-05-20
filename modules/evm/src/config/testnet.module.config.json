@@ -1,0 +1,60 @@
+{
+    "hardhat": {
+        "defaultNetwork": "xrplevm_testnet",
+        "solidity": "0.8.20",
+        "networks": {
+            "xrplevm_testnet": {
+                "url": "https://rpc.testnet.xrplevm.org",
+                "accounts": [
+                    "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
+                    "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+                ]
+            }
+        }
+    },
+    "contracts": {
+        "erc20": {
+            "abi": [
+                "function transfer(address to, uint256 amount) external",
+                "function transferFrom(address from, address to, uint256 amount) external returns (bool)",
+                "function mint(address to, uint256 amount) external",
+                "function approve(address spender, uint256 amount) external returns (bool)",
+                "function balanceOf(address account) external view returns (uint256)",
+                "function increaseAllowance(address spender, uint256 addedValue) external returns (bool)",
+                "function allowance(address owner, address spender) external view returns (uint256)",
+                "function burn(uint256 amount) external",
+                "function burn(address account, uint256 amount) external",
+                "function burnFrom(address account, uint256 amount) external",
+                "function transferOwnership(address newOwner) external",
+                "function owner() external view returns (address)",
+                "function totalSupply() external view returns (uint256)",
+                "function name() external view returns (string)",
+                "function symbol() external view returns (string)",
+                "function decimals() external view returns (uint8)",
+                "event Transfer(address indexed from, address indexed to, uint256 value)",
+                "event Approval(address indexed owner, address indexed spender, uint256 value)"
+            ],
+            "contractAddress": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
+            "amount": "1",
+            "burnAmount": "1",
+            "faucetFund": "10000000000000000000",
+            "feeMultiplier": "0.999",
+            "residualThreshold": "0.9"
+        }
+    },
+    "chain": {
+        "id": "xrpl-evm",
+        "name": "xrpl-evm",
+        "chainId": 1449000,
+        "env": "testnet",
+        "type": "evm",
+        "symbol": "XRP",
+        "nativeToken": {
+            "symbol": "XRP",
+            "decimals": 18,
+            "name": "XRP",
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        }
+    }
+}

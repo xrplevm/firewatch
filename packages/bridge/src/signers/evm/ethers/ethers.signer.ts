@@ -94,8 +94,11 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             destinationAddress,
             amount,
             "0x",
-            gasValue,
-            { value: gasValue },
+            options?.gasValue ? options.gasValue : "0",
+            {
+                gasLimit: options?.gasLimit,
+                value: options?.gasValue ? options.gasValue : undefined,
+            },
         );
 
         return this.transactionParser.parseTransactionResponse(contractTx, (txReceipt) => ({

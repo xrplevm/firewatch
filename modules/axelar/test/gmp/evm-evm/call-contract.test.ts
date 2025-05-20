@@ -1,7 +1,7 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ethers } from "ethers";
-import config from "../../../module.config.example.json";
+import config from "../../../module.config.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";

@@ -161,7 +161,6 @@ export class XrplSigner<Provider extends IXrplSignerProvider = IXrplSignerProvid
             return this.handleError(e);
         }
     }
-
     /**
      * @inheritdoc
      */

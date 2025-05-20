@@ -1,7 +1,7 @@
 import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { AbiCoder, ethers } from "ethers";
-import config from "../../../module.config.example.json";
+import config from "../../../module.config.json";
 import { polling, PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
@@ -9,7 +9,7 @@ import { Token } from "@firewatch/core/token";
 import { AxelarExecutableExample, InterchainTokenExecutable } from "@shared/evm/contracts";
 import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
-import { Client, convertStringToHex, Wallet, xrpToDrops } from "xrpl";
+import { Client, Wallet, xrpToDrops } from "xrpl";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";

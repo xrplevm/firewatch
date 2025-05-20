@@ -2,7 +2,7 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import config from "../../../module.config.example.json";
+import config from "../../../module.config.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
@@ -35,8 +35,8 @@ describeOrSkip(
         const { interchainTransferOptions } = config.xrplEvmChain;
         const pollingOpts = config.axelar.pollingOptions;
 
-        let fooErc20: Token;
-        let fooIou: Token;
+        let whiteListedErc20: Token;
+        let whiteListedIou: Token;
 
         let xrplEvmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
@@ -82,14 +82,14 @@ describeOrSkip(
             xrplEvmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
 
-            fooErc20 = new Token(xrplEvmChain.fooErc20);
-            fooIou = new Token(xrplChain.fooIou);
+            whiteListedErc20 = new Token(xrplEvmChain.whiteListedErc20);
+            whiteListedIou = new Token(xrplChain.whiteListedIou);
 
-            interchainToken = new InterchainToken(fooErc20.address!, xrplEvmChainWallet);
+            interchainToken = new InterchainToken(whiteListedErc20.address!, xrplEvmChainWallet);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
-            xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, fooErc20.decimals).toString();
-            xrplAsWeiAmount = ethers.parseUnits(xrplChain.interchainTransferOptions.amount, fooIou.decimals).toString();
+            xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, whiteListedErc20.decimals).toString();
+            xrplAsWeiAmount = ethers.parseUnits(xrplChain.interchainTransferOptions.amount, whiteListedIou.decimals).toString();
 
             gasLimit = xrplEvmChain.interchainTransferOptions.gasLimit;
         });
@@ -106,8 +106,8 @@ describeOrSkip(
                 it("should transfer the ERC20", async () => {
                     const initialDestBalance = await xrplChainProvider.getIOUBalance(
                         xrplChainWallet.address,
-                        fooIou.address!,
-                        fooIou.symbol,
+                        whiteListedIou.address!,
+                        whiteListedIou.symbol,
                     );
 
                     const initialErc20Balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
@@ -128,7 +128,8 @@ describeOrSkip(
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
                     await expectBalanceUpdate(
-                        async () => await xrplChainProvider.getIOUBalance(xrplChainWallet.address, fooIou.address!, fooIou.symbol),
+                        async () =>
+                            await xrplChainProvider.getIOUBalance(xrplChainWallet.address, whiteListedIou.address!, whiteListedIou.symbol),
                         BigNumber(initialDestBalance.toString()).plus(xrplEvmTransferAmount).toString(),
                         interchainTransferOptions as PollingOptions,
                     );
@@ -154,7 +155,7 @@ describeOrSkip(
 
                     const tx = await xrplEvmChainSigner.transfer(
                         xrplEvmTransferAmount,
-                        fooErc20 as Token,
+                        whiteListedErc20 as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
                         xrplChain.name,
                         xrplEvmChainTranslator.translate(ChainType.XRP, newWallet.address),
@@ -183,7 +184,7 @@ describeOrSkip(
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             "0",
-                            fooErc20 as Token,
+                            whiteListedErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -211,7 +212,7 @@ describeOrSkip(
                     await expectRevert(
                         xrplEvmChainSigner.transfer(
                             amount,
-                            fooErc20 as Token,
+                            whiteListedErc20 as Token,
                             xrplEvmChain.interchainTokenServiceAddress,
                             xrplChain.name,
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -236,17 +237,17 @@ describeOrSkip(
             },
             () => {
                 it("should transfer the IOU with interchain transfer method", async () => {
-                    const erc20 = xrplEvmChainProvider.getERC20Contract(fooErc20.address!, xrplEvmChainWallet);
+                    const erc20 = xrplEvmChainProvider.getERC20Contract(whiteListedErc20.address!, xrplEvmChainWallet);
                     const initialDestBalance = await erc20.balanceOf(xrplEvmChainWallet.address);
                     const initialSourceBalance = await xrplChainProvider.getIOUBalance(
                         xrplChainWallet.address,
-                        fooIou.address!,
-                        fooIou.symbol,
+                        whiteListedIou.address!,
+                        whiteListedIou.symbol,
                     );
 
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        fooIou,
+                        whiteListedIou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -276,7 +277,13 @@ describeOrSkip(
                     const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(BigNumber(xrplAsWeiAmount)).toString();
                     await expectBalanceUpdate(
                         async () =>
-                            (await xrplChainProvider.getIOUBalance(xrplChainWallet.address, fooIou.address!, fooIou.symbol)).toString(),
+                            (
+                                await xrplChainProvider.getIOUBalance(
+                                    xrplChainWallet.address,
+                                    whiteListedIou.address!,
+                                    whiteListedIou.symbol,
+                                )
+                            ).toString(),
                         expectedSourceBalance,
                         interchainTransferOptions as PollingOptions,
                     );
@@ -292,7 +299,7 @@ describeOrSkip(
                     const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        fooIou,
+                        whiteListedIou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -319,7 +326,7 @@ describeOrSkip(
 
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        fooIou,
+                        whiteListedIou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -344,7 +351,10 @@ describeOrSkip(
                 });
 
                 it("should send IOU after top-up gas", async () => {
-                    const initialDestBalance = await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, fooErc20.address!);
+                    const initialDestBalance = await xrplEvmChainProvider.getERC20Balance(
+                        xrplEvmChainWallet.address,
+                        whiteListedErc20.address!,
+                    );
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -354,7 +364,7 @@ describeOrSkip(
                     const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
-                        fooIou,
+                        whiteListedIou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -377,7 +387,8 @@ describeOrSkip(
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 
                     await expectBalanceUpdate(
-                        async () => (await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, fooErc20.address!)).toString(),
+                        async () =>
+                            (await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, whiteListedErc20.address!)).toString(),
                         BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount).toString(),
                         interchainTransferOptions as PollingOptions,
                     );
@@ -387,7 +398,7 @@ describeOrSkip(
                     await expectRevert(
                         xrplChainSigner.transfer(
                             "0",
-                            fooIou,
+                            whiteListedIou,
                             xrplChain.interchainTokenServiceAddress,
                             xrplEvmChain.name,
                             xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),

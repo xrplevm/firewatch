@@ -2,7 +2,7 @@ import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
 import { ethers } from "ethers";
-import config from "../../../module.config.example.json";
+import config from "../../../module.config.json";
 import { Client, dropsToXrp, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Token } from "@firewatch/core/token";
@@ -19,7 +19,6 @@ import { expectExecuted, expectAxelarError, expectXrplFailedDestination } from "
 import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
-import { JsonRpcProvider as V5Provider } from "@ethersproject/providers";
 import { findLogIndex } from "@shared/evm/utils";
 import { axelarGasServiceAbi } from "@shared/evm/contracts";
 
@@ -38,7 +37,6 @@ describeOrSkip(
         let xrplEvmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
         let axelarScanProvider: AxelarScanProvider;
-        let evmJsonProviderV5: V5Provider;
 
         let xrplEvmChainSigner: EthersSigner;
         let xrplChainSigner: XrplSigner;
@@ -67,7 +65,6 @@ describeOrSkip(
 
             evmJsonProvider = new ethers.JsonRpcProvider(xrplEvmChain.urls.rpc);
             xrplClient = new Client(xrplChain.urls.ws);
-            evmJsonProviderV5 = new V5Provider(xrplEvmChain.urls.rpc);
 
             xrplEvmChainProvider = new EthersProvider(evmJsonProvider);
             xrplChainProvider = new XrplProvider(xrplClient);
@@ -409,7 +406,8 @@ describeOrSkip(
                         },
                     );
 
-                    const fee = (await tx.wait()).fee;
+                    const receipt = await tx.wait();
+                    const fee = receipt.fee;
 
                     await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
 

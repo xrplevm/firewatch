@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { describe, it, before } from "mocha";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { SlashingClient } from "../../../src/modules/slashing/client";
-import moduleConfig from "../../../module.config.example.json";
+import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
 import { SlashingModuleConfig } from "../../../src/modules/slashing/config";
 import { describeOrSkip } from "@testing/mocha/utils";

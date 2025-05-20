@@ -1,5 +1,5 @@
 import { ethers, Contract, BigNumberish } from "ethers";
-import config from "../../../module.config.example.json";
+import config from "../../../module.config.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";
