@@ -4,7 +4,6 @@ import { ContractWithFilters } from "../common";
 
 export const axelarExecutableExampleAbi = [
     "function lastPayload() view returns (bytes)",
-    "function lastCommandId() view returns (bytes32)",
     "event Executed(bytes32 indexed commandId, string _from, string _message)",
 ];
 
@@ -14,7 +13,6 @@ export type IAxelarExecutableExampleFilters = {
 
 export interface IAxelarExecutableExample extends ContractWithFilters<IAxelarExecutableExampleFilters> {
     lastPayload(): Promise<string>;
-    lastCommandId(): Promise<string>;
 }
 
 export class AxelarExecutableExample extends Contract<IAxelarExecutableExample> {
