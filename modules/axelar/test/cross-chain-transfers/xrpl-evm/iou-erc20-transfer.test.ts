@@ -50,7 +50,6 @@ describeOrSkip(
 
         let xrplEvmChainWallet: ethers.Wallet;
         let xrplChainWallet: Wallet;
-        let secondWallet: Wallet;
 
         let xrplEvmChainTranslator: EvmTranslator;
         let xrplChainTranslator: XrpTranslator;
@@ -76,7 +75,6 @@ describeOrSkip(
 
             xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.account.privateKey, evmJsonProvider);
             xrplChainWallet = Wallet.fromSeed(xrplChain.account.privateKey);
-            secondWallet = Wallet.fromSeed("sEdTqUGVF21kbv8Fen9EZ6vgT1Wm3qW");
 
             xrplEvmChainSigner = new EthersSigner(xrplEvmChainWallet, xrplEvmChainProvider);
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);

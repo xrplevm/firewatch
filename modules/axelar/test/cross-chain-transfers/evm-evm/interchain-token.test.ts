@@ -29,8 +29,10 @@ describeOrSkip(
         let xrplEvmJsonProvider: ethers.JsonRpcProvider;
         let evmJsonProvider: ethers.JsonRpcProvider;
         let axelarScanProvider: AxelarScanProvider;
+
         let xrplEvmWallet: ethers.Wallet;
         let evmWallet: ethers.Wallet;
+
         let xrplEvmInterchainTokenFactory: InterchainTokenFactory;
         let evmInterchainTokenFactory: InterchainTokenFactory;
         let xrplEvmInterchainTokenService: InterchainTokenService;
@@ -162,6 +164,7 @@ describeOrSkip(
                     await expectExecuted(txHash, axelarScanProvider, pollingOpts);
                 });
 
+                //TODO: probably reverting on destination? Check
                 it("should revert when deploying an interchain token with the same salt value", async () => {
                     await expectRevert(
                         xrplEvmInterchainTokenFactory.deployInterchainToken(

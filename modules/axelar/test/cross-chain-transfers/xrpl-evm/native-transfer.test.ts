@@ -195,7 +195,7 @@ describeOrSkip(
                     await expectExecuted(receipt.hash, axelarScanProvider, pollingOpts);
 
                     // getNativeBalance function subtracts reserve, that's why in this test getReserve function is used
-                    // getReserve returns error if account doesn't exist, we need to omit it
+                    // getReserve returns error if account doesn't exist, we need to omit it in polling
                     await expectBalanceUpdate(
                         async () => {
                             try {
