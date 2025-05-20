@@ -72,7 +72,7 @@
             "name": "A",
             "address": "r"
         },
-        "axelarAmplifierGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
+        "axelarGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
         "interchainTransferOptions": {
             "amount": "3",
