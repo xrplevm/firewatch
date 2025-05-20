@@ -2,7 +2,7 @@ import { IXrplSigner } from "./interfaces/i-xrpl.signer";
 import { XrplSignerErrors } from "./xrpl.signer.errors";
 import { SignerError } from "../../core/error";
 import { XrplTransactionParser } from "../../../transaction-parsers/xrp/xrpl/xrpl.transaction-parser";
-import { convertStringToHex, dropsToXrp, Payment, SubmittableTransaction, TrustSet, Wallet, xrpToDrops } from "xrpl";
+import { convertStringToHex, dropsToXrp, Payment, SubmittableTransaction, TrustSet, Wallet } from "xrpl";
 import { IXrplSignerProvider } from "./interfaces/i-xrpl-signer.provider";
 import { SubmitTransactionResponse } from "@shared/xrpl/transaction";
 import { convertCurrencyCode } from "@shared/xrpl/currency-code";

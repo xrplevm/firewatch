@@ -8,16 +8,16 @@ import { axelarGasServiceAbi } from "@shared/evm/contracts";
 /**
  * Sends a payload via AxelarExecutableExample and then polls the destination contract’s state until it equals the sent payload.
  * This works for any payload—including an empty one.
- * @param sourceSigner - The EthersSigner to use for sending the call.
- * @param destinationAxelarExecutableExample - The AxelarExecutableExample instance whose state will be polled.
- * @param axelarGasServiceAddress - The address of the Axelar Gas Service contract.
- * @param sourceGatewayAddress - The gateway address to which the call is sent.
- * @param destinationChain - The chain name (as used in the call) for the destination.
- * @param destinationContractAddress - The destination contract address.
- * @param payload - The payload to send (can be empty).
- * @param pollingOptions - Polling options for state checking.
- * @param amount - The amount of native gas to add for the cross-chain call.
- * @returns Promise<void>
+ * @param sourceSigner The EthersSigner to use for sending the call.
+ * @param destinationAxelarExecutableExample The AxelarExecutableExample instance whose state will be polled.
+ * @param axelarGasServiceAddress The address of the Axelar Gas Service contract.
+ * @param sourceGatewayAddress The gateway address to which the call is sent.
+ * @param destinationChain The chain name (as used in the call) for the destination.
+ * @param destinationContractAddress The destination contract address.
+ * @param payload The payload to send (can be empty).
+ * @param pollingOptions Polling options for state checking.
+ * @param amount The amount of native gas to add for the cross-chain call.
+ * @returns Promise<void>.
  */
 export async function expectMessageUpdate(
     sourceSigner: EthersSigner,
@@ -38,7 +38,7 @@ export async function expectMessageUpdate(
 
     const logIndex = await findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
-    const addGas = await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
+    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
 
     let decodedMsg: string;
     await polling(
@@ -62,18 +62,18 @@ export async function expectMessageUpdate(
  * Sends a payload via AxelarExecutableExample then polls for:
  *   - A "ContractCall" event on the provided gateway contract.
  *   - An "Executed" event on the destination call contract.
- * @param sourceSigner - The signer to use for sending the call.
- * @param sourceGatewayAddr - The gateway address to which the call is sent.
- * @param axelarGasServiceAddress - The address of the Axelar Gas Service contract.
- * @param destinationChain - The destination chain name (as used in the call).
- * @param destinationAxelarExecutableExample - The destination AxelarExecutableExample instance (whose .address is used in filtering).
- * @param destinationContractAddress - The destination contract address.
- * @param sourceGwContract - The AxelarAmplifierGateway instance to query for "ContractCall" events.
- * @param payload - The payload to send (can be empty).
- * @param expectedFrom - The expected sender address in the "Executed" event.
- * @param pollingOpts - Polling options for event checking.
- * @param amount - The amount of native gas to add for the cross-chain call.
- * @returns Promise<void>
+ * @param sourceSigner The signer to use for sending the call.
+ * @param sourceGatewayAddr The gateway address to which the call is sent.
+ * @param axelarGasServiceAddress The address of the Axelar Gas Service contract.
+ * @param destinationChain The destination chain name (as used in the call).
+ * @param destinationAxelarExecutableExample The destination AxelarExecutableExample instance (whose .address is used in filtering).
+ * @param destinationContractAddress The destination contract address.
+ * @param sourceGwContract The AxelarAmplifierGateway instance to query for "ContractCall" events.
+ * @param payload The payload to send (can be empty).
+ * @param expectedFrom The expected sender address in the "Executed" event.
+ * @param pollingOpts Polling options for event checking.
+ * @param amount The amount of native gas to add for the cross-chain call.
+ * @returns Promise<void>.
  */
 export async function expectEventEmission(
     sourceSigner: EthersSigner,
@@ -97,7 +97,7 @@ export async function expectEventEmission(
 
     const logIndex = await findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
-    const addGas = await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
+    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
 
     await polling(
         async () => {

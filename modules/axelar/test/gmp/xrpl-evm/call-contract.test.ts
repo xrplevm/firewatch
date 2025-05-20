@@ -1,5 +1,3 @@
-import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
-import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { AbiCoder, ethers } from "ethers";
 import config from "../../../module.config.json";
 import { polling, PollingOptions } from "@shared/utils";
@@ -10,12 +8,9 @@ import { AxelarExecutableExample, InterchainTokenExecutable } from "@shared/evm/
 import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Client, Wallet, xrpToDrops } from "xrpl";
-import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
-import { Env } from "@firewatch/env/types";
 
 describeOrSkip(
     "GMP XRP -> EVM",
@@ -28,11 +23,8 @@ describeOrSkip(
     () => {
         const { xrplChain, xrplEvmChain } = config;
 
-        let evmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
-        let axelarScanProvider: AxelarScanProvider;
 
-        let evmChainSigner: EthersSigner;
         let xrplChainSigner: XrplSigner;
 
         let evmJsonProvider: ethers.JsonRpcProvider;
@@ -41,7 +33,6 @@ describeOrSkip(
         let evmChainWallet: ethers.Wallet;
         let xrplChainWallet: Wallet;
 
-        let evmChainTranslator: EvmTranslator;
         let xrplChainTranslator: XrpTranslator;
 
         let destinationAxelarExecutableExample: AxelarExecutableExample;
@@ -62,18 +53,14 @@ describeOrSkip(
 
             xrplClient = new Client(xrplChain.urls.ws);
             evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
-            axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
             xrplChainProvider = new XrplProvider(xrplClient);
-            evmChainProvider = new EthersProvider(evmJsonProvider);
 
             xrplChainWallet = Wallet.fromSeed(xrplChain.account.privateKey);
             evmChainWallet = new ethers.Wallet(xrplEvmChain.account.privateKey, evmJsonProvider);
 
-            evmChainSigner = new EthersSigner(evmChainWallet, evmChainProvider);
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
-            evmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
 
             destinationAxelarExecutableExample = new AxelarExecutableExample(destAxExecAddress, evmChainWallet);

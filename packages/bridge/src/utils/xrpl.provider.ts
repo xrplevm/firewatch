@@ -3,15 +3,14 @@ import { AccountTxTransaction, TransactionMetadata } from "xrpl";
 import { polling, PollingOptions } from "@shared/utils";
 
 /**
- * Polls until observing a transaction from `sender` to `destination`
- * with the specified error code in XRPL.
- * @param xrplProvider The XrplProvider instance to use for XRPL interactions
- * @param sender The sender address
- * @param destination The destination address
- * @param error The expected error code (e.g. "tecNO_DST_INSUF_XRP")
- * @param pollingOpts Options for polling
- * @returns The failed transaction
- * @throws Error if no matching failed transaction is found within polling parameters
+ * Polls until observing a transaction from `sender` to `destination` with the specified error code in XRPL.
+ * @param xrplProvider The XrplProvider instance to use for XRPL interactions.
+ * @param sender The sender address.
+ * @param destination The destination address.
+ * @param error The expected error code (e.g. "tecNO_DST_INSUF_XRP").
+ * @param pollingOpts Options for polling.
+ * @returns The failed transaction.
+ * @throws Error if no matching failed transaction is found within polling parameters.
  */
 export async function expectXrplFailedDestination(
     xrplProvider: XrplProvider,

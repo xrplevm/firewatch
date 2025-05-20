@@ -21,7 +21,6 @@
         "./mocks/ethers": "./test/mocks/ethers/index.ts"
     },
     "devDependencies": {
-        "@firewatch/bridge": "workspace:*",
         "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/tsconfig": "workspace:*",

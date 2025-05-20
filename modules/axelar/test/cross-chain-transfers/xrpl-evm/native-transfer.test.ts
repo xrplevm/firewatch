@@ -150,7 +150,7 @@ describeOrSkip(
                         200_000,
                     );
 
-                    const tx = await xrplEvmChainSigner.transfer(
+                    await xrplEvmChainSigner.transfer(
                         amount,
                         xrplEvmChain.nativeToken as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
@@ -285,12 +285,7 @@ describeOrSkip(
 
                     const logIndex = await findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
-                    const addGasTx = await xrplEvmChainSigner.addNativeGas(
-                        xrplEvmChain.axelarGasServiceAddress,
-                        tx.hash,
-                        logIndex!,
-                        topUpGasValue,
-                    );
+                    await xrplEvmChainSigner.addNativeGas(xrplEvmChain.axelarGasServiceAddress, tx.hash, logIndex!, topUpGasValue);
 
                     await expectBalanceUpdate(
                         async () => (await xrplChainProvider.getNativeBalance(xrplChainWallet.address)).toString(),
@@ -514,7 +509,7 @@ describeOrSkip(
 
                     const lowGasFee2 = BigNumber(gas_fee_amount).times(0.5).integerValue(BigNumber.ROUND_DOWN).toString();
 
-                    const additionalGas = await xrplChainSigner.addGas(
+                    await xrplChainSigner.addGas(
                         lowGasFee2,
                         xrplChainTranslator.translate(ChainType.EVM, tx.hash),
                         xrplChain.interchainTokenServiceAddress,
@@ -542,7 +537,7 @@ describeOrSkip(
 
                     const topUpGas = BigNumber(gasFeeAmount).minus(lowGasFee).toString();
 
-                    const additionalGas = await xrplChainSigner.addGas(
+                    await xrplChainSigner.addGas(
                         topUpGas,
                         xrplChainTranslator.translate(ChainType.EVM, tx.hash),
                         xrplChain.interchainTokenServiceAddress,

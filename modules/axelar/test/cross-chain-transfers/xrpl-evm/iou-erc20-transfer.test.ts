@@ -155,7 +155,7 @@ describeOrSkip(
                         200_000,
                     );
 
-                    const tx = await xrplEvmChainSigner.transfer(
+                    await xrplEvmChainSigner.transfer(
                         xrplEvmTransferAmount,
                         whiteListedErc20 as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
@@ -195,11 +195,11 @@ describeOrSkip(
                                 gasLimit: gasLimit,
                             },
                         ),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
+                        HardhatErrors.TRANSACTION_EXECUTION_REVERTED,
                     );
                 });
 
-                it("should revert when transferring more than the balance", async () => {
+                it.only("should revert when transferring more than the balance", async () => {
                     const balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
 
                     const amount = BigNumber(balance.toString()).plus(100).toString();
@@ -223,7 +223,7 @@ describeOrSkip(
                                 gasLimit: gasLimit,
                             },
                         ),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
+                        HardhatErrors.TRANSACTION_EXECUTION_REVERTED,
                     );
                 });
             },

@@ -9,9 +9,10 @@ export class PatchedRecoveryAPI extends AxelarGMPRecoveryAPI {
     }
 
     /**
-     * Returns the Axelar GMP API URL, using the override if provided.
+     * Gets the Axelar GMP API URL, using the override if provided.
+     * @returns The Axelar GMP API URL.
      */
-    public override get getAxelarGMPApiUrl(): string {
+    override get getAxelarGMPApiUrl(): string {
         return this._overrideUrl ?? super.getAxelarGMPApiUrl;
     }
 }

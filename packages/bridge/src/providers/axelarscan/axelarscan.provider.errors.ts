@@ -5,4 +5,5 @@ export enum AxelarScanProviderErrors {
     INVALID_TRANSFER_AMOUNT = "invalid transfer amount",
     INSUFFICIENT_FEE = "Insufficient fee",
     INVALID_DESTINATION_ADDRESS = "invalid destination address",
+    TOKEN_ALREADY_DEPLOYED = "token already deployed",
 }

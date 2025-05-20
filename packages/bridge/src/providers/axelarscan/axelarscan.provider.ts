@@ -1,5 +1,5 @@
-import { GMPStatusResponse, AxelarQueryAPI, TxResult, AddGasOptions, EvmChain } from "@axelar-network/axelarjs-sdk";
-import { AxelarCallInfo, LifecycleInfo, AxelarMetrics, ExtendedEvmChain } from "./axelarscan.provider.types";
+import { AxelarQueryAPI } from "@axelar-network/axelarjs-sdk";
+import { LifecycleInfo } from "./axelarscan.provider.types";
 import { PatchedRecoveryAPI } from "./utils/patched-recovery.api";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
@@ -23,38 +23,6 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async fetchMetrics(txHash: string): Promise<AxelarMetrics> {
-        return await this.recoveryApi.queryTransactionStatus(txHash);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async fetchFullStatus(txHash: string): Promise<GMPStatusResponse> {
-        return await this.recoveryApi.queryTransactionStatus(txHash);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async fetchEvents(txHash: string): Promise<AxelarCallInfo> {
-        return await this.recoveryApi.queryTransactionStatus(txHash);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async isExecuted(txHash: string): Promise<boolean> {
-        return await this.recoveryApi.isExecuted(txHash);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async isConfirmed(txHash: string): Promise<boolean> {
-        return await this.recoveryApi.isConfirmed(txHash);
-    }
-
     getEndpoint(): string {
         return this.recoveryApi.getAxelarGMPApiUrl;
     }

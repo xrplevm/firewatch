@@ -87,7 +87,6 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
     ): Promise<Unconfirmed<EthersTransaction>> {
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
 
-        const gasValue = options?.gasValue ? options.gasValue : ethers.parseEther("0.5");
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
             destinationChainId,

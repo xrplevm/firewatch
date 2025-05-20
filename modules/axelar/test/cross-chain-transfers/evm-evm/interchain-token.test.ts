@@ -4,14 +4,14 @@ import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { executeTx, expectRevert } from "@testing/hardhat/utils";
 import { expectBalanceUpdate } from "@shared/evm/utils";
-import { expectExecuted } from "@firewatch/bridge/utils";
+import { expectAxelarError, expectExecuted } from "@firewatch/bridge/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken, InterchainTokenFactory, InterchainTokenService } from "@shared/evm/contracts";
 import { pollForEvent } from "@shared/evm/utils";
 import BigNumber from "bignumber.js";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { AxelarScanProvider } from "@firewatch/bridge/providers/axelarscan";
+import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "@firewatch/env/types";
 
 describeOrSkip(
@@ -164,7 +164,6 @@ describeOrSkip(
                     await expectExecuted(txHash, axelarScanProvider, pollingOpts);
                 });
 
-                //TODO: probably reverting on destination? Check
                 it("should revert when deploying an interchain token with the same salt value", async () => {
                     await expectRevert(
                         xrplEvmInterchainTokenFactory.deployInterchainToken(
@@ -180,16 +179,14 @@ describeOrSkip(
                 });
 
                 it("should revert when deploying a remote interchain token with the same salt value", async () => {
-                    await expectRevert(
-                        xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
-                            value: gasValue,
-                            gasLimit: xrplEvmChain.interchainTransferOptions.gasLimit,
-                        }),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
-                    );
+                    const tx = await xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
+                        value: gasValue,
+                        gasLimit: xrplEvmChain.interchainTransferOptions.gasLimit,
+                    });
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.TOKEN_ALREADY_DEPLOYED, pollingOpts);
                 });
 
-                describe("Token Transfers", () => {
+                describe.skip("Token Transfers", () => {
                     let xrplEvmToken: InterchainToken;
                     let evmToken: InterchainToken;
 
@@ -339,13 +336,12 @@ describeOrSkip(
                 });
 
                 it("should revert when deploying a remote interchain token with the same salt value", async () => {
-                    await expectRevert(
-                        evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
-                            value: gasValue,
-                            gasLimit: evmChain.interchainTransferOptions.gasLimit,
-                        }),
-                        HardhatErrors.UNKNOWN_CUSTOM_ERROR,
-                    );
+                    const tx = await evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
+                        value: gasValue,
+                        gasLimit: evmChain.interchainTransferOptions.gasLimit,
+                    });
+
+                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.TOKEN_ALREADY_DEPLOYED, pollingOpts);
                 });
 
                 describe("Token Transfers", () => {

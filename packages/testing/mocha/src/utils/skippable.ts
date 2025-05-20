@@ -22,7 +22,7 @@ export function describeOrSkip(
             fn();
         });
     } else {
-        describeFn(name, () => {});
+        describeFn.skip(name, () => {});
     }
 }
 
@@ -48,6 +48,6 @@ export function itOrSkip(
             fn();
         });
     } else {
-        itFn(name, () => {});
+        itFn.skip(name, () => {});
     }
 }

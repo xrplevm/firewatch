@@ -99,7 +99,7 @@ export function getEventArgs(receipt: TransactionReceipt, iface: Interface, even
 /**
  * Finds the log index of the first event with the specified name in the transaction receipt.
  * @param receipt The transaction receipt containing logs.
- * @param iface An ethers Interface instance for the contract.
+ * @param abi An contract ABI.
  * @param eventName The name of the event to find.
  * @returns The log index (number) if found, otherwise undefined.
  */
