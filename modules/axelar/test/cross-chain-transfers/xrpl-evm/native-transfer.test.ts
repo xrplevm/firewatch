@@ -261,7 +261,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
-                // TODO: Axelar not recognizing the addGas txs, not sure if it shouldn't, or is malfunctioning
+                // TODO: Axelar not recognizing the addGas txs, not sure if it shouldn't, or its findLogIndex helpers bad
                 it("should succeed in resuming a stuck transfer after topping up gas", async () => {
                     const initialDestBalance = await xrplChainProvider.getNativeBalance(xrplChainWallet.address);
                     const gasValue = await axelarScanProvider.estimateGasFee(
@@ -524,6 +524,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
+                // TODO: failing in devnet, stuck in approving step from axelar -> xrpl-evm
                 it("should succeed after topping up gas once the threshold is reached", async () => {
                     const initialDestBalance = await xrplEvmChainProvider.getNativeBalance(xrplEvmChainWallet.address);
 

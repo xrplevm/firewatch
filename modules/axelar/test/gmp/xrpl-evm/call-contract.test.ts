@@ -78,6 +78,7 @@ describeOrSkip(
                 );
             },
             () => {
+                // TODO: failing in devnet, stuck in approving step (xrpl -> axelar)/error after approved, i guess either xrpl or axelar devnet doesn't support this memo
                 it("should update destination state", async () => {
                     const msgText = `Hello from the source chain! ${Date.now()}`;
                     const abiCoder = new AbiCoder();
@@ -95,6 +96,9 @@ describeOrSkip(
                     await polling(
                         async () => {
                             const lastPayload = await destinationAxelarExecutableExample.lastPayload();
+                            if (!lastPayload || lastPayload === "0x" || lastPayload.length === 0) {
+                                return false;
+                            }
                             const asciiHex = ethers.toUtf8String(lastPayload);
                             const abiHex = "0x" + asciiHex;
 

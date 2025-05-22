@@ -9,6 +9,7 @@ import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/con
 import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
 import { describeOrSkip } from "@testing/mocha/utils";
 
+// TODO: addNativeGas function doesn't work every time.
 describeOrSkip(
     "Call Contract EVM - EVM",
     () => {
@@ -102,6 +103,7 @@ describeOrSkip(
             amount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.gasValue).toString();
         });
 
+        // TODO: not working in devnet, log index not found (not emitting ContractCall event?)
         describeOrSkip(
             "from evm Source chain to evm Destination chain",
             () => {
@@ -167,6 +169,7 @@ describeOrSkip(
                     isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
                 );
             },
+            // TODO: failing in devnet, error while reaching axelar
             () => {
                 it("should update source state when a non-empty message is sent", async () => {
                     const payloadTxt = `Hello from the destination chain! ${Date.now()}`;

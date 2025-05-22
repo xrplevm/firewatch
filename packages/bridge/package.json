@@ -56,7 +56,7 @@
         "./mocks/providers": "./test/mocks/providers/index.ts"
     },
     "peerDependencies": {
-        "@axelar-network/axelarjs-sdk": "0.17.2",
+        "@axelar-network/axelarjs-sdk": "github:banasa44/axelarjs-sdk#chore/release-0.17.1",
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
         "@shared/evm": "workspace:*",
