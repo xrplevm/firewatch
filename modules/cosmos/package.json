@@ -5,7 +5,9 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "test": "mocha",
+        "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && mocha",
+        "test:testnet": "cp configs/testnet.module.config.json module.config.json && mocha",
+        "test:devnet": "cp configs/devnet.module.config.json module.config.json && mocha",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",

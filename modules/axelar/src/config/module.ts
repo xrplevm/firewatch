@@ -1,6 +1,6 @@
 import { HardhatModuleConfig } from "@testing/hardhat/config";
 import { Account } from "@firewatch/core/account";
-import { AxelarBridgeChain } from "../models/chain";
+import { AxelarBridgeChain, XrplChain, XrplEvmChain } from "../models/chain";
 import { PollingOptions } from "@shared/utils";
 
 export interface AxelarModuleConfig extends Omit<HardhatModuleConfig<AxelarBridgeChain, Account>, "network" | "accounts"> {
@@ -10,7 +10,7 @@ export interface AxelarModuleConfig extends Omit<HardhatModuleConfig<AxelarBridg
         gmpUrl: string;
         axelarScanOptions: PollingOptions;
     };
-    xrplEvmChain: AxelarBridgeChain;
-    xrplChain: AxelarBridgeChain;
+    xrplEvmChain: XrplEvmChain;
+    xrplChain: XrplChain;
     evmChain: AxelarBridgeChain;
 }
