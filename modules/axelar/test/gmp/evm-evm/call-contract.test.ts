@@ -161,6 +161,8 @@ describeOrSkip(
                 });
             },
         );
+
+        // TODO: failing in devnet, error while reaching axelar
         describeOrSkip(
             "from evm Destination chain to evm Source chain",
             () => {
@@ -169,7 +171,6 @@ describeOrSkip(
                     isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
                 );
             },
-            // TODO: failing in devnet, error while reaching axelar
             () => {
                 it("should update source state when a non-empty message is sent", async () => {
                     const payloadTxt = `Hello from the destination chain! ${Date.now()}`;

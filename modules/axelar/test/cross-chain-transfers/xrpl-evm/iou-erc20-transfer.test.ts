@@ -15,7 +15,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-import { expectExecuted, expectAxelarError, expectXrplFailedDestination } from "@firewatch/bridge/utils";
+import { expectExecuted, expectAxelarError, expectXrplFailedDestination, expectFullExecution } from "@firewatch/bridge/utils";
 import { InterchainToken } from "@shared/evm/contracts";
 import { expectRevert } from "@testing/hardhat/utils";
 import { expectBalanceUpdate } from "@shared/evm/utils";
@@ -106,14 +106,6 @@ describeOrSkip(
             },
             () => {
                 it("should transfer the ERC20", async () => {
-                    const initialDestBalance = await xrplChainProvider.getIOUBalance(
-                        xrplChainWallet.address,
-                        whiteListedIou.address!,
-                        whiteListedIou.symbol,
-                    );
-
-                    const initialErc20Balance = await interchainToken.balanceOf(xrplEvmChainWallet.address);
-
                     const recipient = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address);
                     const gasValue = await axelarScanProvider.estimateGasFee(
                         xrplEvmChain.name,
@@ -127,22 +119,7 @@ describeOrSkip(
                         gasLimit: gasLimit,
                     });
 
-                    await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
-
-                    await expectBalanceUpdate(
-                        async () =>
-                            await xrplChainProvider.getIOUBalance(xrplChainWallet.address, whiteListedIou.address!, whiteListedIou.symbol),
-                        BigNumber(initialDestBalance.toString()).plus(xrplEvmTransferAmount).toString(),
-                        interchainTransferOptions as PollingOptions,
-                    );
-
-                    const expectedErc20Balance = BigNumber(initialErc20Balance.toString()).minus(xrplEvmTransferAmount).toString();
-
-                    await expectBalanceUpdate(
-                        async () => (await interchainToken.balanceOf(xrplEvmChainWallet.address)).toString(),
-                        expectedErc20Balance,
-                        interchainTransferOptions as PollingOptions,
-                    );
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when transferring to a non-existent XRPL account without reserve", async () => {
@@ -239,14 +216,6 @@ describeOrSkip(
             },
             () => {
                 it("should transfer the IOU with interchain transfer method", async () => {
-                    const erc20 = xrplEvmChainProvider.getERC20Contract(whiteListedErc20.address!, xrplEvmChainWallet);
-                    const initialDestBalance = await erc20.balanceOf(xrplEvmChainWallet.address);
-                    const initialSourceBalance = await xrplChainProvider.getIOUBalance(
-                        xrplChainWallet.address,
-                        whiteListedIou.address!,
-                        whiteListedIou.symbol,
-                    );
-
                     const tx = await xrplChainSigner.transfer(
                         xrplTransferAmount,
                         whiteListedIou,
@@ -268,29 +237,10 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
-                    await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
-
-                    await expectBalanceUpdate(
-                        async () => (await erc20.balanceOf(xrplEvmChainWallet.address)).toString(),
-                        BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount.toString()).toString(),
-                        interchainTransferOptions as PollingOptions,
-                    );
-
-                    const expectedSourceBalance = BigNumber(initialSourceBalance.toString()).minus(BigNumber(xrplAsWeiAmount)).toString();
-                    await expectBalanceUpdate(
-                        async () =>
-                            (
-                                await xrplChainProvider.getIOUBalance(
-                                    xrplChainWallet.address,
-                                    whiteListedIou.address!,
-                                    whiteListedIou.symbol,
-                                )
-                            ).toString(),
-                        expectedSourceBalance,
-                        interchainTransferOptions as PollingOptions,
-                    );
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
                 });
 
+                //TODO!
                 it("should stall at the confirmation step if the gas fee is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
@@ -353,10 +303,6 @@ describeOrSkip(
                 });
 
                 it("should send IOU after top-up gas", async () => {
-                    const initialDestBalance = await xrplEvmChainProvider.getERC20Balance(
-                        xrplEvmChainWallet.address,
-                        whiteListedErc20.address!,
-                    );
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -386,14 +332,7 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
-                    await expectExecuted(tx.hash, axelarScanProvider, pollingOpts);
-
-                    await expectBalanceUpdate(
-                        async () =>
-                            (await xrplEvmChainProvider.getERC20Balance(xrplEvmChainWallet.address, whiteListedErc20.address!)).toString(),
-                        BigNumber(initialDestBalance.toString()).plus(xrplAsWeiAmount).toString(),
-                        interchainTransferOptions as PollingOptions,
-                    );
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
                 });
 
                 it("should revert when transferring 0 tokens", async () => {

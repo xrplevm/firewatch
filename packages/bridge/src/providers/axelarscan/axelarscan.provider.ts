@@ -20,6 +20,11 @@ export class AxelarScanProvider implements IAxelarScanProvider {
         return await this.recoveryApi.queryTransactionStatus(txHash);
     }
 
+    async fetchCallback(txHash: string): Promise<any> {
+        const response = await this.recoveryApi.queryTransactionStatus(txHash);
+        return response.callback;
+    }
+
     /**
      * @inheritdoc
      */

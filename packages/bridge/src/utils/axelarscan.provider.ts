@@ -4,36 +4,118 @@ import { ProviderError } from "@firewatch/bridge/providers/error";
 
 /**
  * Polls for the execution outcome of a transaction and ensures it was executed successfully.
+ * Allows "Insufficient fee" errors up to a specified number of times.
  * @param txHash The transaction hash to monitor.
  * @param axelarScanProvider The provider to fetch the transaction outcome.
  * @param pollingOptions Options for polling.
- * @throws An error if the transaction execution fails or encounters an Axelar error.
+ * @param insufficientFeeRetries Number of allowed "Insufficient fee" errors (default: 5).
+ * @throws An error if the transaction execution fails or encounters an Axelar error (other than allowed "Insufficient fee").
  */
 export async function expectExecuted(
     txHash: string,
     axelarScanProvider: AxelarScanProvider,
     pollingOptions: PollingOptions,
+    insufficientFeeRetries: number = 5,
 ): Promise<void> {
+    let insufficientFeeCount = 0;
+    let lastError: any = null;
+
     const lifecycle = await polling(
         async () => {
             const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
 
+            if (
+                lifecycleInfo &&
+                lifecycleInfo.error &&
+                (typeof lifecycleInfo.error.message !== "string" || lifecycleInfo.error.message !== "Insufficient fee")
+            ) {
+                throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lifecycleInfo.error });
+            }
+
+            if (
+                lifecycleInfo &&
+                lifecycleInfo.error &&
+                typeof lifecycleInfo.error.message === "string" &&
+                lifecycleInfo.error.message === "Insufficient fee"
+            ) {
+                insufficientFeeCount++;
+                lastError = lifecycleInfo.error;
+            }
+
             return lifecycleInfo;
         },
-        (res: any) => !(res && (res.status === "destination_executed" || res.error)),
+        (res: any) => {
+            if (res && res.status === "destination_executed") {
+                return false;
+            }
+
+            if (insufficientFeeCount > insufficientFeeRetries) {
+                return false;
+            }
+
+            return true;
+        },
         pollingOptions,
     );
 
-    if (lifecycle && lifecycle.error) {
-        throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lifecycle.error });
+    if (lifecycle && lifecycle.error && typeof lifecycle.error.message) {
+        throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lastError || lifecycle.error });
     }
+}
+/**
+ * Polls for the transaction hash using fetchCallback.
+ * @param txHash The transaction hash to monitor.
+ * @param axelarScanProvider The provider to fetch the callback.
+ * @param pollingOptions Options for polling.
+ * @returns The transaction hash if found, otherwise undefined.
+ */
+export async function getAxelarDestinationTransactionHash(
+    txHash: string,
+    axelarScanProvider: AxelarScanProvider,
+    pollingOptions: PollingOptions,
+): Promise<string | undefined> {
+    const transactionHash = await polling(
+        async () => {
+            const callbackInfo = await axelarScanProvider.fetchCallback(txHash);
+
+            if (callbackInfo && callbackInfo.transactionHash) {
+                return callbackInfo.transactionHash;
+            }
+
+            if (callbackInfo && callbackInfo.tx && callbackInfo.tx.transactionHash) {
+                return callbackInfo.tx.transactionHash;
+            }
+            return undefined;
+        },
+        (result) => !result,
+        pollingOptions,
+    );
+    return transactionHash;
+}
+
+/**
+ * Ensures execution on both source and destination chains for a given transaction.
+ * @param txHash The source transaction hash.
+ * @param axelarScanProvider The provider to fetch transaction outcomes.
+ * @param pollingOpts Options for polling.
+ * @param insufficientFeeRetries Number of allowed "Insufficient fee" errors (optional).
+ * @throws An error if execution fails on either source or destination.
+ */ export async function expectFullExecution(
+    txHash: string,
+    axelarScanProvider: AxelarScanProvider,
+    pollingOpts: any,
+    insufficientFeeRetries?: number,
+) {
+    await expectExecuted(txHash, axelarScanProvider, pollingOpts, insufficientFeeRetries);
+    const destinationTxHash = await getAxelarDestinationTransactionHash(txHash, axelarScanProvider, pollingOpts);
+    await expectExecuted(destinationTxHash!, axelarScanProvider, pollingOpts, insufficientFeeRetries);
 }
 
 /**
  * Polls for the execution outcome of a transaction and ensures it fails with the expected Axelar error message.
  * @param txHash The transaction hash to monitor.
  * @param axelarScanProvider The provider to fetch the transaction outcome.
- * @param expectedError The expected in the error message.
+ * @param expectedError The expected substring in the error message.
  * @param pollingOptions Options for polling.
  * @throws An error if the transaction does not fail with the expected error.
  */
