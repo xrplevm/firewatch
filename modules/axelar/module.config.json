@@ -5,8 +5,8 @@
         "gmpUrl": "https://gmp.axelar.network",
         "pollingOptions": {
             "maxRetries": 50,
-            "retryDelay": 60000,
-            "timeout": 900000
+            "retryDelay": 10000,
+            "timeout": 540000
         }
     },
     "xrplEvmChain": {
@@ -50,8 +50,8 @@
         },
         "pollingOptions": {
             "maxRetries": 50,
-            "retryDelay": 60000,
-            "timeout": 900000
+            "retryDelay": 10000,
+            "timeout": 540000
         }
     },
     "xrplChain": {
@@ -86,8 +86,8 @@
         },
         "pollingOptions": {
             "maxRetries": 50,
-            "retryDelay": 60000,
-            "timeout": 900000
+            "retryDelay": 10000,
+            "timeout": 540000
         }
     },
     "evmChain": {
@@ -121,8 +121,8 @@
         },
         "pollingOptions": {
             "maxRetries": 50,
-            "retryDelay": 60000,
-            "timeout": 900000
+            "retryDelay": 10000,
+            "timeout": 540000
         }
     },
     "hardhat": {
