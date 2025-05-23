@@ -1,16 +1,16 @@
 import { AxelarQueryAPI } from "@axelar-network/axelarjs-sdk";
 import { LifecycleInfo } from "./axelarscan.provider.types";
-import { PatchedRecoveryAPI } from "./utils/patched-recovery.api";
+import { AxelarGMPRecoveryAPI } from "@axelar-network/axelarjs-sdk";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
 import { IAxelarScanProvider } from "./interfaces";
 
 export class AxelarScanProvider implements IAxelarScanProvider {
-    private recoveryApi: PatchedRecoveryAPI;
+    private recoveryApi: AxelarGMPRecoveryAPI;
 
-    constructor(environment: Env, gmpApiUrl?: string) {
+    constructor(environment: Env) {
         const sdkEnv = toSdkEnv(environment);
-        this.recoveryApi = new PatchedRecoveryAPI({ environment: sdkEnv }, gmpApiUrl);
+        this.recoveryApi = new AxelarGMPRecoveryAPI({ environment: sdkEnv });
     }
 
     /**
