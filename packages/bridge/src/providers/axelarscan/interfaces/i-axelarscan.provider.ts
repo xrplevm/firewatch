@@ -9,6 +9,13 @@ export interface IAxelarScanProvider {
     fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
+     * Fetches the full transaction data for a given transaction hash.
+     * @param txHash The transaction hash to query.
+     * @returns A promise that resolves to the full transaction data.
+     */
+    fetchFullTransaction(txHash: string): Promise<any>;
+
+    /**
      * Fetches the callback data for a given transaction hash.
      * @param txHash The transaction hash to query.
      * @returns A promise that resolves to the callback data associated with the transaction.

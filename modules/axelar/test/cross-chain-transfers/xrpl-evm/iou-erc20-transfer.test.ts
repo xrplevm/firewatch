@@ -14,7 +14,7 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-import { expectAxelarError, expectXrplFailedDestination, expectFullExecution } from "@firewatch/bridge/utils";
+import { expectAxelarError, expectXrplFailedDestination, expectFullExecution, expectGasAdded } from "@firewatch/bridge/utils";
 import { InterchainToken } from "@shared/evm/contracts";
 import { expectRevert } from "@testing/hardhat/utils";
 import { Env } from "../../../../../packages/env/src/types/env";
@@ -235,7 +235,6 @@ describeOrSkip(
                     await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
                 });
 
-                //TODO!
                 it("should stall at the confirmation step if the gas fee is too low", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
@@ -259,6 +258,7 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
+                    await expectGasAdded(tx.hash, axelarScanProvider, lowGasFee, pollingOpts);
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
@@ -287,14 +287,17 @@ describeOrSkip(
                     );
 
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
+                    await expectGasAdded(tx.hash, axelarScanProvider, lowGasFee, pollingOpts);
+
+                    const lowGasFee2 = BigNumber(gas_fee_amount).times(0.2).integerValue(BigNumber.ROUND_DOWN).toString();
 
                     await xrplChainSigner.addGas(
-                        lowGasFee,
+                        lowGasFee2,
                         xrplChainTranslator.translate(ChainType.EVM, tx.hash),
                         xrplChain.interchainTokenServiceAddress,
                         new Token({} as any),
                     );
-                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
+                    await expectGasAdded(tx.hash, axelarScanProvider, lowGasFee2, pollingOpts);
                 });
 
                 it("should send IOU after top-up gas", async () => {

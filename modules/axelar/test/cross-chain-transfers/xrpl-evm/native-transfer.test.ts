@@ -15,12 +15,7 @@ import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
 import { expectBalanceUpdate } from "@shared/evm/utils";
-import {
-    expectFullExecution,
-    expectAxelarError,
-    expectXrplFailedDestination,
-    getAxelarDestinationTransactionHash,
-} from "@firewatch/bridge/utils";
+import { expectFullExecution, expectAxelarError, expectXrplFailedDestination, expectGasAdded } from "@firewatch/bridge/utils";
 import { describeOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
@@ -250,6 +245,7 @@ describeOrSkip(
                     const logIndex = findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
                     await xrplEvmChainSigner.addNativeGas(xrplEvmChain.axelarGasServiceAddress, tx.hash, logIndex!, topUpGasValue);
+                    await expectGasAdded(tx.hash, axelarScanProvider, topUpGasValue, pollingOpts);
 
                     await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
                 });
@@ -356,6 +352,7 @@ describeOrSkip(
                             gasFeeAmount: gasFeeAmount,
                         },
                     );
+
                     await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
@@ -428,8 +425,7 @@ describeOrSkip(
                     await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
                 });
 
-                //TODO!
-                it.only("should get stuck at Pay Gas, after top-up gas when it doesn't reach threshold", async () => {
+                it("should get stuck at Pay Gas, after top-up gas when it doesn't reach threshold", async () => {
                     const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                         xrplChain.name,
                         xrplEvmChain.name,
@@ -460,10 +456,7 @@ describeOrSkip(
                         new Token({} as any),
                     );
 
-                    const axelarHash = await getAxelarDestinationTransactionHash(tx.hash, axelarScanProvider, pollingOpts);
-                    await expectAxelarError(axelarHash!, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
-
-                    await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INSUFFICIENT_FEE, pollingOpts);
+                    await expectGasAdded(tx.hash, axelarScanProvider, lowGasFee2, pollingOpts);
                 });
 
                 // TODO: failing in devnet, stuck in approving step from axelar -> xrpl-evm

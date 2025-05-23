@@ -144,3 +144,38 @@ export async function expectAxelarError(
         throw new Error(`Expected Axelar error to include '${expectedError}', but got: ${errorMsg}`);
     }
 }
+
+/**
+ * Polls for a transaction and checks that a gas_added_transaction exists with the expected gas fee.
+ * @param txHash The transaction hash to monitor.
+ * @param axelarScanProvider The provider to fetch the transaction.
+ * @param expectedGasFee The expected gas fee amount (as string or number).
+ * @param pollingOptions Options for polling.
+ * @throws Error if the expected gas fee is not found in gas_added_transactions.
+ */
+export async function expectGasAdded(
+    txHash: string,
+    axelarScanProvider: AxelarScanProvider,
+    expectedGasFee: string | number,
+    pollingOptions: PollingOptions,
+): Promise<void> {
+    const expectedFeeStr = expectedGasFee.toString();
+
+    const result = await polling(
+        async () => {
+            const fullTx = await axelarScanProvider.fetchFullTransaction(txHash);
+            if (!fullTx || !Array.isArray(fullTx.gas_added_transactions)) {
+                return undefined;
+            }
+            return fullTx.gas_added_transactions.find(
+                (tx: any) => tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
+            );
+        },
+        (found) => !found,
+        pollingOptions,
+    );
+
+    if (!result) {
+        throw new Error(`No gas_added_transaction found with gasFeeAmount = ${expectedGasFee}`);
+    }
+}
