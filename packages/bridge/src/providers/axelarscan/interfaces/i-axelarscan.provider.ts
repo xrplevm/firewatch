@@ -3,14 +3,14 @@ import { LifecycleInfo } from "../axelarscan.provider.types";
 export interface IAxelarScanProvider {
     /**
      * Fetches high-level lifecycle information for a GMP transaction.
-     * @param txHash The transaction hash.
+     * @param txHash The transaction hash to query.
      * @returns LifecycleInfo containing status and error fields.
      */
     fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
      * Fetches the callback data for a given transaction hash.
-     * @param txHash - The transaction hash to query.
+     * @param txHash The transaction hash to query.
      * @returns A promise that resolves to the callback data associated with the transaction.
      */
     fetchCallback(txHash: string): Promise<any>;
