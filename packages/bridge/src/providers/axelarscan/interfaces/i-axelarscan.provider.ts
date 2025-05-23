@@ -9,6 +9,13 @@ export interface IAxelarScanProvider {
     fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
+     * Fetches the callback data for a given transaction hash.
+     * @param txHash - The transaction hash to query.
+     * @returns A promise that resolves to the callback data associated with the transaction.
+     */
+    fetchCallback(txHash: string): Promise<any>;
+
+    /**
      * Gets the Axelar GMP API endpoint URL.
      * @returns The endpoint URL as a string.
      */

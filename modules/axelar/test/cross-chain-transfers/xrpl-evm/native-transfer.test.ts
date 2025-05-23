@@ -58,8 +58,6 @@ describeOrSkip(
 
         let xrplTransferAmount: string;
         let xrplEvmTransferAmount: string;
-        let xrplEvmAsDropsAmount: string;
-        let xrplAsWeiAmount: string;
         let gasFeeAmount: string;
 
         let xrplReserveAmount: string;
@@ -88,8 +86,6 @@ describeOrSkip(
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
             xrplEvmTransferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount).toString();
-            xrplEvmAsDropsAmount = xrpToDrops(xrplEvmChain.interchainTransferOptions.amount);
-            xrplAsWeiAmount = ethers.parseEther(xrplChain.interchainTransferOptions.amount).toString();
 
             xrplReserveAmount = xrplChain.interchainTransferOptions.reserveAmount;
             gasFeeAmount = xrpToDrops(xrplChain.interchainTransferOptions.gasFeeAmount);

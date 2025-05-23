@@ -7,7 +7,6 @@ import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Token } from "@firewatch/core/token";
-import { PollingOptions } from "@shared/utils";
 import BigNumber from "bignumber.js";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { describeOrSkip } from "@testing/mocha/utils";
@@ -15,10 +14,9 @@ import { AxelarBridgeChain } from "../../../src/models/chain";
 import { ChainType } from "@shared/modules/chain";
 import { EvmTranslator } from "@firewatch/bridge/translators/evm";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
-import { expectExecuted, expectAxelarError, expectXrplFailedDestination, expectFullExecution } from "@firewatch/bridge/utils";
+import { expectAxelarError, expectXrplFailedDestination, expectFullExecution } from "@firewatch/bridge/utils";
 import { InterchainToken } from "@shared/evm/contracts";
 import { expectRevert } from "@testing/hardhat/utils";
-import { expectBalanceUpdate } from "@shared/evm/utils";
 import { Env } from "../../../../../packages/env/src/types/env";
 import { HardhatErrors } from "@testing/hardhat/errors";
 
@@ -34,7 +32,6 @@ describeOrSkip(
     },
     () => {
         const { xrplChain, xrplEvmChain } = config;
-        const { interchainTransferOptions } = config.xrplEvmChain;
         const pollingOpts = config.axelar.pollingOptions;
 
         let whiteListedErc20: Token;
@@ -60,7 +57,6 @@ describeOrSkip(
 
         let xrplTransferAmount: string;
         let xrplEvmTransferAmount: string;
-        let xrplAsWeiAmount: string;
 
         let gasLimit: number;
 
@@ -91,7 +87,6 @@ describeOrSkip(
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
             xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, whiteListedErc20.decimals).toString();
-            xrplAsWeiAmount = ethers.parseUnits(xrplChain.interchainTransferOptions.amount, whiteListedIou.decimals).toString();
 
             gasLimit = xrplEvmChain.interchainTransferOptions.gasLimit;
         });
