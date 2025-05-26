@@ -1,6 +1,8 @@
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { AccountTxTransaction, TransactionMetadata } from "xrpl";
 import { polling, PollingOptions } from "@shared/utils";
+import { ProviderError } from "../providers/core/error";
+import { XrplProviderErrors } from "../providers/xrp/xrpl/xrpl.provider.errors";
 
 /**
  * Polls until observing a transaction from `sender` to `destination` with the specified error code in XRPL.
@@ -39,8 +41,6 @@ export async function expectXrplFailedDestination(
     )) as AccountTxTransaction;
 
     if (!failedTx) {
-        throw new Error(
-            `No matching failed transaction with error '${error}' found from ${sender} to ${destination} within polling timeframe`,
-        );
+        throw new ProviderError(XrplProviderErrors.NO_MATCHING_FAILED_TX, { error, sender, destination });
     }
 }

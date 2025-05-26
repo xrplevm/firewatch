@@ -113,5 +113,4 @@ export function findLogIndex(receipt: TransactionReceipt, abi: Array<string | Re
             }
         } catch {}
     }
-    return undefined;
 }

@@ -24,8 +24,7 @@ export class AxelarScanProvider implements IAxelarScanProvider {
      * @inheritdoc
      */
     async fetchFullTransaction(txHash: string): Promise<any> {
-        const response = await this.recoveryApi.fetchGMPTransaction(txHash);
-        return response;
+        return await this.recoveryApi.fetchGMPTransaction(txHash);
     }
 
     /**
