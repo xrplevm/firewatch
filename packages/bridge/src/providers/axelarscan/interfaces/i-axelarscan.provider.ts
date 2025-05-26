@@ -1,5 +1,5 @@
 import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo, NativeGasAddedEventList } from "../axelarscan.provider.types";
+import { LifecycleInfo } from "../axelarscan.provider.types";
 
 export interface IAxelarScanProvider {
     /**
@@ -10,11 +10,11 @@ export interface IAxelarScanProvider {
     fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
-     * Fetch gas added transactions related to a given transaction hash.
+     * Fetch full gmp transaction for a given transaction hash.
      * @param txHash The transaction hash to query.
      * @returns A promise that resolves to the full transaction data.
      */
-    fetchGasAddedTransactions(txHash: string): Promise<NativeGasAddedEventList>;
+    fetchFullTransaction(txHash: string): Promise<any>;
 
     /**
      * Fetches the callback data for a given transaction hash.

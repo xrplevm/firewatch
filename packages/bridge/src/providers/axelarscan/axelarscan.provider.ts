@@ -1,5 +1,5 @@
 import { AxelarQueryAPI, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo, NativeGasAddedEventList } from "./axelarscan.provider.types";
+import { LifecycleInfo } from "./axelarscan.provider.types";
 import { AxelarGMPRecoveryAPI } from "@axelar-network/axelarjs-sdk";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
@@ -23,9 +23,8 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async fetchGasAddedTransactions(txHash: string): Promise<NativeGasAddedEventList> {
-        const response = await this.recoveryApi.fetchGMPTransaction(txHash);
-        return response?.gasAddedTransactions ?? [];
+    async fetchFullTransaction(txHash: string): Promise<any> {
+        return await this.recoveryApi.fetchGMPTransaction(txHash);
     }
 
     /**
