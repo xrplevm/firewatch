@@ -1,15 +1,15 @@
 import { polling, PollingOptions } from "@shared/utils";
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ethers, AbiCoder, Contract } from "ethers";
-import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/contracts";
+import { AxelarExecutable, AxelarAmplifierGateway } from "@shared/evm/contracts";
 import { findLogIndex, getContractDecodedEvents } from "@shared/evm/utils";
 import { axelarGasServiceAbi } from "@shared/evm/contracts";
 
 /**
- * Sends a payload via AxelarExecutableExample and then polls the destination contract’s state until it equals the sent payload.
+ * Sends a payload via AxelarExecutable and then polls the destination contract’s state until it equals the sent payload.
  * This works for any payload—including an empty one.
  * @param sourceSigner The EthersSigner to use for sending the call.
- * @param destinationAxelarExecutableExample The AxelarExecutableExample instance whose state will be polled.
+ * @param destinationAxelarExecutable The AxelarExecutable instance whose state will be polled.
  * @param axelarGasServiceAddress The address of the Axelar Gas Service contract.
  * @param sourceGatewayAddress The gateway address to which the call is sent.
  * @param destinationChain The chain name (as used in the call) for the destination.
@@ -21,7 +21,7 @@ import { axelarGasServiceAbi } from "@shared/evm/contracts";
  */
 export async function callContractAndExpectMessageUpdate(
     sourceSigner: EthersSigner,
-    destinationAxelarExecutableExample: AxelarExecutableExample,
+    destinationAxelarExecutable: AxelarExecutable,
     axelarGasServiceAddress: string,
     sourceGatewayAddress: string,
     destinationChain: string,
@@ -43,7 +43,7 @@ export async function callContractAndExpectMessageUpdate(
     let decodedMsg: string;
     await polling(
         async () => {
-            const finalEncoded = await destinationAxelarExecutableExample.lastPayload();
+            const finalEncoded = await destinationAxelarExecutable.lastPayload();
             if (!finalEncoded || finalEncoded === "0x" || finalEncoded.length === 0) {
                 return false;
             }
@@ -59,14 +59,14 @@ export async function callContractAndExpectMessageUpdate(
 
 /**
  * Helper for event emission tests.
- * Sends a payload via AxelarExecutableExample then polls for:
+ * Sends a payload via AxelarExecutable then polls for:
  *   - A "ContractCall" event on the provided gateway contract.
  *   - An "Executed" event on the destination call contract.
  * @param sourceSigner The signer to use for sending the call.
  * @param sourceGatewayAddr The gateway address to which the call is sent.
  * @param axelarGasServiceAddress The address of the Axelar Gas Service contract.
  * @param destinationChain The destination chain name (as used in the call).
- * @param destinationAxelarExecutableExample The destination AxelarExecutableExample instance (whose .address is used in filtering).
+ * @param destinationAxelarExecutable The destination AxelarExecutable instance (whose .address is used in filtering).
  * @param destinationContractAddress The destination contract address.
  * @param sourceGwContract The AxelarAmplifierGateway instance to query for "ContractCall" events.
  * @param payload The payload to send (can be empty).
@@ -80,7 +80,7 @@ export async function callContractAndExpectEventEmission(
     sourceGatewayAddr: string,
     axelarGasServiceAddress: string,
     destinationChain: string,
-    destinationAxelarExecutableExample: AxelarExecutableExample,
+    destinationAxelarExecutable: AxelarExecutable,
     destinationContractAddress: string,
     sourceGwContract: AxelarAmplifierGateway,
     payload: string,
@@ -117,7 +117,7 @@ export async function callContractAndExpectEventEmission(
 
     await polling(
         async () => {
-            const decodedEvents = await getContractDecodedEvents(destinationAxelarExecutableExample as unknown as Contract, "Executed", -1);
+            const decodedEvents = await getContractDecodedEvents(destinationAxelarExecutable as unknown as Contract, "Executed", -1);
 
             const match = decodedEvents.find((decoded) => decoded.args._payload === payload && decoded.args._from === expectedFrom);
 

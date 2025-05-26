@@ -5,7 +5,7 @@ import config from "../../../module.config.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
-import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/contracts";
+import { AxelarExecutable, AxelarAmplifierGateway } from "@shared/evm/contracts";
 import { callContractAndExpectMessageUpdate, callContractAndExpectEventEmission } from "./call-contract.helpers";
 import { describeOrSkip } from "@testing/mocha/utils";
 
@@ -35,8 +35,8 @@ describeOrSkip(
         let sourceWallet: ethers.Wallet;
         let destinationWallet: ethers.Wallet;
 
-        let sourceAxelarExecutableExample: AxelarExecutableExample;
-        let destinationAxelarExecutableExample: AxelarExecutableExample;
+        let sourceAxelarExecutable: AxelarExecutable;
+        let destinationAxelarExecutable: AxelarExecutable;
         let sourceGatewayContract: AxelarAmplifierGateway;
         let destinationGatewayContract: AxelarAmplifierGateway;
 
@@ -44,8 +44,8 @@ describeOrSkip(
         let destGateway: string;
         let srcChain: string;
         let destChain: string;
-        let srcAxelarExecutableExampleAddress: string;
-        let destAxelarExecutableExampleAddress: string;
+        let srcAxelarExecutableAddress: string;
+        let destAxelarExecutableAddress: string;
         let srcAxelarGasServiceAddress: string;
         let dstAxelarGasServiceAddress: string;
 
@@ -87,8 +87,8 @@ describeOrSkip(
             sourceGatewayContract = new AxelarAmplifierGateway(xrplEvmGatewayAddress, sourceWallet);
             destinationGatewayContract = new AxelarAmplifierGateway(evmGatewayAddress, destinationWallet);
 
-            sourceAxelarExecutableExample = new AxelarExecutableExample(xrplEvmExecutableAddress, sourceWallet);
-            destinationAxelarExecutableExample = new AxelarExecutableExample(evmExecutableAddress, destinationWallet);
+            sourceAxelarExecutable = new AxelarExecutable(xrplEvmExecutableAddress, sourceWallet);
+            destinationAxelarExecutable = new AxelarExecutable(evmExecutableAddress, destinationWallet);
 
             srcGateway = xrplEvmGatewayAddress;
             destGateway = evmGatewayAddress;
@@ -96,8 +96,8 @@ describeOrSkip(
             srcChain = xrplEvmName;
             destChain = evmName;
 
-            srcAxelarExecutableExampleAddress = xrplEvmExecutableAddress;
-            destAxelarExecutableExampleAddress = evmExecutableAddress;
+            srcAxelarExecutableAddress = xrplEvmExecutableAddress;
+            destAxelarExecutableAddress = evmExecutableAddress;
 
             srcAxelarGasServiceAddress = xrplEvmGasServiceAddress;
             dstAxelarGasServiceAddress = evmGasServiceAddress;
@@ -111,11 +111,11 @@ describeOrSkip(
                 const payloadTxt = `Hello from the source chain! ${Date.now()}`;
                 await callContractAndExpectMessageUpdate(
                     sourceEvmSigner,
-                    destinationAxelarExecutableExample,
+                    destinationAxelarExecutable,
                     srcAxelarGasServiceAddress,
                     srcGateway,
                     destChain,
-                    destAxelarExecutableExampleAddress,
+                    destAxelarExecutableAddress,
                     payloadTxt,
                     pollingOpts,
                     amount,
@@ -126,11 +126,11 @@ describeOrSkip(
                 const payloadTxt = "";
                 await callContractAndExpectMessageUpdate(
                     sourceEvmSigner,
-                    destinationAxelarExecutableExample,
+                    destinationAxelarExecutable,
                     srcAxelarGasServiceAddress,
                     srcGateway,
                     destChain,
-                    destAxelarExecutableExampleAddress,
+                    destAxelarExecutableAddress,
                     payloadTxt,
                     pollingOpts,
                     amount,
@@ -144,8 +144,8 @@ describeOrSkip(
                     srcGateway,
                     srcAxelarGasServiceAddress,
                     destChain,
-                    destinationAxelarExecutableExample,
-                    destAxelarExecutableExampleAddress,
+                    destinationAxelarExecutable,
+                    destAxelarExecutableAddress,
                     sourceGatewayContract,
                     payloadTxt,
                     sourceWallet.address,
@@ -160,11 +160,11 @@ describeOrSkip(
                 const payloadTxt = `Hello from the destination chain! ${Date.now()}`;
                 await callContractAndExpectMessageUpdate(
                     destinationEvmSigner,
-                    sourceAxelarExecutableExample,
+                    sourceAxelarExecutable,
                     dstAxelarGasServiceAddress,
                     destGateway,
                     srcChain,
-                    srcAxelarExecutableExampleAddress,
+                    srcAxelarExecutableAddress,
                     payloadTxt,
                     pollingOpts,
                     amount,
@@ -175,11 +175,11 @@ describeOrSkip(
                 const payloadTxt = "";
                 await callContractAndExpectMessageUpdate(
                     destinationEvmSigner,
-                    sourceAxelarExecutableExample,
+                    sourceAxelarExecutable,
                     dstAxelarGasServiceAddress,
                     destGateway,
                     srcChain,
-                    srcAxelarExecutableExampleAddress,
+                    srcAxelarExecutableAddress,
                     payloadTxt,
                     pollingOpts,
                     amount,
@@ -193,8 +193,8 @@ describeOrSkip(
                     destGateway,
                     dstAxelarGasServiceAddress,
                     srcChain,
-                    sourceAxelarExecutableExample,
-                    srcAxelarExecutableExampleAddress,
+                    sourceAxelarExecutable,
+                    srcAxelarExecutableAddress,
                     destinationGatewayContract,
                     payloadTxt,
                     destinationWallet.address,

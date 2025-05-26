@@ -4,7 +4,7 @@ import { polling, PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { Token } from "@firewatch/core/token";
-import { AxelarExecutableExample, InterchainTokenExecutable } from "@shared/evm/contracts";
+import { AxelarExecutable, InterchainTokenExecutable } from "@shared/evm/contracts";
 import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Client, Wallet, xrpToDrops } from "xrpl";
@@ -37,7 +37,7 @@ describeOrSkip(
 
         let xrplChainTranslator: XrpTranslator;
 
-        let destinationAxelarExecutableExample: AxelarExecutableExample;
+        let destinationAxelarExecutable: AxelarExecutable;
         let destinationInterchainTokenExecutable: InterchainTokenExecutable;
 
         let destAxExecAddress: string;
@@ -65,7 +65,7 @@ describeOrSkip(
 
             xrplChainTranslator = new XrpTranslator();
 
-            destinationAxelarExecutableExample = new AxelarExecutableExample(destAxExecAddress, evmChainWallet);
+            destinationAxelarExecutable = new AxelarExecutable(destAxExecAddress, evmChainWallet);
             destinationInterchainTokenExecutable = new InterchainTokenExecutable(destIntTokenExecAddress, evmChainWallet);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
@@ -94,7 +94,7 @@ describeOrSkip(
 
                     await polling(
                         async () => {
-                            const lastPayload = await destinationAxelarExecutableExample.lastPayload();
+                            const lastPayload = await destinationAxelarExecutable.lastPayload();
                             if (!lastPayload || lastPayload === "0x" || lastPayload.length === 0) {
                                 return false;
                             }
