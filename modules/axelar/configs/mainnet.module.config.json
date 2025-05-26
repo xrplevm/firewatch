@@ -23,7 +23,7 @@
             "name": "XRP",
             "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         },
-        "whiteListedErc20": {
+        "whiteListederc20": {
             "id": "0xA",
             "symbol": "A",
             "decimals": 1,
@@ -63,7 +63,7 @@
             "decimals": 6,
             "name": "XRP"
         },
-        "whiteListedIou": {
+        "whiteListediou": {
             "id": "0x",
             "symbol": "A",
             "decimals": 1,

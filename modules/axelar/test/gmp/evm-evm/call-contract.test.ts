@@ -6,16 +6,18 @@ import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { AxelarExecutableExample, AxelarAmplifierGateway } from "@shared/evm/contracts";
-import { expectMessageUpdate, expectEventEmission } from "./call-contract.helpers";
+import { callContractAndExpectMessageUpdate, callContractAndExpectEventEmission } from "./call-contract.helpers";
 import { describeOrSkip } from "@testing/mocha/utils";
 
 // TODO: addNativeGas function doesn't work every time.
 describeOrSkip(
-    "Call Contract EVM - EVM",
+    "call contract evm - evm",
     () => {
         return (
             isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
-            isChainType(["evm"], config.evmChain as unknown as AxelarBridgeChain)
+            isChainType(["evm"], config.evmChain as unknown as AxelarBridgeChain) &&
+            isChainEnvironment(["devnet", "testnet", "mainnet"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
+            isChainEnvironment(["devnet", "testnet", "mainnet"], config.evmChain as unknown as AxelarBridgeChain)
         );
     },
     () => {
@@ -104,121 +106,102 @@ describeOrSkip(
         });
 
         // TODO: not working in devnet, log index not found (not emitting ContractCall event?)
-        describeOrSkip(
-            "from evm Source chain to evm Destination chain",
-            () => {
-                return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
+        describe("from evm source chain to evm destination chain", () => {
+            it("should update destination state when a non-empty message is sent", async () => {
+                const payloadTxt = `Hello from the source chain! ${Date.now()}`;
+                await callContractAndExpectMessageUpdate(
+                    sourceEvmSigner,
+                    destinationAxelarExecutableExample,
+                    srcAxelarGasServiceAddress,
+                    srcGateway,
+                    destChain,
+                    destAxelarExecutableExampleAddress,
+                    payloadTxt,
+                    pollingOpts,
+                    amount,
                 );
-            },
-            () => {
-                it("should update destination state when a non-empty message is sent", async () => {
-                    const payloadTxt = `Hello from the source chain! ${Date.now()}`;
-                    await expectMessageUpdate(
-                        sourceEvmSigner,
-                        destinationAxelarExecutableExample,
-                        srcAxelarGasServiceAddress,
-                        srcGateway,
-                        destChain,
-                        destAxelarExecutableExampleAddress,
-                        payloadTxt,
-                        pollingOpts,
-                        amount,
-                    );
-                });
+            });
 
-                it("should update destination state when an empty message is sent", async () => {
-                    const payloadTxt = "";
-                    await expectMessageUpdate(
-                        sourceEvmSigner,
-                        destinationAxelarExecutableExample,
-                        srcAxelarGasServiceAddress,
-                        srcGateway,
-                        destChain,
-                        destAxelarExecutableExampleAddress,
-                        payloadTxt,
-                        pollingOpts,
-                        amount,
-                    );
-                });
-
-                it("should emit ContractCall and Executed events when sending a message", async () => {
-                    const payloadTxt = `Hello from the source chain! ${Date.now()}`;
-                    await expectEventEmission(
-                        sourceEvmSigner,
-                        srcGateway,
-                        srcAxelarGasServiceAddress,
-                        destChain,
-                        destinationAxelarExecutableExample,
-                        destAxelarExecutableExampleAddress,
-                        sourceGatewayContract,
-                        payloadTxt,
-                        sourceWallet.address,
-                        pollingOpts,
-                        amount,
-                    );
-                });
-            },
-        );
-
-        // TODO: failing in devnet, error while reaching axelar
-        describeOrSkip(
-            "from evm Destination chain to evm Source chain",
-            () => {
-                return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], evmChain as unknown as AxelarBridgeChain)
+            it("should update destination state when an empty message is sent", async () => {
+                const payloadTxt = "";
+                await callContractAndExpectMessageUpdate(
+                    sourceEvmSigner,
+                    destinationAxelarExecutableExample,
+                    srcAxelarGasServiceAddress,
+                    srcGateway,
+                    destChain,
+                    destAxelarExecutableExampleAddress,
+                    payloadTxt,
+                    pollingOpts,
+                    amount,
                 );
-            },
-            () => {
-                it("should update source state when a non-empty message is sent", async () => {
-                    const payloadTxt = `Hello from the destination chain! ${Date.now()}`;
-                    await expectMessageUpdate(
-                        destinationEvmSigner,
-                        sourceAxelarExecutableExample,
-                        dstAxelarGasServiceAddress,
-                        destGateway,
-                        srcChain,
-                        srcAxelarExecutableExampleAddress,
-                        payloadTxt,
-                        pollingOpts,
-                        amount,
-                    );
-                });
+            });
 
-                it("should update source state when an empty message is sent", async () => {
-                    const payloadTxt = "";
-                    await expectMessageUpdate(
-                        destinationEvmSigner,
-                        sourceAxelarExecutableExample,
-                        dstAxelarGasServiceAddress,
-                        destGateway,
-                        srcChain,
-                        srcAxelarExecutableExampleAddress,
-                        payloadTxt,
-                        pollingOpts,
-                        amount,
-                    );
-                });
+            it("should emit contractcall and executed events when sending a message", async () => {
+                const payloadTxt = `Hello from the source chain! ${Date.now()}`;
+                await callContractAndExpectEventEmission(
+                    sourceEvmSigner,
+                    srcGateway,
+                    srcAxelarGasServiceAddress,
+                    destChain,
+                    destinationAxelarExecutableExample,
+                    destAxelarExecutableExampleAddress,
+                    sourceGatewayContract,
+                    payloadTxt,
+                    sourceWallet.address,
+                    pollingOpts,
+                    amount,
+                );
+            });
+        });
 
-                it("should emit ContractCall and Executed events when sending a message", async () => {
-                    const payloadTxt = `Hello from the destination chain! ${Date.now()}`;
-                    await expectEventEmission(
-                        destinationEvmSigner,
-                        destGateway,
-                        dstAxelarGasServiceAddress,
-                        srcChain,
-                        sourceAxelarExecutableExample,
-                        srcAxelarExecutableExampleAddress,
-                        destinationGatewayContract,
-                        payloadTxt,
-                        destinationWallet.address,
-                        pollingOpts,
-                        amount,
-                    );
-                });
-            },
-        );
+        describe("from evm destination chain to evm source chain", () => {
+            it("should update source state when a non-empty message is sent", async () => {
+                const payloadTxt = `Hello from the destination chain! ${Date.now()}`;
+                await callContractAndExpectMessageUpdate(
+                    destinationEvmSigner,
+                    sourceAxelarExecutableExample,
+                    dstAxelarGasServiceAddress,
+                    destGateway,
+                    srcChain,
+                    srcAxelarExecutableExampleAddress,
+                    payloadTxt,
+                    pollingOpts,
+                    amount,
+                );
+            });
+
+            it("should update source state when an empty message is sent", async () => {
+                const payloadTxt = "";
+                await callContractAndExpectMessageUpdate(
+                    destinationEvmSigner,
+                    sourceAxelarExecutableExample,
+                    dstAxelarGasServiceAddress,
+                    destGateway,
+                    srcChain,
+                    srcAxelarExecutableExampleAddress,
+                    payloadTxt,
+                    pollingOpts,
+                    amount,
+                );
+            });
+
+            it("should emit contractcall and executed events when sending a message", async () => {
+                const payloadTxt = `Hello from the destination chain! ${Date.now()}`;
+                await callContractAndExpectEventEmission(
+                    destinationEvmSigner,
+                    destGateway,
+                    dstAxelarGasServiceAddress,
+                    srcChain,
+                    sourceAxelarExecutableExample,
+                    srcAxelarExecutableExampleAddress,
+                    destinationGatewayContract,
+                    payloadTxt,
+                    destinationWallet.address,
+                    pollingOpts,
+                    amount,
+                );
+            });
+        });
     },
 );

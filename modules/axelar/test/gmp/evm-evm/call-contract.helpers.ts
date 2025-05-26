@@ -19,7 +19,7 @@ import { axelarGasServiceAbi } from "@shared/evm/contracts";
  * @param amount The amount of native gas to add for the cross-chain call.
  * @returns Promise<void>.
  */
-export async function expectMessageUpdate(
+export async function callContractAndExpectMessageUpdate(
     sourceSigner: EthersSigner,
     destinationAxelarExecutableExample: AxelarExecutableExample,
     axelarGasServiceAddress: string,
@@ -75,7 +75,7 @@ export async function expectMessageUpdate(
  * @param amount The amount of native gas to add for the cross-chain call.
  * @returns Promise<void>.
  */
-export async function expectEventEmission(
+export async function callContractAndExpectEventEmission(
     sourceSigner: EthersSigner,
     sourceGatewayAddr: string,
     axelarGasServiceAddress: string,

@@ -10,14 +10,16 @@ import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrpTranslator } from "@firewatch/bridge/translators/xrp";
 import { ChainType } from "@shared/modules/chain";
-import { describeOrSkip } from "@testing/mocha/utils";
+import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 
 describeOrSkip(
-    "GMP XRP -> EVM",
+    "call contract xrpl -> evm",
     () => {
         return (
             isChainType(["xrp"], config.xrplChain as unknown as AxelarBridgeChain) &&
-            isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain)
+            isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
+            isChainEnvironment(["devnet", "testnet", "mainnet"], config.xrplChain as unknown as AxelarBridgeChain) &&
+            isChainEnvironment(["devnet", "testnet", "mainnet"], config.xrplEvmChain as unknown as AxelarBridgeChain)
         );
     },
     () => {
@@ -69,17 +71,14 @@ describeOrSkip(
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
         });
 
-        describeOrSkip(
-            "Memo call_contract, trigger AxelarExecutable.execute function",
-            () => {
-                return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain)
-                );
-            },
-            () => {
-                // TODO: failing in devnet, stuck in approving step (xrpl -> axelar)/error after approved, i guess either xrpl or axelar devnet doesn't support this memo
-                it("should update destination state", async () => {
+        describe("xrpl transfers with call_contract memo trigger the axelarexecutable.execute smart contract function", () => {
+            // TODO: failing in devnet, stuck in approving step (xrpl -> axelar)/error after approved, i guess either xrpl or axelar devnet doesn't support this memo
+            itOrSkip(
+                "should update destination state",
+                () => {
+                    return isChainEnvironment(["testnet", "mainnet"], config.xrplChain as unknown as AxelarBridgeChain);
+                },
+                async () => {
                     const msgText = `Hello from the source chain! ${Date.now()}`;
                     const abiCoder = new AbiCoder();
 
@@ -108,53 +107,44 @@ describeOrSkip(
                         (done) => !done,
                         pollingOpts,
                     );
-                });
-            },
-        );
+                },
+            );
+        });
 
-        describeOrSkip(
-            "Memo interchain_transfer, trigger InterchainTokenExecutable.execute function",
-            () => {
-                return (
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplChain as unknown as AxelarBridgeChain) &&
-                    isChainEnvironment(["devnet", "testnet", "mainnet"], xrplEvmChain as unknown as AxelarBridgeChain)
+        describe("xrpl transfers with interchain_transfer memo trigger the interchaintokenexecutable.execute smart contract function", () => {
+            it("should update destination state", async () => {
+                const msgText = `Hello from the source chain! ${Date.now()}`;
+                const abiCoder = new AbiCoder();
+                const payload = abiCoder.encode(["string"], [msgText]);
+
+                await xrplChainSigner.transfer(
+                    xrplTransferAmount,
+                    new Token({} as any),
+                    xrplChain.interchainTokenServiceAddress,
+                    xrplEvmChain.name,
+                    xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.interchainTokenExecutableExampleAddress),
+                    { payload: xrplChainTranslator.translate(ChainType.EVM, payload) },
                 );
-            },
-            () => {
-                it("should update destination state", async () => {
-                    const msgText = `Hello from the source chain! ${Date.now()}`;
-                    const abiCoder = new AbiCoder();
-                    const payload = abiCoder.encode(["string"], [msgText]);
 
-                    await xrplChainSigner.transfer(
-                        xrplTransferAmount,
-                        new Token({} as any),
-                        xrplChain.interchainTokenServiceAddress,
-                        xrplEvmChain.name,
-                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.interchainTokenExecutableExampleAddress),
-                        { payload: xrplChainTranslator.translate(ChainType.EVM, payload) },
-                    );
+                let decodedMsg: string;
 
-                    let decodedMsg: string;
+                await polling(
+                    async () => {
+                        const finalPayload = await destinationInterchainTokenExecutable.data();
+                        let asciiHex = ethers.toUtf8String(finalPayload);
+                        if (asciiHex.startsWith("0x")) {
+                            asciiHex = asciiHex.slice(2);
+                        }
+                        const abiHex = "0x" + asciiHex;
 
-                    await polling(
-                        async () => {
-                            const finalPayload = await destinationInterchainTokenExecutable.data();
-                            let asciiHex = ethers.toUtf8String(finalPayload);
-                            if (asciiHex.startsWith("0x")) {
-                                asciiHex = asciiHex.slice(2);
-                            }
-                            const abiHex = "0x" + asciiHex;
+                        [decodedMsg] = abiCoder.decode(["string"], abiHex);
 
-                            [decodedMsg] = abiCoder.decode(["string"], abiHex);
-
-                            return decodedMsg === msgText;
-                        },
-                        (done) => !done,
-                        pollingOpts,
-                    );
-                });
-            },
-        );
+                        return decodedMsg === msgText;
+                    },
+                    (done) => !done,
+                    pollingOpts,
+                );
+            });
+        });
     },
 );
