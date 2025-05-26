@@ -72,7 +72,6 @@
         "zustand": "^5.0.0-rc.0"
     },
     "devDependencies": {
-        "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",

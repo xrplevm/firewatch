@@ -163,11 +163,8 @@ export async function expectGasAdded(
 
     const result = await polling(
         async () => {
-            const fullTx = await axelarScanProvider.fetchFullTransaction(txHash);
-            if (!fullTx || !Array.isArray(fullTx.gas_added_transactions)) {
-                return undefined;
-            }
-            return fullTx.gas_added_transactions.find(
+            const fullTx = await axelarScanProvider.fetchGasAddedTransactions(txHash);
+            return fullTx.find(
                 (tx: any) => tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
             );
         },
