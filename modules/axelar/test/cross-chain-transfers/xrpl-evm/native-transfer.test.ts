@@ -128,15 +128,6 @@ describeOrSkip(
                     { gasValue: gasValue },
                 );
 
-                await polling(
-                    async () => {
-                        const fullTx = await axelarScanProvider.fetchFullTransaction(tx.hash);
-                        console.log(JSON.stringify(fullTx, null, 2));
-                        return false;
-                    },
-                    (found) => !found,
-                );
-
                 await expectXrplFailedDestination(
                     xrplChainProvider,
                     xrplChain.axelarGatewayAddress,
