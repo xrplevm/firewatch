@@ -46,7 +46,7 @@
             "rpc": "https://rpc.testnet.xrplevm.org"
         },
         "account": {
-            "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+            "privateKey": "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
         },
         "pollingOptions": {
             "maxRetries": 50,
@@ -117,7 +117,7 @@
             "ws": "https://api.avax-test.network/ext/bc/C/rpc"
         },
         "account": {
-            "privateKey": "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+            "privateKey": "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
         },
         "pollingOptions": {
             "maxRetries": 50,
