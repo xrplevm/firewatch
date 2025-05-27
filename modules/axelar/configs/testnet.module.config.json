@@ -40,7 +40,8 @@
         "interchainTransferOptions": {
             "amount": "0.00001",
             "gasLimit": 1000000,
-            "gasValue": "0.3"
+            "gasValue": "0.3",
+            "deployAmount": "10"
         },
         "urls": {
             "rpc": "https://rpc.testnet.xrplevm.org"
@@ -82,7 +83,7 @@
             "ws": "wss://s.altnet.rippletest.net:51233"
         },
         "account": {
-            "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+            "privateKey": "sEdTgP3LAie9J5nvQYmpqhjSFnE22oB"
         },
         "pollingOptions": {
             "maxRetries": 50,

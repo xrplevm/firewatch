@@ -1,5 +1,5 @@
-import { AxelarQueryAPI, GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo } from "./axelarscan.provider.types";
+import { AxelarQueryAPI } from "@axelar-network/axelarjs-sdk";
+import { GasAddedTransactions, LifecycleInfo } from "./axelarscan.provider.types";
 import { AxelarGMPRecoveryAPI } from "@axelar-network/axelarjs-sdk";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
@@ -23,16 +23,17 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async fetchFullTransaction(txHash: string): Promise<any> {
-        return await this.recoveryApi.fetchGMPTransaction(txHash);
+    async fetchGasAddedTransactions(txHash: string): Promise<GasAddedTransactions> {
+        const response = await this.recoveryApi.fetchGMPTransaction(txHash);
+        return response.gas_added_transactions;
     }
 
     /**
      * @inheritdoc
      */
-    async fetchCallback(txHash: string): Promise<GMPStatusResponse["callback"]> {
+    async fetchCallbackTransactionHash(txHash: string): Promise<string> {
         const response = await this.recoveryApi.queryTransactionStatus(txHash);
-        return response.callback;
+        return response.callback.transactionHash;
     }
 
     /**

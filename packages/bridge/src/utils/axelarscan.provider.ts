@@ -62,8 +62,9 @@ export async function expectExecuted(
         throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lastError || lifecycle.error });
     }
 }
+
 /**
- * Polls for the transaction hash using fetchCallback.
+ * Polls for the axelar transaction hash using fetchCallbackTransactionHash.
  * @param txHash The transaction hash to monitor.
  * @param axelarScanProvider The provider to fetch the callback.
  * @param pollingOptions Options for polling.
@@ -76,16 +77,11 @@ export async function getAxelarDestinationTransactionHash(
 ): Promise<string | undefined> {
     const transactionHash = await polling(
         async () => {
-            const callbackInfo = await axelarScanProvider.fetchCallback(txHash);
-
-            if (callbackInfo && callbackInfo.transactionHash) {
-                return callbackInfo.transactionHash;
+            try {
+                return await axelarScanProvider.fetchCallbackTransactionHash(txHash);
+            } catch (error) {
+                return undefined;
             }
-
-            if (callbackInfo && callbackInfo.tx && callbackInfo.tx.transactionHash) {
-                return callbackInfo.tx.transactionHash;
-            }
-            return undefined;
         },
         (result) => !result,
         pollingOptions,
@@ -164,11 +160,13 @@ export async function expectGasAdded(
 
     const result = await polling(
         async () => {
-            const fullTx = await axelarScanProvider.fetchFullTransaction(txHash);
-            if (!fullTx || !Array.isArray(fullTx.gas_added_transactions)) {
+            const gasAddedTransactions = await axelarScanProvider.fetchGasAddedTransactions(txHash);
+
+            if (!gasAddedTransactions || !Array.isArray(gasAddedTransactions)) {
                 return undefined;
             }
-            return fullTx.gas_added_transactions.find(
+
+            return gasAddedTransactions.find(
                 (tx: any) => tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
             );
         },

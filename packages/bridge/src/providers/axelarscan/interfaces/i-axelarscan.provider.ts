@@ -1,5 +1,4 @@
-import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
-import { LifecycleInfo } from "../axelarscan.provider.types";
+import { GasAddedTransactions, LifecycleInfo } from "../axelarscan.provider.types";
 
 export interface IAxelarScanProvider {
     /**
@@ -10,18 +9,18 @@ export interface IAxelarScanProvider {
     fetchOutcome(txHash: string): Promise<LifecycleInfo>;
 
     /**
-     * Fetch full gmp transaction for a given transaction hash.
+     * Fetch gas added transactions for a given transaction hash.
      * @param txHash The transaction hash to query.
-     * @returns A promise that resolves to the full transaction data.
+     * @returns A promise that resolves to the gas added transactions data.
      */
-    fetchFullTransaction(txHash: string): Promise<any>;
+    fetchGasAddedTransactions(txHash: string): Promise<GasAddedTransactions>;
 
     /**
-     * Fetches the callback data for a given transaction hash.
+     * Fetches the axelar transaction hash for a given transaction hash.
      * @param txHash The transaction hash to query.
-     * @returns A promise that resolves to the callback data associated with the transaction.
+     * @returns A promise that resolves to the axelar transaction hash associated with the transaction.
      */
-    fetchCallback(txHash: string): Promise<GMPStatusResponse["callback"]>;
+    fetchCallbackTransactionHash(txHash: string): Promise<string>;
 
     /**
      * Gets the Axelar GMP API endpoint URL.

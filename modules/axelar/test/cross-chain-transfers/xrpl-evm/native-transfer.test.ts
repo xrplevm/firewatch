@@ -118,7 +118,7 @@ describeOrSkip(
                     200_000,
                 );
 
-                const tx = await xrplEvmChainSigner.transfer(
+                await xrplEvmChainSigner.transfer(
                     amount,
                     xrplEvmChain.nativeToken as Token,
                     xrplEvmChain.interchainTokenServiceAddress,
@@ -344,7 +344,6 @@ describeOrSkip(
             it("should transfer dust", async () => {
                 const dustAmount = (BigInt(gasFeeAmount) + 1n).toString();
 
-                console.log(xrplEvmChainWallet.address);
                 const tx = await xrplChainSigner.transfer(
                     dustAmount,
                     new Token({} as any),

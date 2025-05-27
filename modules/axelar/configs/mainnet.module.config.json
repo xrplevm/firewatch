@@ -39,7 +39,8 @@
         "interchainTransferOptions": {
             "amount": "0.00001",
             "gasLimit": 1000000,
-            "gasValue": "0.2"
+            "gasValue": "0.2",
+            "deployAmount": "10"
         },
         "urls": {
             "rpc": "https://rpc.mainnet.xrplevm.org"
