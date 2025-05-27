@@ -342,9 +342,10 @@ describeOrSkip(
                 await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });
 
-            // TODO: Axelar not recognizing the txs, not sure if it shouldn't, or is malfunctioning
-            it("should revert when transferring dust", async () => {
-                const dustAmount = "1";
+            it("should transfer dust", async () => {
+                const dustAmount = (BigInt(gasFeeAmount) + 1n).toString();
+
+                console.log(xrplEvmChainWallet.address);
                 const tx = await xrplChainSigner.transfer(
                     dustAmount,
                     new Token({} as any),
@@ -356,7 +357,7 @@ describeOrSkip(
                     },
                 );
 
-                await expectAxelarError(tx.hash, axelarScanProvider, AxelarScanProviderErrors.INVALID_TRANSFER_AMOUNT, pollingOpts);
+                await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });
 
             it("should extend 6 decimal places to 18 decimals properly when transferring from XRPL to EVM", async () => {
