@@ -36,7 +36,7 @@ export async function expectRevert(tx: TxPromise, expectedError: string): Promis
  */
 export async function executeTx(txPromise: Promise<TransactionResponse>): Promise<{ receipt: TransactionReceipt; gasCost: bigint }> {
     const tx = await txPromise;
-    const receipt = await tx.wait();
+    const receipt = await tx.wait(3);
 
     if (!receipt) {
         throw new Error(HardhatErrors.TRANSACTION_NOT_MINED);

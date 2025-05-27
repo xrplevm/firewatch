@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { TransactionReceipt, Log, Interface, Contract } from "ethers";
+import { TransactionReceipt, Log, Interface, Contract, formatEther } from "ethers";
 import { expect } from "chai";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { executeTx } from "@testing/hardhat/utils";
@@ -13,8 +13,6 @@ import BigNumber from "bignumber.js";
  * @param ownerSigner Owner signer.
  * @param userSigner User signer.
  * @param chainEvn Network environment.
- * @param feeMultiplier Multiplier for allowed cost difference.
- * @param residualThreshold Multiplier for allowed cost difference.
  */
 export async function resetOwnerState(
     ownerContract: Contract,
@@ -22,8 +20,6 @@ export async function resetOwnerState(
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
     chainEvn: string,
-    feeMultiplier: string,
-    residualThreshold: string,
 ): Promise<void> {
     const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
     if (ownerBalance <= 0n) return;
@@ -39,27 +35,26 @@ export async function resetOwnerState(
     const gas = await provider.getFeeData();
     const burnGasEstimate: string = (await userContract.approve.estimateGas(ownerSigner.address, ownerBalance)).toString();
 
-    // Localnet has a gasPrice == 0
-    const gasPriceBN =
-        chainEvn === "localnet" ? new BigNumber("1") : new BigNumber(gas.gasPrice!.toString()).multipliedBy(new BigNumber(feeMultiplier));
+    const gasPriceBN = chainEvn === "localnet" ? new BigNumber("1") : new BigNumber(gas.gasPrice!.toString());
 
     const gasUsedBN = new BigNumber(burnGasEstimate);
-    const finalCostBN = gasPriceBN.multipliedBy(gasUsedBN);
-    const finalCost = BigInt(finalCostBN.toFixed(0));
-    const transferAmount: bigint = ownerBalance - finalCost;
+    const gasCostCalculatedBN = gasPriceBN.multipliedBy(gasUsedBN);
+    const gasCostCalculated = BigInt(gasCostCalculatedBN.toFixed(0));
+    const transferAmount: bigint = ownerBalance - gasCostCalculated;
 
     if (transferAmount < 0n) return;
 
-    await executeTx(ownerContract.approve(userSigner.address, transferAmount));
+    const approveTx = await executeTx(ownerContract.approve(userSigner.address, transferAmount));
+    const realGasUsed = approveTx.gasCost;
+
     await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
 
     const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
     const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-    const allowedDifferenceBN = finalCostBN.multipliedBy(new BigNumber(residualThreshold));
-    const allowedDifference = BigInt(allowedDifferenceBN.toFixed(0));
+    const expectedRemainingBalance = gasCostCalculated - BigInt(realGasUsed);
 
-    expect(ownerBalanceAfter).to.be.at.most(allowedDifference);
-    expect(remainingAllowance).to.be.at.most(allowedDifference);
+    expect(ownerBalanceAfter).to.equal(expectedRemainingBalance);
+    expect(remainingAllowance).to.equal(0n);
 }
 
 /**
