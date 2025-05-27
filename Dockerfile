@@ -1,4 +1,4 @@
-FROM node:18.18.0 as base
+FROM node:18.18.0
 WORKDIR /project
 # Install pnpm
 RUN npm install -g pnpm@9.7.0

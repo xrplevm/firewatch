@@ -21,7 +21,6 @@ import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/
 import { Env } from "../../../../../packages/env/src/types/env";
 import { findLogIndex } from "@shared/evm/utils";
 import { axelarGasServiceAbi } from "@shared/evm/contracts";
-import { polling } from "@shared/utils";
 
 describeOrSkip(
     "cross-chain native transfer",

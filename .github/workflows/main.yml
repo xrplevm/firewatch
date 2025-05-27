@@ -1,8 +1,9 @@
-name: "Pull Request"
+name: "Push main"
 
 on:
-    pull_request:
-        types: [opened, synchronize]
+    push:
+        branches:
+            - main
 
 concurrency:
     # Cancel old runs if there is a new commit in the same branch
@@ -14,5 +15,5 @@ jobs:
         uses: ./.github/workflows/build-docker.yml
         secrets: inherit
         with:
-            tag: ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
+            tag: ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
             push: true
