@@ -284,7 +284,7 @@ describeOrSkip(
                 await expectGasAdded(tx.hash, axelarScanProvider, lowGasFee2, pollingOpts);
             });
 
-            it("should send IOU after top-up gas", async () => {
+            it("should send iou after top-up gas", async () => {
                 const gas_fee_amount = await axelarScanProvider.estimateGasFee(
                     xrplChain.name,
                     xrplEvmChain.name,
