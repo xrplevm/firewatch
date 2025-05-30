@@ -1,7 +1,11 @@
 import { HardhatModuleConfig } from "@testing/hardhat/config";
 import { Account } from "@firewatch/core/account";
-import { AxelarBridgeChain } from "../models/chain";
+import { AxelarBridgeChain, XrplChain, XrplEvmChain } from "../models/chain";
 import { PollingOptions } from "@shared/utils";
+
+export type EstimateGasFeeOptions = {
+    gasLimit: number;
+};
 
 export interface AxelarModuleConfig extends Omit<HardhatModuleConfig<AxelarBridgeChain, Account>, "network" | "accounts"> {
     axelar: {
@@ -9,8 +13,9 @@ export interface AxelarModuleConfig extends Omit<HardhatModuleConfig<AxelarBridg
         apiUrl: string;
         gmpUrl: string;
         axelarScanOptions: PollingOptions;
+        estimateGasFee: EstimateGasFeeOptions;
     };
-    xrplEvmChain: AxelarBridgeChain;
-    xrplChain: AxelarBridgeChain;
+    xrplEvmChain: XrplEvmChain;
+    xrplChain: XrplChain;
     evmChain: AxelarBridgeChain;
 }
