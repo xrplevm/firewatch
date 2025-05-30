@@ -10,9 +10,21 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    build-docker:
-        uses: ./.github/workflows/build-docker.yml
+    build-base:
+        uses: ./.github/workflows/build-base.yaml
         secrets: inherit
-        with:
-            tag: ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
-            push: true
+
+    build-axelar:
+        needs: [build-base]
+        uses: ./.github/workflows/build-axelar.yaml
+        secrets: inherit
+
+    build-cosmos:
+        needs: [build-base]
+        uses: ./.github/workflows/build-cosmos.yaml
+        secrets: inherit
+
+    build-evm:
+        needs: [build-base]
+        uses: ./.github/workflows/build-evm.yaml
+        secrets: inherit

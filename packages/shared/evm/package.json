@@ -21,17 +21,15 @@
         "./mocks/ethers": "./test/mocks/ethers/index.ts"
     },
     "devDependencies": {
-        "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
+        "@types/jest": "^29.5.12",
         "@shared/tsconfig": "workspace:*",
         "@shared/tsup": "workspace:*",
         "@shared/utils": "workspace:*",
-        "@types/jest": "^29.5.12",
         "@types/node": "latest",
         "typescript": "latest"
     },
     "dependencies": {
-        "bignumber.js": "^9.1.2",
         "ethers": "^6.13.5"
     }
 }

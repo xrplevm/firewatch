@@ -1,7 +1,6 @@
 {
     "extends": "@shared/tsconfig/package",
     "compilerOptions": {
-        "rootDir": "./src",
         "outDir": "./dist"
     },
     "include": ["*/**/*.ts", "*/**/*.tsx"],

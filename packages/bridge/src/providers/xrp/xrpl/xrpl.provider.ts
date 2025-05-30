@@ -1,4 +1,4 @@
-import { AccountTxResponse, AccountTxTransaction, Client, RippledError, SubmittableTransaction, xrpToDrops } from "xrpl";
+import { Client, RippledError, SubmittableTransaction, xrpToDrops } from "xrpl";
 import { IXrplProvider } from "./interfaces/i-xrpl.provider";
 import BigNumber from "bignumber.js";
 import { convertCurrencyCode } from "@shared/xrpl/currency-code";
@@ -42,25 +42,6 @@ export class XrplProvider implements IXrplProvider {
     async getTransaction<T extends SubmittableTransaction>(hash: string): Promise<TxResponseResult<T>> {
         const txResult = (await this.xrplClient.request({ command: "tx", transaction: hash })) as TxResponse<T>;
         return txResult.result;
-    }
-
-    /**
-     * Gets the list of transactions for an account.
-     * @param address The address of the account.
-     * @param limit The maximum number of transactions to retrieve. Defaults to 10.
-     * @returns An array of account transactions.
-     */
-    async getAccountTransactions(address: string, limit = 10): Promise<AccountTxTransaction[]> {
-        const resp = (await this.xrplClient.request({
-            command: "account_tx",
-            account: address,
-            ledger_index_min: -1,
-            ledger_index_max: -1,
-            binary: false,
-            limit,
-        })) as AccountTxResponse;
-
-        return resp.result.transactions;
     }
 
     /**

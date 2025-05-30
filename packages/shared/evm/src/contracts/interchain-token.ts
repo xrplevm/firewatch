@@ -4,9 +4,6 @@ import { Contract } from "./contract";
 
 export const interchainTokenAbi = [
     "function interchainTokenService() view returns (address)",
-    "function decimals() view returns (uint8)",
-    "function name() view returns (string)",
-    "function balanceOf(address account) view returns (uint256)",
     "function interchainTokenId() view returns (bytes32)",
     "function interchainTransfer(string destinationChain, bytes recipient, uint256 amount, bytes metadata) external payable",
 ];
@@ -14,11 +11,10 @@ export const interchainTokenAbi = [
 export interface IInterchainToken extends IERC20 {
     interchainTokenService(): Promise<string>;
     interchainTokenId(): Promise<string>;
-    balanceOf(account: string): Promise<ethers.BigNumberish>;
-    decimals(): Promise<number>;
+
     interchainTransfer(
         destinationChain: string,
-        recipient: string,
+        recipient: string, // Hex string representing the recipient bytes
         amount: ethers.BigNumberish,
         metadata: string,
         options?: {

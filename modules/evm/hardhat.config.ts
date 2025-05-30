@@ -5,7 +5,7 @@ import moduleConfig from "./module.config.json";
 const config: HardhatUserConfig = {
     ...moduleConfig.hardhat,
     mocha: {
-        timeout: 240000,
+        timeout: 40000,
         // reporter: JsonTestReporter,
     },
 };

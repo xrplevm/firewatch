@@ -1,6 +1,6 @@
 import { IEthersProvider } from "./interfaces/i-ethers.provider";
 import { ethers } from "ethers";
-import { AxelarAmplifierGateway, AxelarGasService, ERC20, InterchainTokenService } from "@shared/evm/contracts";
+import { AxelarAmplifierGateway, ERC20, InterchainTokenService } from "@shared/evm/contracts";
 import BigNumber from "bignumber.js";
 import { Token } from "@firewatch/core/token";
 
@@ -35,16 +35,6 @@ export class EthersProvider implements IEthersProvider {
         signerOrProvider: ethers.Signer | ethers.Provider = this.ethersProvider,
     ): AxelarAmplifierGateway {
         return new AxelarAmplifierGateway(address, signerOrProvider);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    getAxelarGasServiceContract(
-        address: string,
-        signerOrProvider: ethers.Signer | ethers.Provider = this.ethersProvider,
-    ): AxelarGasService {
-        return new AxelarGasService(address, signerOrProvider);
     }
 
     /**

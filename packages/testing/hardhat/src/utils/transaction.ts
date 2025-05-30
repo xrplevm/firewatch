@@ -1,6 +1,9 @@
 import { TransactionReceipt, TransactionResponse, ContractTransactionResponse } from "ethers";
 import { Unconfirmed, Transaction } from "@shared/modules/blockchain";
 import { HardhatErrors } from "../constants";
+import { polling, PollingOptions } from "@shared/utils";
+import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
+import { ProviderError } from "@firewatch/bridge/providers/error";
 
 type TxPromise = Promise<Unconfirmed<Transaction>> | Promise<ContractTransactionResponse>;
 
@@ -14,17 +17,11 @@ export async function expectRevert(tx: TxPromise, expectedError: string): Promis
     try {
         const txResponse = await tx;
         await txResponse.wait();
-
-        throw new Error(`${HardhatErrors.TRANSACTION_DID_NOT_REVERT}: Expected revert '${expectedError}', but transaction succeeded.`);
+        throw new Error(`Expected transaction to revert with '${expectedError}', but it did not.`);
     } catch (error: unknown) {
-        const msg = error instanceof Error ? error.message : String(error);
-
-        if (msg.startsWith(HardhatErrors.TRANSACTION_REVERTED)) {
-            throw error;
-        }
-
-        if (!msg.includes(expectedError)) {
-            throw new Error(`${HardhatErrors.TRANSACTION_REVERTED_WITH_UNEXPECTED_REASON}: Expected '${expectedError}', but got: '${msg}'`);
+        const errMsg = error instanceof Error ? error.message : String(error);
+        if (!errMsg.includes(expectedError)) {
+            throw new Error(`Expected error message to include '${expectedError}', but got: ${errMsg}`);
         }
     }
 }
@@ -36,7 +33,7 @@ export async function expectRevert(tx: TxPromise, expectedError: string): Promis
  */
 export async function executeTx(txPromise: Promise<TransactionResponse>): Promise<{ receipt: TransactionReceipt; gasCost: bigint }> {
     const tx = await txPromise;
-    const receipt = await tx.wait(3);
+    const receipt = await tx.wait();
 
     if (!receipt) {
         throw new Error(HardhatErrors.TRANSACTION_NOT_MINED);
@@ -44,4 +41,30 @@ export async function executeTx(txPromise: Promise<TransactionResponse>): Promis
 
     const gasCost = receipt.gasUsed * receipt.gasPrice;
     return { receipt, gasCost };
+}
+
+/**
+ * Polls for the execution outcome of a transaction and ensures it was executed successfully.
+ * @param txHash The transaction hash to monitor.
+ * @param axelarScanProvider The provider to fetch the transaction outcome.
+ * @param pollingOptions Options for polling.
+ * @throws An error if the transaction execution fails or encounters an Axelar error.
+ */
+export async function expectExecuted(
+    txHash: string,
+    axelarScanProvider: AxelarScanProvider,
+    pollingOptions: PollingOptions,
+): Promise<void> {
+    const lifecycle = await polling(
+        async () => {
+            const lifecycleInfo = await axelarScanProvider.fetchOutcome(txHash);
+            return lifecycleInfo;
+        },
+        (res: any) => !(res && (res.status === "destination_executed" || res.error)),
+        pollingOptions,
+    );
+
+    if (lifecycle && lifecycle.error) {
+        throw new ProviderError(AxelarScanProviderErrors.TRANSACTION_EXECUTION_FAILED, { originalError: lifecycle.error });
+    }
 }

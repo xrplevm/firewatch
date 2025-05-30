@@ -4,9 +4,10 @@ import { ProviderError } from "../../core/error/provider.error";
 import { AxelarScanProviderErrors } from "../axelarscan.provider.errors";
 
 /**
- * Converts a Firewatch environment value to the corresponding Axelar SDK environment.
- * @param env The environment value to convert.
+ * Converts a Firewatch environment to an Axelar SDK environment.
+ * @param env The Firewatch environment to convert.
  * @returns The corresponding Axelar SDK environment.
+ * @throws {ProviderError} If the environment is not supported.
  */
 export function toSdkEnv(env: Env): SdkEnv {
     switch (env) {

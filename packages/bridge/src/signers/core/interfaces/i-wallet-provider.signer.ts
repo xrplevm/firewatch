@@ -38,7 +38,5 @@ export interface IWalletProviderSigner {
         destinationChainId: string,
         destinationContractAddress: string,
         payload: string,
-        amount?: string,
-        token?: Token,
     ): Promise<Unconfirmed<Transaction>>;
 }

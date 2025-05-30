@@ -1,16 +1,16 @@
-import { AxelarQueryAPI } from "@axelar-network/axelarjs-sdk";
-import { GasAddedTransactions, LifecycleInfo } from "./axelarscan.provider.types";
-import { AxelarGMPRecoveryAPI } from "@axelar-network/axelarjs-sdk";
+import { GMPStatusResponse } from "@axelar-network/axelarjs-sdk";
+import { PatchedRecoveryAPI } from "./utils/patched-recovery.api";
+import { AxelarCallInfo, LifecycleInfo, AxelarMetrics } from "./axelarscan.provider.types";
 import { toSdkEnv } from "./utils";
 import { Env } from "@firewatch/env/types";
 import { IAxelarScanProvider } from "./interfaces";
 
 export class AxelarScanProvider implements IAxelarScanProvider {
-    private recoveryApi: AxelarGMPRecoveryAPI;
+    private recoveryApi: PatchedRecoveryAPI;
 
-    constructor(environment: Env) {
+    constructor(environment: Env, gmpApiUrl?: string) {
         const sdkEnv = toSdkEnv(environment);
-        this.recoveryApi = new AxelarGMPRecoveryAPI({ environment: sdkEnv });
+        this.recoveryApi = new PatchedRecoveryAPI({ environment: sdkEnv }, gmpApiUrl);
     }
 
     /**
@@ -23,17 +23,36 @@ export class AxelarScanProvider implements IAxelarScanProvider {
     /**
      * @inheritdoc
      */
-    async fetchGasAddedTransactions(txHash: string): Promise<GasAddedTransactions> {
-        const response = await this.recoveryApi.fetchGMPTransaction(txHash);
-        return response.gas_added_transactions;
+    async fetchMetrics(txHash: string): Promise<AxelarMetrics> {
+        return await this.recoveryApi.queryTransactionStatus(txHash);
     }
 
     /**
      * @inheritdoc
      */
-    async fetchCallbackTransactionHash(txHash: string): Promise<string> {
-        const response = await this.recoveryApi.queryTransactionStatus(txHash);
-        return response.callback.transactionHash;
+    async fetchFullStatus(txHash: string): Promise<GMPStatusResponse> {
+        return await this.recoveryApi.queryTransactionStatus(txHash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async fetchEvents(txHash: string): Promise<AxelarCallInfo> {
+        return await this.recoveryApi.queryTransactionStatus(txHash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async isExecuted(txHash: string): Promise<boolean> {
+        return await this.recoveryApi.isExecuted(txHash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async isConfirmed(txHash: string): Promise<boolean> {
+        return await this.recoveryApi.isConfirmed(txHash);
     }
 
     /**
@@ -41,20 +60,5 @@ export class AxelarScanProvider implements IAxelarScanProvider {
      */
     getEndpoint(): string {
         return this.recoveryApi.getAxelarGMPApiUrl;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async estimateGasFee(sourceChain: string, destinationChain: string, gasToken: string, gasLimit: string | number): Promise<string> {
-        const limit = typeof gasLimit === "string" ? Number(gasLimit) : gasLimit;
-
-        const api = new AxelarQueryAPI({
-            environment: this.recoveryApi.environment,
-        });
-
-        const feeResponse = await api.estimateGasFee(sourceChain, destinationChain, limit, "auto", gasToken, undefined);
-
-        return feeResponse as string;
     }
 }

@@ -38,7 +38,9 @@
             "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
             "amount": "1",
             "burnAmount": "1",
-            "faucetFund": "10000000000000000000"
+            "faucetFund": "10000000000000000000",
+            "feeMultiplier": "0.95",
+            "residualThreshold": "0.8"
         }
     },
     "chain": {
