@@ -1,0 +1,30 @@
+name: "Pull Request"
+
+on:
+    pull_request:
+        types: [opened, synchronize]
+
+concurrency:
+    # Cancel old runs if there is a new commit in the same branch
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    build-base:
+        uses: ./.github/workflows/build-base.yaml
+        secrets: inherit
+
+    build-axelar:
+        needs: [build-base]
+        uses: ./.github/workflows/build-axelar.yaml
+        secrets: inherit
+
+    build-cosmos:
+        needs: [build-base]
+        uses: ./.github/workflows/build-cosmos.yaml
+        secrets: inherit
+
+    build-evm:
+        needs: [build-base]
+        uses: ./.github/workflows/build-evm.yaml
+        secrets: inherit
