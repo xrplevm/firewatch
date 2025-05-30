@@ -44,10 +44,6 @@ describeOrSkip(
         });
 
         describe("from xrpl-evm (source) chain to xrpl (destination) chain", () => {
-            before(() => {
-                isChainType(["evm"], xrplEvmChain as unknown as AxelarBridgeChain);
-                isChainType(["xrp"], xrplChain as unknown as AxelarBridgeChain);
-            });
             it("should have gateway balance from XRPL >= total native token supply on xrpl-evm", async () => {
                 const totalSupplyRaw = await tokenContract.totalSupply();
                 const totalSupplyToken = ethers.formatUnits(totalSupplyRaw, 18);

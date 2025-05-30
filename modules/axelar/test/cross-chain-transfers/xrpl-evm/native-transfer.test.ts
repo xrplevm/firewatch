@@ -60,9 +60,6 @@ describeOrSkip(
         let xrplReserveAmount: string;
 
         before(async () => {
-            isChainType(["evm"], xrplEvmChain as unknown as AxelarBridgeChain);
-            isChainType(["xrp"], xrplChain as unknown as AxelarBridgeChain);
-
             evmJsonProvider = new ethers.JsonRpcProvider(xrplEvmChain.urls.rpc);
             xrplClient = new Client(xrplChain.urls.ws);
 
