@@ -8,11 +8,10 @@ import { ERC20 } from "@shared/evm/contracts";
 import BigNumber from "bignumber.js";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { AxelarBridgeChain } from "../../../src/models/chain";
-import { HardhatErrors } from "@testing/hardhat/errors";
 import { describeOrSkip } from "@testing/mocha/utils";
 
 describeOrSkip(
-    "Total Supply",
+    "total supply",
     () => {
         return (
             isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&

@@ -490,10 +490,16 @@ importers:
 
   packages/testing/hardhat:
     dependencies:
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.3.0
       ethers:
         specifier: ^6.13.5
         version: 6.13.5(bufferutil@4.0.5)(utf-8-validate@5.0.7)
     devDependencies:
+      '@firewatch/bridge':
+        specifier: workspace:*
+        version: link:../../bridge
       '@firewatch/core':
         specifier: workspace:*
         version: link:../../core

@@ -12,14 +12,15 @@ import { ethers } from "ethers";
  * Resets the total token supply on a blockchain by bridging in the missing tokens.
  * It calculates the missing amount by comparing the initial total supply with the current supply,
  * and then bridges in the missing tokens using the appropriate signer (EVM or XRPL).
- * @param token - The token for which the total supply is being reset.
- * @param sourceDoorAddress - The door address to use for the transfer.
- * @param xrplEvmChain - The target chain details where tokens should be bridged in.
- * @param initialTotalSupply - The initial total supply (in raw value matching the contract's units).
- * @param tokenContract - The ERC20 token contract instance.
- * @param signer - The signer instance (EthersSigner or XrplSigner) used for transferring tokens.
- * @param xrplEvmWalletAddress - The wallet address on the EVM chain (used for translation in case of EVM signer).
- * @param interchainTransferOptions - Polling options used to verify that the total supply has been updated.
+ * @param token The token for which the total supply is being reset.
+ * @param sourceDoorAddress The door address to use for the transfer.
+ * @param xrplEvmChain The target chain details where tokens should be bridged in.
+ * @param initialTotalSupply The initial total supply (in raw value matching the contract's units).
+ * @param tokenContract The ERC20 token contract instance.
+ * @param signer The signer instance (EthersSigner or XrplSigner) used for transferring tokens.
+ * @param xrplEvmWalletAddress The wallet address on the EVM chain (used for translation in case of EVM signer).
+ * @param interchainTransferOptions Polling options used to verify that the total supply has been updated.
+ * @param gasValue The gas value to use for the transfer.
  * @returns A promise that resolves to an Unconfirmed transaction (EVM or XRPL) representing the bridging in transfer.
  */
 export async function resetTotalSupply(
@@ -48,7 +49,7 @@ export async function resetTotalSupply(
 
     if (signer instanceof EthersSigner) {
         destinationAddress = xrplEvmWalletAddress;
-        await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress, gasValue);
+        await signer.transfer(amountToBridgeIn.toString(), token, sourceDoorAddress, xrplEvmChain.id, destinationAddress, { gasValue });
     } else if (signer instanceof XrplSigner) {
         const xrplChainTranslator = new XrpTranslator();
         destinationAddress = xrplChainTranslator.translate(xrplEvmChain.type, xrplEvmWalletAddress);
