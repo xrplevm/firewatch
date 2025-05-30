@@ -79,7 +79,7 @@ export async function getAxelarDestinationTransactionHash(
         async () => {
             try {
                 return await axelarScanProvider.fetchCallbackTransactionHash(txHash);
-            } catch (error) {
+            } catch (_: unknown) {
                 return undefined;
             }
         },
@@ -149,7 +149,6 @@ export async function expectAxelarError(
  * @param pollingOptions Options for polling.
  * @throws Error if the expected gas fee is not found in gas_added_transactions.
  */
-
 export async function expectGasAdded(
     txHash: string,
     axelarScanProvider: AxelarScanProvider,

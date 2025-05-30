@@ -75,9 +75,7 @@ describeOrSkip(
             // TODO: failing in devnet, stuck in approving step (xrpl -> axelar)/error after approved, i guess either xrpl or axelar devnet doesn't support this memo
             itOrSkip(
                 "should update destination state",
-                () => {
-                    return isChainEnvironment(["testnet", "mainnet"], config.xrplChain as unknown as AxelarBridgeChain);
-                },
+                !isChainEnvironment(["devnet"], config.xrplChain as unknown as AxelarBridgeChain),
                 async () => {
                     const msgText = `Hello from the source chain! ${Date.now()}`;
                     const abiCoder = new AbiCoder();
