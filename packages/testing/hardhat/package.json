@@ -16,6 +16,8 @@
         "@shared/utils": "workspace:*",
         "@shared/tsconfig": "workspace:*",
         "@shared/evm": "workspace:*",
+        "@shared/utils": "workspace:*",
+        "@firewatch/bridge": "workspace:*",
         "chai": "^4.5.0",
         "hardhat": "^2.12.7"
     },
@@ -25,6 +27,7 @@
         "./errors": "./src/errors/index.ts"
     },
     "dependencies": {
-        "ethers": "^6.13.5"
+        "ethers": "^6.13.5",
+        "bignumber.js": "^9.1.2"
     }
 }
