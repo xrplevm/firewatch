@@ -38,7 +38,11 @@ export async function callContractAndExpectMessageUpdate(
 
     const logIndex = await findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
-    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
+    if (logIndex === undefined) {
+        throw new Error("ContractCall event not found in transaction logs");
+    }
+
+    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex, amount);
 
     let decodedMsg: string;
     await polling(
@@ -97,7 +101,11 @@ export async function callContractAndExpectEventEmission(
 
     const logIndex = await findLogIndex(receipt.receipt, axelarGasServiceAbi, "ContractCall");
 
-    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex!, amount);
+    if (logIndex === undefined) {
+        throw new Error("ContractCall event not found in transaction logs");
+    }
+
+    await sourceSigner.addNativeGas(axelarGasServiceAddress, tx.hash, logIndex, amount);
 
     await polling(
         async () => {

@@ -2,7 +2,7 @@ import { ethers, Contract, BigNumberish } from "ethers";
 import config from "../../../module.config.json";
 import { PollingOptions } from "@shared/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import { executeTx, expectRevert } from "@testing/hardhat/utils";
+import { expectRevert } from "@testing/hardhat/utils";
 import { expectAxelarError, expectFullExecution } from "@firewatch/bridge/utils";
 import { AxelarBridgeChain } from "../../../src/models/chain";
 import { InterchainToken, InterchainTokenFactory, InterchainTokenService } from "@shared/evm/contracts";
@@ -97,15 +97,13 @@ describeOrSkip(
 
         describe("from xrpl-evm as source chain to evm as destination chain", () => {
             it("should deploy a new interchain token in xrpl-evm chain and emit interchaintokendeployed", async () => {
-                await executeTx(
-                    xrplEvmInterchainTokenFactory.deployInterchainToken(
-                        saltXrplEvm,
-                        "TestToken",
-                        "TTK",
-                        18,
-                        deployAmount,
-                        xrplEvmWallet.address,
-                    ),
+                await xrplEvmInterchainTokenFactory.deployInterchainToken(
+                    saltXrplEvm,
+                    "TestToken",
+                    "TTK",
+                    18,
+                    deployAmount,
+                    xrplEvmWallet.address,
                 );
 
                 const tokenDeployedEvent = await pollForEvent(
@@ -127,12 +125,10 @@ describeOrSkip(
             });
 
             it("should deploy remote interchain token in destination chain and emit interchaintokendeployed", async () => {
-                const tx = await executeTx(
-                    xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
-                        value: gasValue,
-                        gasLimit: gasLimit,
-                    }),
-                );
+                const tx = await xrplEvmInterchainTokenFactory.deployRemoteInterchainToken(saltXrplEvm, evmChain.name, gasValue, {
+                    value: gasValue,
+                    gasLimit: gasLimit,
+                });
 
                 const tokenDeployedEvent = await pollForEvent(
                     evmInterchainTokenService as unknown as Contract,
@@ -151,7 +147,7 @@ describeOrSkip(
 
                 deployedTokenAddressEvm = tokenDeployedEvent.args.tokenAddress;
 
-                await expectFullExecution(tx.receipt.hash, axelarScanProvider, pollingOpts);
+                await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });
 
             it("should revert when deploying an interchain token with the same salt value", async () => {
@@ -192,14 +188,12 @@ describeOrSkip(
                 it("should transfer tokens from xrplevm to evm via interchaintransfer", async () => {
                     const recipientBytes = ethers.zeroPadBytes(evmWallet.address, 20);
 
-                    const tx = await executeTx(
-                        xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
-                            value: gasValue,
-                            gasLimit: gasLimit,
-                        }),
-                    );
+                    const tx = await xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
+                        value: gasValue,
+                        gasLimit: gasLimit,
+                    });
 
-                    await expectFullExecution(tx.receipt.hash, axelarScanProvider, pollingOpts);
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when attempting to transfer 0 tokens from xrplevm to evm", async () => {
@@ -210,14 +204,12 @@ describeOrSkip(
                 });
 
                 it("should transfer tokens from evm to xrplevm via interchainTransfer", async () => {
-                    const tx = await executeTx(
-                        evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
-                            value: gasValue,
-                            gasLimit: gasLimit,
-                        }),
-                    );
+                    const tx = await evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
+                        value: gasValue,
+                        gasLimit: gasLimit,
+                    });
 
-                    await expectFullExecution(tx.receipt.hash, axelarScanProvider, pollingOpts);
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when attempting to transfer 0 tokens from evm to xrplevm", async () => {
@@ -231,15 +223,13 @@ describeOrSkip(
 
         describe("from evm as source chain to xrplevm as destination chain", () => {
             it("should deploy a new interchain token in destination chain and emit the correct event", async () => {
-                const tx = await executeTx(
-                    evmInterchainTokenFactory.deployInterchainToken(
-                        saltEvm,
-                        "TestToken",
-                        "TTK",
-                        18,
-                        ethers.parseUnits("1000", 18),
-                        evmWallet.address,
-                    ),
+                await evmInterchainTokenFactory.deployInterchainToken(
+                    saltEvm,
+                    "TestToken",
+                    "TTK",
+                    18,
+                    ethers.parseUnits("1000", 18),
+                    evmWallet.address,
                 );
                 const tokenDeployedEvent = await pollForEvent(
                     evmInterchainTokenService as unknown as Contract,
@@ -249,8 +239,7 @@ describeOrSkip(
                         return Boolean(tokenId) && name === "TestToken" && symbol === "TTK";
                     },
                     pollingOpts,
-                    tx.receipt.blockNumber,
-                    "latest",
+                    -1,
                 );
 
                 if (!tokenDeployedEvent) {
@@ -261,12 +250,10 @@ describeOrSkip(
             });
 
             it("should deploy remote interchain token and emit the correct event", async () => {
-                const tx = await executeTx(
-                    evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
-                        value: gasValue,
-                        gasLimit: evmChain.interchainTransferOptions.gasLimit,
-                    }),
-                );
+                const tx = await evmInterchainTokenFactory.deployRemoteInterchainToken(saltEvm, xrplEvmChain.name, gasValue, {
+                    value: gasValue,
+                    gasLimit: evmChain.interchainTransferOptions.gasLimit,
+                });
                 const tokenDeployedEvent = await pollForEvent(
                     xrplEvmInterchainTokenService as unknown as Contract,
                     "InterchainTokenDeployed",
@@ -282,8 +269,7 @@ describeOrSkip(
                     throw new Error("Remote InterchainTokenDeployed event was not emitted as expected.");
                 }
 
-                const txHash = tx.receipt.hash;
-                await expectFullExecution(txHash, axelarScanProvider, pollingOpts);
+                await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
 
                 deployedTokenAddressXrplEvm = tokenDeployedEvent.args.tokenAddress;
             });
@@ -318,14 +304,12 @@ describeOrSkip(
                 });
 
                 it("should transfer tokens from evm to xrplevm via interchainTransfer", async () => {
-                    const tx = await executeTx(
-                        evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
-                            value: gasValue,
-                            gasLimit: gasLimit,
-                        }),
-                    );
+                    const tx = await evmToken.interchainTransfer(xrplEvmChain.name, xrplEvmRecipient, transferAmount, "0x", {
+                        value: gasValue,
+                        gasLimit: gasLimit,
+                    });
 
-                    await expectFullExecution(tx.receipt.hash, axelarScanProvider, pollingOpts);
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when attempting to transfer 0 tokens from evm to xrplevm", async () => {
@@ -338,14 +322,12 @@ describeOrSkip(
                 it("should transfer tokens from xrplevm to evm via interchainTransfer", async () => {
                     const recipientBytes = ethers.zeroPadBytes(evmWallet.address, 20);
 
-                    const tx = await executeTx(
-                        xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
-                            value: gasValue,
-                            gasLimit: gasLimit,
-                        }),
-                    );
+                    const tx = await xrplEvmToken.interchainTransfer(evmChain.name, recipientBytes, transferAmount, "0x", {
+                        value: gasValue,
+                        gasLimit: gasLimit,
+                    });
 
-                    await expectFullExecution(tx.receipt.hash, axelarScanProvider, pollingOpts);
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                 });
 
                 it("should revert when attempting to transfer 0 tokens from xrplevm to evm", async () => {
