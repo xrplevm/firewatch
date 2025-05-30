@@ -21,6 +21,7 @@ export class EthersTransactionParser {
                 return {
                     hash: txReceipt!.hash,
                     confirmed: true,
+                    receipt: txReceipt,
                     ...extraConfirmedData?.(txReceipt as Awaited<ReturnType<TxRes["wait"]>>),
                 } as Confirmed<Transaction & TData>;
             },

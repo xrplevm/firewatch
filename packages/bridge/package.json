@@ -51,10 +51,12 @@
         "./translators/evm": "./src/translators/evm/index.ts",
         "./translators/xrp/interfaces": "./src/translators/xrp/interfaces/index.ts",
         "./translators/xrp": "./src/translators/xrp/index.ts",
+        "./utils": "./src/utils/index.ts",
         "./automock/providers": "./test/automock/providers.automock.ts",
         "./mocks/providers": "./test/mocks/providers/index.ts"
     },
     "peerDependencies": {
+        "@axelar-network/axelarjs-sdk": "github:banasa44/axelarjs-sdk#chore/release-0.17.1",
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
         "@shared/evm": "workspace:*",
@@ -67,11 +69,9 @@
         "ethers": "^6.13.5",
         "xchain-sdk": "^1.2.2",
         "xrpl": "3.0.0",
-        "zustand": "^5.0.0-rc.0",
-        "@axelar-network/axelarjs-sdk": "0.17.2"
+        "zustand": "^5.0.0-rc.0"
     },
     "devDependencies": {
-        "@firewatch/core": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",

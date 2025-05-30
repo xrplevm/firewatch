@@ -1,10 +1,11 @@
-FROM node:18.18.0 as base
+FROM node:18.18.0
 WORKDIR /project
 # Install pnpm
 RUN npm install -g pnpm@9.7.0
 # Install package and app dependencies
 COPY ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "./"]
 COPY packages /project/packages
+COPY modules /project/modules
 RUN pnpm install
 COPY ["turbo.json", ".prettierrc", ".prettierrc", "./"]
 # Run linting

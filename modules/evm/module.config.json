@@ -1,13 +1,13 @@
 {
     "hardhat": {
-        "defaultNetwork": "xrplevm_testnet",
+        "defaultNetwork": "xrplevm_localnet",
         "solidity": "0.8.20",
         "networks": {
-            "xrplevm_testnet": {
-                "url": "https://rpc.testnet.xrplevm.org",
+            "xrplevm_localnet": {
+                "url": "http://localhost:8545",
                 "accounts": [
                     "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
-                    "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+                    "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
                 ]
             }
         }
@@ -34,27 +34,22 @@
                 "event Transfer(address indexed from, address indexed to, uint256 value)",
                 "event Approval(address indexed owner, address indexed spender, uint256 value)"
             ],
-            "contractAddress": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
+            "contractAddress": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
+            "owner": "0x10CDF544aeeEbadA19198a21a38D653A95e32272",
             "amount": "1",
             "burnAmount": "1",
-            "faucetFund": "10000000000000000000",
-            "feeMultiplier": "2",
-            "residualThreshold": "2"
+            "faucetFund": "10000000000000000000"
         }
     },
     "chain": {
-        "id": "xrpl-evm",
-        "name": "xrpl-evm",
-        "chainId": 1449000,
-        "env": "testnet",
+        "id": "xrplevm_localnet",
+        "name": "xrplevm_localnet",
+        "chainId": 100,
+        "env": "localnet",
         "type": "evm",
         "symbol": "XRP",
         "nativeToken": {
-            "symbol": "XRP",
-            "decimals": 18,
-            "name": "XRP",
-            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
         }
     }
 }
