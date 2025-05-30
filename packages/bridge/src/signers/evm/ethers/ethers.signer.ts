@@ -5,11 +5,9 @@ import { EthersProvider } from "../../../providers/evm/ethers/ethers.provider";
 import { SignerError } from "../../core/error";
 import { EthersSignerErrors } from "./ethers.signer.errors";
 import { EthersTransactionParser } from "../../../transaction-parsers/evm/ethers/ethers.transaction-parser";
-import { AxelarAmplifierGateway, ERC20, InterchainTokenService } from "@shared/evm/contracts";
-import { decimalToInt } from "@shared/number";
+import { AxelarAmplifierGateway, AxelarGasService, ERC20, InterchainTokenService } from "@shared/evm/contracts";
 import { IEthersSigner } from "./interfaces";
 import { Token } from "@firewatch/core/token";
-import BigNumber from "bignumber.js";
 import { EthersTransaction } from "./ethers.types";
 
 export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSignerProvider> implements IEthersSigner {
@@ -52,6 +50,13 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
     /**
      * @inheritdoc
      */
+    async getAxelarGasServiceContract(address: string): Promise<AxelarGasService> {
+        return this.provider.getAxelarGasServiceContract(address, this.signer);
+    }
+
+    /**
+     * @inheritdoc
+     */
     async getAddress(): Promise<string> {
         return this.signer.getAddress();
     }
@@ -80,15 +85,13 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
             gasValue?: string;
         },
     ): Promise<Unconfirmed<EthersTransaction>> {
-        const sendingAmount = new BigNumber(decimalToInt(amount, token.decimals));
-
         const interchainTokenService = this.getInterchainTokenServiceContract(doorAddress);
 
         const contractTx = await interchainTokenService.interchainTransfer(
             token.id!,
             destinationChainId,
             destinationAddress,
-            sendingAmount.toString(),
+            amount,
             "0x",
             options?.gasValue ? options.gasValue : "0",
             {
@@ -115,6 +118,34 @@ export class EthersSigner<Provider extends IEthersSignerProvider = IEthersSigner
         const axelarAmplifierGateway = this.getAxelarAmplifierGatewayContract(sourceGatewayAddress);
 
         const contractTx = await axelarAmplifierGateway.callContract(destinationChainId, destinationContractAddress, payload);
+
+        return this.transactionParser.parseTransactionResponse(contractTx);
+    }
+
+    /**
+     * Adds native gas for a cross-chain transaction using the Axelar Gas Service contract.
+     * @param address The address of the Axelar Gas Service contract.
+     * @param txHash The transaction hash for which to add native gas.
+     * @param logIndex The log index associated with the cross-chain event.
+     * @param gasValue The amount of native gas (in wei, as a string) to add.
+     * @param options Optional transaction options (e.g., gas limit).
+     * @returns An unconfirmed transaction object.
+     */
+    async addNativeGas(
+        address: string,
+        txHash: string,
+        logIndex: number,
+        gasValue: string,
+        options?: { gasLimit: number },
+    ): Promise<Unconfirmed<Transaction>> {
+        const gasService = await this.getAxelarGasServiceContract(address);
+
+        const refundAddress = await this.signer.getAddress();
+
+        const contractTx = await gasService.addNativeGas(txHash, logIndex, refundAddress, {
+            value: gasValue,
+            gasLimit: options?.gasLimit,
+        });
 
         return this.transactionParser.parseTransactionResponse(contractTx);
     }

@@ -7,7 +7,7 @@
                 "url": "https://rpc.testnet.xrplevm.org",
                 "accounts": [
                     "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
-                    "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+                    "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
                 ]
             }
         }
@@ -38,9 +38,7 @@
             "owner": "0xdb0a778c57Bd31E401D52ba6cf936D06E1324aE8",
             "amount": "1",
             "burnAmount": "1",
-            "faucetFund": "10000000000000000000",
-            "feeMultiplier": "2",
-            "residualThreshold": "2"
+            "faucetFund": "10000000000000000000"
         }
     },
     "chain": {
