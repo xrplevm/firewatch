@@ -6,7 +6,9 @@
     "scripts": {
         "cli": "ts-node src/cli/main.ts",
         "lint": "eslint .",
-        "test": "hardhat test",
+        "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && hardhat test",
+        "test:testnet": "cp configs/testnet.module.config.json module.config.json && hardhat test",
+        "test:devnet": "cp configs/devnet.module.config.json module.config.json && hardhat test",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
@@ -25,9 +27,9 @@
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
         "@shared/eslint": "workspace:*",
+        "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",
         "@shared/tsconfig": "workspace:*",
-        "@shared/evm": "workspace:*",
         "@shared/utils": "workspace:*",
         "@testing/hardhat": "workspace:*",
         "@testing/mocha": "workspace:*",

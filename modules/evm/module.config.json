@@ -6,8 +6,8 @@
             "xrplevm_localnet": {
                 "url": "http://localhost:8545",
                 "accounts": [
-                    "1bacb3ef3d80d8f148299bd21a56d9a78048dc2e20ddab25713a408f2d1f4d5e",
-                    "d8161fd5fdf4eb216a6556dc639a2543b0ed9abdbceb9971fe08cfba56f588c8"
+                    "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
+                    "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
                 ]
             }
         }
@@ -38,9 +38,7 @@
             "owner": "0x10CDF544aeeEbadA19198a21a38D653A95e32272",
             "amount": "1",
             "burnAmount": "1",
-            "faucetFund": "10000000000000000000",
-            "feeMultiplier": "2",
-            "residualThreshold": "2"
+            "faucetFund": "10000000000000000000"
         }
     },
     "chain": {
