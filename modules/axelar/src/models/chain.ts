@@ -19,9 +19,9 @@ export interface AxelarBridgeChain extends Chain {
 }
 
 export interface XrplEvmChain extends AxelarBridgeChain {
-    whiteListederc20: Token;
+    erc20: Token;
 }
 
 export interface XrplChain extends AxelarBridgeChain {
-    whiteListediou: Token;
+    iou: Token;
 }

@@ -32,11 +32,11 @@ describeOrSkip(
         );
     },
     () => {
-        const { xrplChain, xrplEvmChain } = config;
+        const { xrplChain, xrplEvmChain, axelar } = config;
         const pollingOpts = config.axelar.pollingOptions;
 
-        let whiteListederc20: Token;
-        let whiteListediou: Token;
+        let erc20: Token;
+        let iou: Token;
 
         let xrplEvmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
@@ -62,9 +62,6 @@ describeOrSkip(
         let gasLimit: number;
 
         before(async () => {
-            isChainType(["evm"], xrplEvmChain as unknown as AxelarBridgeChain);
-            isChainType(["xrp"], xrplChain as unknown as AxelarBridgeChain);
-
             evmJsonProvider = new ethers.JsonRpcProvider(xrplEvmChain.urls.rpc);
             xrplClient = new Client(xrplChain.urls.ws);
 
@@ -81,13 +78,13 @@ describeOrSkip(
             xrplEvmChainTranslator = new EvmTranslator();
             xrplChainTranslator = new XrpTranslator();
 
-            whiteListederc20 = new Token(xrplEvmChain.whiteListederc20);
-            whiteListediou = new Token(xrplChain.whiteListediou);
+            erc20 = new Token(xrplEvmChain.erc20);
+            iou = new Token(xrplChain.iou);
 
-            interchainToken = new InterchainToken(whiteListederc20.address!, xrplEvmChainWallet);
+            interchainToken = new InterchainToken(erc20.address!, xrplEvmChainWallet);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
-            xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, whiteListederc20.decimals).toString();
+            xrplEvmTransferAmount = ethers.parseUnits(xrplEvmChain.interchainTransferOptions.amount, erc20.decimals).toString();
 
             gasLimit = xrplEvmChain.interchainTransferOptions.gasLimit;
         });
@@ -99,7 +96,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await interchainToken.interchainTransfer(xrplChain.name, recipient, xrplEvmTransferAmount, "0x", {
@@ -117,12 +114,12 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 await xrplEvmChainSigner.transfer(
                     xrplEvmTransferAmount,
-                    whiteListederc20 as Token,
+                    erc20 as Token,
                     xrplEvmChain.interchainTokenServiceAddress,
                     xrplChain.name,
                     xrplEvmChainTranslator.translate(ChainType.XRP, newWallet.address),
@@ -146,12 +143,12 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 await expectRevert(
                     xrplEvmChainSigner.transfer(
                         "0",
-                        whiteListederc20 as Token,
+                        erc20 as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
                         xrplChain.name,
                         xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -173,13 +170,13 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 await expectRevert(
                     xrplEvmChainSigner.transfer(
                         amount,
-                        whiteListederc20 as Token,
+                        erc20 as Token,
                         xrplEvmChain.interchainTokenServiceAddress,
                         xrplChain.name,
                         xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
@@ -194,10 +191,10 @@ describeOrSkip(
         });
 
         describe("from iou xrpl chain to evm chain", () => {
-            it("should transfer the iou with interchain transfer method", async () => {
+            it("should transfer the iou", async () => {
                 const tx = await xrplChainSigner.transfer(
                     xrplTransferAmount,
-                    whiteListediou,
+                    iou,
                     xrplChain.interchainTokenServiceAddress,
                     xrplEvmChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -207,7 +204,7 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 await xrplChainSigner.addGas(
                     gas_fee_amount,
@@ -224,12 +221,12 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                 const tx = await xrplChainSigner.transfer(
                     xrplTransferAmount,
-                    whiteListediou,
+                    iou,
                     xrplChain.interchainTokenServiceAddress,
                     xrplEvmChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -251,13 +248,13 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
                 const tx = await xrplChainSigner.transfer(
                     xrplTransferAmount,
-                    whiteListediou,
+                    iou,
                     xrplChain.interchainTokenServiceAddress,
                     xrplEvmChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -289,12 +286,12 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                 const tx = await xrplChainSigner.transfer(
                     xrplTransferAmount,
-                    whiteListediou,
+                    iou,
                     xrplChain.interchainTokenServiceAddress,
                     xrplEvmChain.name,
                     xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
@@ -321,7 +318,7 @@ describeOrSkip(
                 await expectRevert(
                     xrplChainSigner.transfer(
                         "0",
-                        whiteListediou,
+                        iou,
                         xrplChain.interchainTokenServiceAddress,
                         xrplEvmChain.name,
                         xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),

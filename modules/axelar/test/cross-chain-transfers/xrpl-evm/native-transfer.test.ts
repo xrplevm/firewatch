@@ -16,7 +16,7 @@ import { HardhatErrors } from "@testing/hardhat/errors";
 import { expectRevert } from "@testing/hardhat/utils";
 import { expectBalanceUpdate } from "@shared/evm/utils";
 import { expectFullExecution, expectAxelarError, expectXrplFailedDestination, expectGasAdded } from "@firewatch/bridge/utils";
-import { describeOrSkip } from "@testing/mocha/utils";
+import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 import { AxelarScanProvider, AxelarScanProviderErrors } from "@firewatch/bridge/providers/axelarscan";
 import { Env } from "../../../../../packages/env/src/types/env";
 import { findLogIndex } from "@shared/evm/utils";
@@ -33,7 +33,7 @@ describeOrSkip(
         );
     },
     () => {
-        const { xrplEvmChain, xrplChain } = config;
+        const { xrplEvmChain, xrplChain, axelar } = config;
         const pollingOpts = config.axelar.pollingOptions;
 
         let xrplEvmChainProvider: EthersProvider;
@@ -93,7 +93,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await xrplEvmChainSigner.transfer(
@@ -115,7 +115,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 await xrplEvmChainSigner.transfer(
@@ -144,7 +144,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await xrplEvmChainSigner.transfer(
@@ -179,7 +179,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await xrplEvmChainSigner.transfer(
@@ -199,7 +199,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasValue = BigNumber(gasValue).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                 const tx = await xrplEvmChainSigner.transfer(
@@ -220,7 +220,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasValue = BigNumber(gasValue).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
                 const tx = await xrplEvmChainSigner.transfer(
@@ -270,7 +270,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await xrplEvmChainSigner.transfer(
@@ -302,7 +302,7 @@ describeOrSkip(
                     xrplEvmChain.name,
                     xrplChain.name,
                     xrplEvmChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
 
                 const tx = await xrplEvmChainSigner.transfer(
@@ -392,7 +392,7 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
@@ -415,7 +415,7 @@ describeOrSkip(
                     xrplChain.name,
                     xrplEvmChain.name,
                     xrplChain.nativeToken.symbol,
-                    200_000,
+                    axelar.estimateGasFee.gasLimit,
                 );
                 const lowGasFee = BigNumber(gas_fee_amount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
@@ -445,31 +445,35 @@ describeOrSkip(
             });
 
             // TODO: failing in devnet, stuck in approving step from axelar -> xrpl-evm
-            it("should succeed after topping up gas once the threshold is reached", async () => {
-                const lowGasFee = BigNumber(gasFeeAmount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
+            itOrSkip(
+                "should succeed after topping up gas once the threshold is reached",
+                !isChainEnvironment(["devnet"], config.xrplChain as unknown as AxelarBridgeChain),
+                async () => {
+                    const lowGasFee = BigNumber(gasFeeAmount).times(0.1).integerValue(BigNumber.ROUND_DOWN).toString();
 
-                const tx = await xrplChainSigner.transfer(
-                    xrplTransferAmount,
-                    new Token({} as any),
-                    xrplChain.interchainTokenServiceAddress,
-                    xrplEvmChain.name,
-                    xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
-                    {
-                        gasFeeAmount: lowGasFee,
-                    },
-                );
+                    const tx = await xrplChainSigner.transfer(
+                        xrplTransferAmount,
+                        new Token({} as any),
+                        xrplChain.interchainTokenServiceAddress,
+                        xrplEvmChain.name,
+                        xrplChainTranslator.translate(ChainType.EVM, xrplEvmChainWallet.address),
+                        {
+                            gasFeeAmount: lowGasFee,
+                        },
+                    );
 
-                const topUpGas = BigNumber(gasFeeAmount).minus(lowGasFee).toString();
+                    const topUpGas = BigNumber(gasFeeAmount).minus(lowGasFee).toString();
 
-                await xrplChainSigner.addGas(
-                    topUpGas,
-                    xrplChainTranslator.translate(ChainType.EVM, tx.hash),
-                    xrplChain.interchainTokenServiceAddress,
-                    new Token({} as any),
-                );
+                    await xrplChainSigner.addGas(
+                        topUpGas,
+                        xrplChainTranslator.translate(ChainType.EVM, tx.hash),
+                        xrplChain.interchainTokenServiceAddress,
+                        new Token({} as any),
+                    );
 
-                await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
-            });
+                    await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts, 15);
+                },
+            );
 
             it("should revert when transferring 0 tokens", async () => {
                 await expectRevert(

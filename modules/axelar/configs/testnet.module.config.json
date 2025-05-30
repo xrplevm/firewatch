@@ -7,6 +7,9 @@
             "maxRetries": 50,
             "retryDelay": 10000,
             "timeout": 1000000
+        },
+        "estimateGasFee": {
+            "gasLimit": 200000
         }
     },
     "xrplEvmChain": {
@@ -23,7 +26,7 @@
             "name": "XRP",
             "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         },
-        "whiteListederc20": {
+        "erc20": {
             "id": "0xc8895f8ceb0cae9da15bb9d2bc5859a184ca0f61c88560488355c8a7364deef8",
             "symbol": "FOO",
             "decimals": 15,
@@ -53,6 +56,9 @@
             "maxRetries": 50,
             "retryDelay": 10000,
             "timeout": 1000000
+        },
+        "estimateGasFee": {
+            "gasLimit": 200000
         }
     },
     "xrplChain": {
@@ -65,7 +71,7 @@
             "decimals": 6,
             "name": "XRP"
         },
-        "whiteListediou": {
+        "iou": {
             "id": "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
             "symbol": "FOO",
             "decimals": 15,
