@@ -16,7 +16,6 @@
         "@shared/utils": "workspace:*",
         "@shared/tsconfig": "workspace:*",
         "@shared/evm": "workspace:*",
-        "@shared/utils": "workspace:*",
         "@firewatch/bridge": "workspace:*",
         "chai": "^4.5.0",
         "hardhat": "^2.12.7"
