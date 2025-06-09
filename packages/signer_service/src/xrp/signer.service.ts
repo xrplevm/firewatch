@@ -1,5 +1,4 @@
 import { ChainType } from "@shared/modules/chain";
-import { IWalletProviderSigner } from "@firewatch/bridge/signers/interfaces";
 import { ISignerService } from "../interfaces/i-signer-service";
 import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
