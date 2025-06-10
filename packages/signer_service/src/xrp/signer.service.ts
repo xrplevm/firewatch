@@ -1,3 +1,4 @@
+import { Mutex } from "async-mutex";
 import { ChainType } from "@shared/modules/chain";
 import { ISignerService } from "../interfaces/i-signer-service";
 import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
@@ -8,6 +9,7 @@ import { SignerAvailability } from "../signer-service.types";
 export class XrplSignerService implements ISignerService<XrplSigner> {
     private pool: SignerAvailability<XrplSigner>[] = [];
     private provider: XrplProvider;
+    private mutex: Mutex = new Mutex();
 
     constructor(provider: XrplProvider) {
         this.provider = provider;
@@ -28,10 +30,13 @@ export class XrplSignerService implements ISignerService<XrplSigner> {
      */
     async acquireSigner(chain: ChainType): Promise<XrplSigner | null> {
         if (chain !== "xrp") return null;
-        const entry = this.pool.find((entry) => !entry.busy);
-        if (!entry) return null;
-        entry.busy = true;
-        return entry.signer;
+
+        return await this.mutex.runExclusive(() => {
+            const entry = this.pool.find((entry) => !entry.busy);
+            if (!entry) return null;
+            entry.busy = true;
+            return entry.signer;
+        });
     }
 
     /**

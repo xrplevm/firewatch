@@ -1,3 +1,4 @@
+import { Mutex } from "async-mutex";
 import { ethers } from "ethers";
 import { ChainType } from "@shared/modules/chain";
 import { ISignerService } from "../interfaces/i-signer-service";
@@ -8,6 +9,8 @@ import { SignerAvailability } from "../signer-service.types";
 export class EvmSignerService implements ISignerService<EthersSigner> {
     private pool: SignerAvailability<EthersSigner>[] = [];
     private ethersProvider: ethers.JsonRpcProvider;
+    private mutex: Mutex = new Mutex();
+
     private customEthersProvider: EthersProvider;
 
     constructor(rpcUrl: string) {
@@ -30,10 +33,13 @@ export class EvmSignerService implements ISignerService<EthersSigner> {
      */
     async acquireSigner(chain: ChainType): Promise<EthersSigner | null> {
         if (chain !== "evm") return null;
-        const entry = this.pool.find((entry) => !entry.busy);
-        if (!entry) return null;
-        entry.busy = true;
-        return entry.signer;
+
+        return await this.mutex.runExclusive(() => {
+            const entry = this.pool.find((entry) => !entry.busy);
+            if (!entry) return null;
+            entry.busy = true;
+            return entry.signer;
+        });
     }
 
     /**
