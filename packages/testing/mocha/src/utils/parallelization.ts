@@ -1,164 +1,133 @@
-import { it as mochaIt, describe as mochaDescribe } from "mocha";
-import { HookOptions } from "./types";
+import { it as mochaIt } from "mocha";
+import { Failure, HookOptions } from "./types";
 
 /**
- * Runs multiple describe blocks in parallel using Promise.all
- * @param suiteName The name of the test suite
- * @param hooks Optional hooks to run before/after the entire parallel suite
- * @param describes Array of describe blocks to execute in parallel
- * @param describeFn The describe function to use (defaults to Mocha's describe)
+ * Runs multiple test cases in parallel using Promise.all
+ * @param description Description of the test suite.
+ * @param hooks Optional hooks to run before/after tests.
+ * @param tests Array of test cases with description and function.
+ * @param concurrency Maximum number of tests to run in parallel.
+ * @param itFn The it function to use (defaults to Mocha's it).
  */
-export function describeParallel(
-    suiteName: string,
-    hooks: HookOptions = {},
-    describes: Array<{ name: string; fn: () => Promise<void> | void }>,
-    describeFn = typeof describe !== "undefined" ? describe : mochaDescribe,
+export function itParallel<T = unknown>(
+    description: string,
+    hooks: HookOptions<T> = {},
+    tests: Array<{ name: string; fn: (ctx: T) => void | Promise<void> }>,
+    concurrency = 5,
+    itFn = typeof it !== "undefined" ? it : mochaIt,
 ) {
-    describeFn(`[PARALLEL] ${suiteName}`, function () {
-        if (hooks.beforeAll) before(hooks.beforeAll);
+    itFn(description, async function () {
+        console.log(`\n  ${description}`);
+        const failures: Failure[] = [];
 
-        if (hooks.afterAll) after(hooks.afterAll);
+        try {
+            await hooks.beforeAll?.();
+        } catch (raw: unknown) {
+            failures.push({ hook: "beforeAll", err: toError(raw) });
+            console.log(`  before all hook failed: ${toError(raw).message}`);
+        }
 
-        it("[PARALLEL] Executes all describes", async function () {
-            const results = await Promise.all(
-                describes.map(async (subsuite) => {
+        for (let i = 0; i < tests.length; i += concurrency) {
+            const batch = tests.slice(i, i + concurrency);
+            await Promise.all(
+                batch.map(async ({ name, fn }) => {
+                    let ctx: T | undefined;
+
                     try {
-                        console.log(`\t→ ${subsuite.name} [START]`);
-                        await subsuite.fn();
-                        console.log(`\t→ ${subsuite.name} [OK]`);
-                        return { success: true, name: subsuite.name };
-                    } catch (err) {
-                        console.error(`\t→ ${subsuite.name} [FAIL]\n\t\t${(err as Error).message}`);
-                        return { success: false, name: subsuite.name, error: err as Error };
+                        ctx = await hooks.beforeEach?.();
+                    } catch (raw: unknown) {
+                        failures.push({ hook: "beforeEach", name, err: toError(raw) });
+                    }
+
+                    try {
+                        await fn(ctx as T);
+                        log(true, name);
+                    } catch (raw: unknown) {
+                        failures.push({
+                            name,
+                            err: toError(raw),
+                        });
+                        log(false, name);
+                    }
+
+                    try {
+                        await hooks.afterEach?.(ctx as T);
+                    } catch (raw: unknown) {
+                        failures.push({ hook: "afterEach", name, err: toError(raw) });
                     }
                 }),
             );
-            const errors = results.filter((r) => !r.success);
-            if (errors.length > 0) {
-                const errorMessage = errors.map((e) => `\t→ ${e.name} [FAIL]\n\t\t${e.error?.message.replace(/\n/g, "\n\t\t")}`).join("\n");
-                throw new Error(`[describeParallel] Some describes failed:\n${errorMessage}`);
-            }
-        });
+        }
+
+        try {
+            await hooks.afterAll?.();
+        } catch (raw: unknown) {
+            failures.push({ hook: "afterAll", err: toError(raw) });
+            console.log(`  after all hook failed: ${toError(raw).message}`);
+        }
+
+        if (failures.length) {
+            reportFailures(failures);
+        }
     });
 }
 
 /**
- * Runs multiple test cases in parallel using Promise.all
- * @param tests Array of test cases with description and function
- * @param hooks Optional hooks to run before/after tests
- * @param concurrencyLimit Maximum number of tests to run in parallel
- * @param itFn The it function to use (defaults to Mocha's it)
+ * Logs the result of a test with colored output.
+ * @param ok Whether the test passed (true) or failed (false).
+ * @param msg The message or name of the test to log.
  */
-export function itParallel(
-    tests: Array<{ name: string; fn: () => Promise<void> | void }>,
-    hooks: HookOptions = {},
-    concurrencyLimit = 5,
-    itFn = typeof it !== "undefined" ? it : mochaIt,
-) {
-    itFn(`Parallel execution of ${tests.length} tests`, async function () {
-        let beforeAllError = null;
-        try {
-            if (hooks.beforeAll) {
-                await hooks.beforeAll();
+function log(ok: boolean, msg: string) {
+    const green = "\x1b[32m";
+    const red = "\x1b[31m";
+    const gray = "\x1b[90m";
+    const reset = "\x1b[0m";
+    if (ok) {
+        console.log(`    ${green}✓${reset} ${gray}${msg}${reset}`);
+    } else {
+        console.log(`    ${red}✗${reset} ${gray}${msg}${reset}`);
+    }
+}
+
+/**
+ * Reports all failures by formatting and throwing a summary error.
+ * @param failures Array of Failure objects representing test and hook errors.
+ */
+function reportFailures(failures: Failure[]): never {
+    const lines: string[] = [];
+    let count = 1;
+    for (const f of failures) {
+        if ("hook" in f) {
+            if (f.hook === "beforeAll") {
+                lines.push(`      ${count}) before all hook failed: ${f.err.message}`);
+                count++;
+            } else if (f.hook === "afterAll") {
+                lines.push(`      ${count}) after all hook failed: ${f.err.message}`);
+                count++;
+            } else if (f.hook === "beforeEach") {
+                lines.push(`      ${count}) "before each" hook for "${f.name}":`);
+                lines.push(`          ${f.err.message.replace(/\n/g, "\n          ")}`);
+                count++;
+            } else if (f.hook === "afterEach") {
+                lines.push(`      ${count}) "after each" hook for "${f.name}":`);
+                lines.push(`          ${f.err.message.replace(/\n/g, "\n          ")}`);
+                count++;
             }
-        } catch (error) {
-            beforeAllError = {
-                message: `beforeAll hook failed: ${error instanceof Error ? error.message : String(error)}`,
-                original: error,
-            };
-            console.log(`[SUITE] beforeAll hook failed: ${beforeAllError.message}`);
+        } else {
+            lines.push(`      ${count}) ${f.name}:`);
+            lines.push(`          ${f.err.message.replace(/\n/g, "\n          ")}`);
+            count++;
         }
+    }
 
-        const results = [];
+    throw new Error("Some tests or hooks failed:\n\n" + lines.join("\n\n"));
+}
 
-        for (let i = 0; i < tests.length; i += concurrencyLimit) {
-            const batch = tests.slice(i, i + concurrencyLimit);
-            const batchResults = await Promise.all(
-                batch.map(async (test) => {
-                    let hookError = null;
-
-                    try {
-                        if (hooks.beforeEach) {
-                            await hooks.beforeEach();
-                        }
-                    } catch (error) {
-                        hookError = {
-                            message: `beforeEach hook failed: ${error instanceof Error ? error.message : String(error)}`,
-                            original: error,
-                        };
-                        console.log(`    ✗ ${test.name} (beforeEach hook failed)`);
-                    }
-
-                    if (!hookError) {
-                        try {
-                            await test.fn();
-                            console.log(`    ✓ ${test.name}`);
-                        } catch (error) {
-                            hookError = {
-                                message: `test execution failed: ${error instanceof Error ? error.message : String(error)}`,
-                                original: error,
-                            };
-                            console.log(`    ✗ ${test.name}`);
-                        }
-                    }
-
-                    try {
-                        if (hooks.afterEach) {
-                            await hooks.afterEach();
-                        }
-                    } catch (error) {
-                        if (!hookError) {
-                            hookError = {
-                                message: `afterEach hook failed: ${error instanceof Error ? error.message : String(error)}`,
-                                original: error,
-                            };
-                            console.log(`    ✗ ${test.name} (afterEach hook failed)`);
-                        } else {
-                            console.log(
-                                `    → ${test.name} (afterEach hook also failed: ${error instanceof Error ? error.message : String(error)})`,
-                            );
-                        }
-                    }
-
-                    return hookError
-                        ? { success: false, name: test.name, error: new Error(hookError.message) }
-                        : { success: true, name: test.name };
-                }),
-            );
-            results.push(...batchResults);
-        }
-
-        let afterAllError = null;
-        try {
-            if (hooks.afterAll) {
-                await hooks.afterAll();
-            }
-        } catch (error) {
-            afterAllError = {
-                message: `afterAll hook failed: ${error instanceof Error ? error.message : String(error)}`,
-                original: error,
-            };
-            console.log(`[SUITE] afterAll hook failed: ${afterAllError.message}`);
-        }
-
-        const errors = results.filter((r) => !r.success);
-        if (beforeAllError || afterAllError || errors.length > 0) {
-            let errorMessage = "";
-
-            if (beforeAllError) {
-                errorMessage += `[SUITE] beforeAll hook failed: ${beforeAllError.message}\n`;
-            }
-
-            if (errors.length > 0) {
-                errorMessage +=
-                    errors.map((e) => `    ✗ ${e.name}\n      ${e.error?.message.replace(/\n/g, "\n      ")}`).join("\n") + "\n";
-            }
-
-            if (afterAllError) {
-                errorMessage += `[SUITE] afterAll hook failed: ${afterAllError.message}`;
-            }
-
-            throw new Error(`Some tests or hooks failed:\n${errorMessage}`);
-        }
-    });
+/**
+ * Normalizes any thrown value to an Error object.
+ * @param raw The thrown value to normalize.
+ * @returns An Error object representing the thrown value.
+ */
+function toError(raw: unknown): Error {
+    return raw instanceof Error ? raw : new Error(String(raw));
 }
