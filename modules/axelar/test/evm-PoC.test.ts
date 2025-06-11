@@ -18,7 +18,7 @@ import { itParallel } from "@testing/mocha/utils";
 import { getSignerWithRetry } from "@firewatch/signer_service/signer-service/utils";
 
 describeOrSkip(
-    "cross-chain no-native transfer",
+    "evm poc test for parallelization",
     () => {
         return (
             isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&
@@ -94,7 +94,7 @@ describeOrSkip(
             },
             [
                 {
-                    name: "should transfer the token 1",
+                    name: "should transfer the xrp 1",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,
@@ -111,14 +111,14 @@ describeOrSkip(
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
                             { gasValue: gasValue.toString() },
                         );
-                        console.log("context", await context.xrplEvmChainSigner.getAddress());
-                        console.log(`EVM transfer tx: ${tx.hash}`);
+                        // console.log("context", await context.xrplEvmChainSigner.getAddress());
+                        // console.log(`EVM transfer tx: ${tx.hash}`);
 
                         await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                     },
                 },
                 {
-                    name: "should transfer the token 2",
+                    name: "should transfer the xrp 2",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,
@@ -136,13 +136,13 @@ describeOrSkip(
                             { gasValue: gasValue.toString() },
                         );
 
-                        console.log("context", await context.xrplEvmChainSigner.getAddress());
-                        console.log(`EVM transfer tx: ${tx.hash}`);
+                        // console.log("context", await context.xrplEvmChainSigner.getAddress());
+                        // console.log(`EVM transfer tx: ${tx.hash}`);
                         await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                     },
                 },
                 {
-                    name: "should transfer the token 3",
+                    name: "should transfer the xrp 3",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,
@@ -159,8 +159,8 @@ describeOrSkip(
                             xrplEvmChainTranslator.translate(ChainType.XRP, xrplChainWallet.address),
                             { gasValue: gasValue.toString() },
                         );
-                        console.log("context", await context.xrplEvmChainSigner.getAddress());
-                        console.log(`EVM transfer tx: ${tx.hash}`);
+                        // console.log("context", await context.xrplEvmChainSigner.getAddress());
+                        // console.log(`EVM transfer tx: ${tx.hash}`);
 
                         await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
                     },

@@ -7,8 +7,7 @@
         "cli": "ts-node src/cli/main.ts",
         "lint": "eslint .",
         "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && hardhat test",
-        "test:testnet": "cp configs/testnet.module.config.json module.config.json && hardhat test",
-        "test:devnet": "cp configs/devnet.module.config.json module.config.json && hardhat test",
+        "test:testnet": "cp configs/testnet.module.config.json module.config.json && mocha --parallel --timeout 1800000 --require ts-node/register 'test/**/*.test.ts'",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
@@ -37,6 +36,7 @@
         "@types/chai": "^5.0.1",
         "@types/mocha": "^10.0.10",
         "@types/node": "^22.13.1",
-        "dotenv": "^16.4.7"
+        "dotenv": "^16.4.7",
+        "mocha": "^11.6.0"
     }
 }
