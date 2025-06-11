@@ -20,7 +20,7 @@ import { XrplSignerService } from "@firewatch/signer_service/signer-service/xrp"
 import { EvmSignerService } from "@firewatch/signer_service/signer-service/evm";
 
 describeOrSkip(
-    "cross-chain native transfer",
+    "xrpl poc test for parallelization",
     () => {
         return (
             isChainType(["evm"], config.xrplEvmChain as unknown as AxelarBridgeChain) &&

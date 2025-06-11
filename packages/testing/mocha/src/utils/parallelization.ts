@@ -17,14 +17,14 @@ export function itParallel<T = unknown>(
     itFn = typeof it !== "undefined" ? it : mochaIt,
 ) {
     itFn(description, async function () {
-        console.log(`\n  ${description}`);
         const failures: Failure[] = [];
+        const results: Array<{ ok: boolean; name: string }> = [];
 
         try {
             await hooks.beforeAll?.();
         } catch (raw: unknown) {
             failures.push({ hook: "beforeAll", err: toError(raw) });
-            console.log(`  before all hook failed: ${toError(raw).message}`);
+            // Optionally: results.push({ ok: false, name: "beforeAll" });
         }
 
         for (let i = 0; i < tests.length; i += concurrency) {
@@ -32,6 +32,7 @@ export function itParallel<T = unknown>(
             await Promise.all(
                 batch.map(async ({ name, fn }) => {
                     let ctx: T | undefined;
+                    let passed = false;
 
                     try {
                         ctx = await hooks.beforeEach?.();
@@ -41,13 +42,9 @@ export function itParallel<T = unknown>(
 
                     try {
                         await fn(ctx as T);
-                        log(true, name);
+                        passed = true;
                     } catch (raw: unknown) {
-                        failures.push({
-                            name,
-                            err: toError(raw),
-                        });
-                        log(false, name);
+                        failures.push({ name, err: toError(raw) });
                     }
 
                     try {
@@ -55,6 +52,8 @@ export function itParallel<T = unknown>(
                     } catch (raw: unknown) {
                         failures.push({ hook: "afterEach", name, err: toError(raw) });
                     }
+
+                    results.push({ ok: passed, name });
                 }),
             );
         }
@@ -66,6 +65,11 @@ export function itParallel<T = unknown>(
             console.log(`  after all hook failed: ${toError(raw).message}`);
         }
 
+        console.log(`\n  ${description}`);
+        for (const { ok, name } of results) {
+            log(ok, name, 2);
+        }
+
         if (failures.length) {
             reportFailures(failures);
         }
@@ -73,22 +77,23 @@ export function itParallel<T = unknown>(
 }
 
 /**
- * Logs the result of a test with colored output.
+ * Logs the result of a test with colored output and indentation.
  * @param ok Whether the test passed (true) or failed (false).
  * @param msg The message or name of the test to log.
+ * @param indent Number of spaces to indent (default 0).
  */
-function log(ok: boolean, msg: string) {
+function log(ok: boolean, msg: string, indent = 0) {
     const green = "\x1b[32m";
     const red = "\x1b[31m";
     const gray = "\x1b[90m";
     const reset = "\x1b[0m";
+    const pad = " ".repeat(indent * 2);
     if (ok) {
-        console.log(`    ${green}✓${reset} ${gray}${msg}${reset}`);
+        console.log(`${pad}${green}✓${reset} ${gray}${msg}${reset}`);
     } else {
-        console.log(`    ${red}✗${reset} ${gray}${msg}${reset}`);
+        console.log(`${pad}${red}✗${reset} ${gray}${msg}${reset}`);
     }
 }
-
 /**
  * Reports all failures by formatting and throwing a summary error.
  * @param failures Array of Failure objects representing test and hook errors.
