@@ -26,6 +26,7 @@
         "@firewatch/cli": "workspace:*",
         "@firewatch/core": "workspace:*",
         "@firewatch/env": "workspace:*",
+        "@firewatch/signer_service": "workspace:*",
         "@shared/eslint": "workspace:*",
         "@shared/evm": "workspace:*",
         "@shared/modules": "workspace:*",

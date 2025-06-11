@@ -52,6 +52,10 @@
         "account": {
             "privateKey": "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
         },
+        "privateKeys": [
+            "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161",
+            "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9"
+        ],
         "pollingOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
@@ -91,6 +95,7 @@
         "account": {
             "privateKey": "sEdTgP3LAie9J5nvQYmpqhjSFnE22oB"
         },
+        "privateKeys": ["sEdTgP3LAie9J5nvQYmpqhjSFnE22oB", "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"],
         "pollingOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
@@ -98,7 +103,7 @@
         }
     },
     "evmChain": {
-        "name": "Avalanche",
+        "name": "ethereum-sepolia",
         "chainId": 43113,
         "env": "testnet",
         "type": "evm",
@@ -107,7 +112,7 @@
             "decimals": 18,
             "name": "AVAX"
         },
-        "axelarGatewayAddress": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+        "axelarGatewayAddress": "0xe432150cce91c13a887f7D836923d5597adD8E31",
         "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
         "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
         "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
