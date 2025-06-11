@@ -1,0 +1,25 @@
+{
+    "name": "@firewatch/signer_service",
+    "author": "Peersyst",
+    "version": "0.0.0",
+    "license": "UNLICENSED",
+    "scripts": {
+        "lint": "eslint ."
+    },
+    "dependencies": {
+        "async-mutex": "^0.5.0",
+        "ethers": "^6.13.5",
+        "xrpl": "3.0.0"
+    },
+    "devDependencies": {
+        "@firewatch/bridge": "workspace:*",
+        "@shared/eslint": "workspace:*",
+        "@shared/modules": "workspace:*",
+        "@shared/tsconfig": "workspace:*"
+    },
+    "exports": {
+        "./signer-service/xrp": "./src/xrp/index.ts",
+        "./signer-service/evm": "./src/evm/index.ts",
+        "./signer-service/utils": "./src/utils/index.ts"
+    }
+}

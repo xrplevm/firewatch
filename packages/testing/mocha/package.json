@@ -4,7 +4,8 @@
     "description": "",
     "scripts": {
         "clean": "rimraf .turbo dist node_modules",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "test": "mocha -r ts-node/register tests/**/*.ts"
     },
     "license": "ISC",
     "devDependencies": {
