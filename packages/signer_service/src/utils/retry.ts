@@ -1,6 +1,7 @@
 import { EthersSigner } from "@firewatch/bridge/signers/evm/ethers";
 import { ChainType } from "@shared/modules/chain";
 import { ISignerService } from "../interfaces";
+import { XrplSigner } from "@firewatch/bridge/signers/xrp/xrpl";
 
 /**
  * Attempts to acquire a signer with multiple retries if unavailable
@@ -10,20 +11,18 @@ import { ISignerService } from "../interfaces";
  * @param delayMs Delay in milliseconds between retry attempts
  * @returns A promise that resolves to an available signer
  */
-export async function getSignerWithRetry(
-    signerService: ISignerService<EthersSigner>,
+export async function getSignerWithRetry<T extends EthersSigner | XrplSigner>(
+    signerService: ISignerService<T>,
     chain: ChainType,
-    maxRetries = 40,
+    maxRetries = 100,
     delayMs = 2000,
-): Promise<EthersSigner> {
+): Promise<T> {
     let retries = 0;
-    let signer: EthersSigner | null = null;
+    let signer: T | null = null;
 
     while (!signer && retries < maxRetries) {
         signer = await signerService.acquireSigner(chain);
         if (signer) return signer;
-
-        console.log(`No signer available, retrying... (${retries + 1}/${maxRetries})`);
         retries++;
         await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
