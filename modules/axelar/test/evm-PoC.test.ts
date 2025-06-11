@@ -94,7 +94,7 @@ describeOrSkip(
             },
             [
                 {
-                    name: "should transfer the xrp 1",
+                    name: "should transfer the token 1",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,
@@ -118,7 +118,13 @@ describeOrSkip(
                     },
                 },
                 {
-                    name: "should transfer the xrp 2",
+                    name: "should transfer the token XX",
+                    fn: async (context) => {
+                        throw new Error("Deliberate failure in test 2");
+                    },
+                },
+                {
+                    name: "should transfer the token 2",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,
@@ -142,7 +148,7 @@ describeOrSkip(
                     },
                 },
                 {
-                    name: "should transfer the xrp 3",
+                    name: "should transfer the token 3",
                     fn: async (context) => {
                         const gasValue = await axelarScanProvider.estimateGasFee(
                             xrplEvmChain.name,

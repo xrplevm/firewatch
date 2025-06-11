@@ -108,7 +108,7 @@ describeOrSkip(
             },
             [
                 {
-                    name: "should transfer the token 1",
+                    name: "should transfer the xrp 1",
                     fn: async (context) => {
                         const tx = await context.xrplChainSigner.transfer(
                             xrplTransferAmount,
@@ -125,7 +125,7 @@ describeOrSkip(
                     },
                 },
                 {
-                    name: "should transfer the token 2",
+                    name: "should transfer the xrp 2",
                     fn: async (context) => {
                         const tx = await context.xrplChainSigner.transfer(
                             xrplTransferAmount,
@@ -142,7 +142,7 @@ describeOrSkip(
                     },
                 },
                 {
-                    name: "should transfer the token 3",
+                    name: "should transfer the xrp 3",
                     fn: async (context) => {
                         const tx = await context.xrplChainSigner.transfer(
                             xrplTransferAmount,
