@@ -3,6 +3,7 @@
         "url": "https://api.axelar.network",
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
+        "excludeTests": ["test/**/evm-evm/**/*.test.ts"],
         "pollingOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
@@ -13,33 +14,33 @@
         }
     },
     "xrplEvmChain": {
-        "id": "xrpl-evm-devnet",
-        "name": "xrpl-evm-devnet",
-        "chainId": 1440002,
-        "env": "devnet",
+        "id": "xrpl-evm",
+        "name": "xrpl-evm",
+        "chainId": 1449000,
+        "env": "testnet",
         "type": "evm",
         "symbol": "XRP",
         "nativeToken": {
-            "id": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
+            "id": "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
             "symbol": "XRP",
             "decimals": 18,
             "name": "XRP",
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         },
         "erc20": {
-            "id": "0xA",
-            "symbol": "A",
-            "decimals": 1,
-            "name": "A",
-            "address": "0xA"
+            "id": "0xc8895f8ceb0cae9da15bb9d2bc5859a184ca0f61c88560488355c8a7364deef8",
+            "symbol": "FOO",
+            "decimals": 15,
+            "name": "FOO",
+            "address": "0xE26D509C661c4F16FaFfBB1eAce1Fa1CdA8cc146"
         },
-        "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-        "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
-        "interchainTokenFactory": "0xECd104DDf368d016ecf5C4c7de60Bdc90565D81a",
-        "interchainTokenServiceAddress": "0x1a7580C2ef5D485E069B7cf1DF9f6478603024d3",
-        "axelarGasServiceAddress": "0x8b4Cc5Fb89B68aE93aDfa67990419144e7395Dd1",
-        "axelarExecutableExampleAddress": "0x1e705Ca6de0080442eC502358dfEF3fB61c4d46A",
-        "interchainTokenExecutableExampleAddress": "0x2A5c0D0908DF7Ec7Ee8E497Cf06D4bC597F6c5ee",
+        "axelarGatewayAddress": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+        "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
+        "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
+        "interchainTokenDeployedAddress": "0xb66d931bC569D60dA5d9852Ea0c1ed0484B72677",
+        "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+        "axelarExecutableExampleAddress": "0x34fC31B1D6F3FE37FcDE7D9Df967Ef01172C25e5",
+        "interchainTokenExecutableExampleAddress": "0x3d942C6834628F20B9708A2B3F56976C5d987BB9",
         "interchainTransferOptions": {
             "amount": "0.00001",
             "gasLimit": 1000000,
@@ -47,22 +48,28 @@
             "deployAmount": "10"
         },
         "urls": {
-            "rpc": "https://rpc.xrplevm.org"
+            "rpc": "https://rpc.testnet.xrplevm.org"
         },
-        "account": {
-            "privateKey": "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
+        "accounts": {
+            "privateKeys": [
+                "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9",
+                "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
+            ],
+            "addresses": ["0x9159C650e1D7E10a17c450eb3D50778aBA593D61", "0xc9324875F728B8059b22B99C73FB2948d768CD2d"]
         },
         "pollingOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
             "timeout": 1000000
+        },
+        "estimateGasFee": {
+            "gasLimit": 200000
         }
     },
     "xrplChain": {
-        "name": "xrpl-dev",
-        "chainId": 100,
-        "id": "xrpl-dev",
-        "env": "devnet",
+        "name": "xrpl",
+        "chainId": 1,
+        "env": "testnet",
         "type": "xrp",
         "nativeToken": {
             "symbol": "XRP",
@@ -70,24 +77,25 @@
             "name": "XRP"
         },
         "iou": {
-            "id": "0x",
-            "symbol": "A",
-            "decimals": 1,
-            "name": "A",
-            "address": "r"
+            "id": "0x85f75bb7fd0753565c1d2cb59bd881970b52c6f06f3472769ba7b48621cd9d23",
+            "symbol": "FOO",
+            "decimals": 15,
+            "name": "FOO",
+            "address": "rHN7vR4P1qDPGpnLgoXemuZhrm6AchBHvj"
         },
-        "axelarGatewayAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
-        "interchainTokenServiceAddress": "rGAbJZEzU6WaYv5y1LfyN7LBBcQJ3TxsKC",
+        "axelarGatewayAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
+        "interchainTokenServiceAddress": "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
         "interchainTransferOptions": {
             "amount": "3",
             "reserveAmount": "1",
             "gasFeeAmount": "1.7"
         },
         "urls": {
-            "ws": "wss://s.devnet.rippletest.net:51233"
+            "ws": "wss://s.altnet.rippletest.net:51233"
         },
-        "account": {
-            "privateKey": "sEdVwXN5PtffKz9RZHv5EQVjxbpttza"
+        "accounts": {
+            "privateKeys": ["sEdVwXN5PtffKz9RZHv5EQVjxbpttza", "sEdSkckj67Nc69FWQo9HfNNC4f6h6Fm", "sEdS5Tkdfj8GxSin8oxPsJNnLXWuNzq"],
+            "addresses": ["rBs8uSfoAePdbr8eZtq7FK2QnTgvHyWAee", "rLAk2qSqZbbfSHtJLmqvhQwD33W1fXKS7m", "rJzxatSadV4KJ9bGyjp4LtzEgRjkuJm9kG"]
         },
         "pollingOptions": {
             "maxRetries": 50,
@@ -96,24 +104,24 @@
         }
     },
     "evmChain": {
-        "name": "avalanche-fuji",
+        "name": "Avalanche",
         "chainId": 43113,
-        "env": "devnet",
+        "env": "testnet",
         "type": "evm",
         "nativeToken": {
             "symbol": "AVAX",
             "decimals": 18,
             "name": "AVAX"
         },
-        "tokenId": "0xbfb47d376947093b7858c1c59a4154dd291d5b2251cb56a6f7159a070f0bd518",
-        "axelarGatewayAddress": "0xF128c84c3326727c3e155168daAa4C0156B87AD1",
-        "interchainTokenFactory": "0xdB7d6A5B8d37a4f34BC1e7ce0d0B8a9DDA124871",
-        "interchainTokenServiceAddress": "0x2269B93c8D8D4AfcE9786d2940F5Fcd4386Db7ff",
-        "axelarGasServiceAddress": "0x1179d44e69ba5252B7478a8602617d5EEeb2F377",
+        "axelarGatewayAddress": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+        "interchainTokenFactory": "0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66",
+        "interchainTokenServiceAddress": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
+        "axelarGasServiceAddress": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
         "axelarExecutableExampleAddress": "0x230A4780C8e88cED1bBF4CE301f71E11121C5Da5",
         "interchainTokenExecutableExampleAddress": "0x6B1C57Ae145b03f1FFB54D8eD72DC5C2B958E2d5",
+        "tokenId": "",
         "interchainTransferOptions": {
-            "amount": "0.00001",
+            "amount": "1",
             "gasLimit": 1000000,
             "gasValue": "0.2"
         },
@@ -121,8 +129,12 @@
             "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
             "ws": "https://api.avax-test.network/ext/bc/C/rpc"
         },
-        "account": {
-            "privateKey": "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
+        "accounts": {
+            "privateKeys": [
+                "5b726ed6e1d4fdeec6ec7526d71c96218f6ebe4d7b10928732c49a242dd6bea9",
+                "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
+            ],
+            "addresses": ["0x9159C650e1D7E10a17c450eb3D50778aBA593D61", "0xc9324875F728B8059b22B99C73FB2948d768CD2d"]
         },
         "pollingOptions": {
             "maxRetries": 50,
