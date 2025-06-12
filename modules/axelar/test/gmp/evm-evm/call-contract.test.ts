@@ -56,7 +56,7 @@ describeOrSkip(
         before(async () => {
             const {
                 urls: xrplEvmUrls,
-                account: xrplEvmAccount,
+                accounts: xrplEvmAccounts,
                 axelarGatewayAddress: xrplEvmGatewayAddress,
                 axelarGasServiceAddress: xrplEvmGasServiceAddress,
                 axelarExecutableExampleAddress: xrplEvmExecutableAddress,
@@ -65,7 +65,7 @@ describeOrSkip(
 
             const {
                 urls: evmUrls,
-                account: evmAccount,
+                accounts: evmAccounts,
                 axelarGatewayAddress: evmGatewayAddress,
                 axelarGasServiceAddress: evmGasServiceAddress,
                 axelarExecutableExampleAddress: evmExecutableAddress,
@@ -78,8 +78,8 @@ describeOrSkip(
             sourceEvmProvider = new EthersProvider(sourceJsonProvider);
             destinationEvmProvider = new EthersProvider(destinationJsonProvider);
 
-            sourceWallet = new ethers.Wallet(xrplEvmAccount.privateKey, sourceJsonProvider);
-            destinationWallet = new ethers.Wallet(evmAccount.privateKey, destinationJsonProvider);
+            sourceWallet = new ethers.Wallet(xrplEvmAccounts.privateKeys[0], sourceJsonProvider);
+            destinationWallet = new ethers.Wallet(evmAccounts.privateKeys[0], destinationJsonProvider);
 
             sourceEvmSigner = new EthersSigner(sourceWallet, sourceEvmProvider);
             destinationEvmSigner = new EthersSigner(destinationWallet, destinationEvmProvider);

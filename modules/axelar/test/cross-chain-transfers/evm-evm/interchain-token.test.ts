@@ -55,29 +55,29 @@ describeOrSkip(
         before(async () => {
             const {
                 urls: xrplEvmUrls,
-                account: xrplEvmAccount,
+                accounts: xrplEvmAccounts,
                 interchainTokenFactory: xrplEvmFactoryAddress,
                 interchainTokenServiceAddress: xrplEvmTokenServiceAddress,
                 interchainTransferOptions,
             } = xrplEvmChain;
             const {
-                urls: destUrls,
-                account: destAccount,
-                interchainTokenServiceAddress: destTokenServiceAddress,
-                interchainTokenFactory: destFactoryAddress,
+                urls: evmUrls,
+                accounts: evmAccounts,
+                interchainTokenServiceAddress: evmTokenServiceAddress,
+                interchainTokenFactory: evmFactoryAddress,
             } = evmChain;
 
             xrplEvmJsonProvider = new ethers.JsonRpcProvider(xrplEvmUrls.rpc);
-            evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
+            evmJsonProvider = new ethers.JsonRpcProvider(evmUrls.rpc);
 
-            xrplEvmWallet = new ethers.Wallet(xrplEvmAccount.privateKey, xrplEvmJsonProvider);
-            evmWallet = new ethers.Wallet(destAccount.privateKey, evmJsonProvider);
+            xrplEvmWallet = new ethers.Wallet(xrplEvmAccounts.privateKeys[0], xrplEvmJsonProvider);
+            evmWallet = new ethers.Wallet(evmAccounts.privateKeys[0], evmJsonProvider);
 
             xrplEvmInterchainTokenFactory = new InterchainTokenFactory(xrplEvmFactoryAddress, xrplEvmWallet);
-            evmInterchainTokenFactory = new InterchainTokenFactory(destFactoryAddress, evmWallet);
+            evmInterchainTokenFactory = new InterchainTokenFactory(evmFactoryAddress, evmWallet);
 
             xrplEvmInterchainTokenService = new InterchainTokenService(xrplEvmTokenServiceAddress, xrplEvmWallet);
-            evmInterchainTokenService = new InterchainTokenService(destTokenServiceAddress, evmWallet);
+            evmInterchainTokenService = new InterchainTokenService(evmTokenServiceAddress, evmWallet);
 
             xrplEvmRecipient = ethers.zeroPadBytes(xrplEvmWallet.address, 20);
             evmRecipient = ethers.zeroPadBytes(evmWallet.address, 20);
