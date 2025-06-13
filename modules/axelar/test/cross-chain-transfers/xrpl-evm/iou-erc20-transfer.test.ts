@@ -60,11 +60,11 @@ describeOrSkip(
 
             xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[1]);
 
-            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.accounts.addresses[1]);
-
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
             xrplChainTranslator = new XrpTranslator();
+
+            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.accounts.addresses[1]);
 
             iou = new Token(xrplChain.iou);
 
