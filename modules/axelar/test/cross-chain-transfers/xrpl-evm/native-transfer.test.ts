@@ -44,6 +44,7 @@ describeOrSkip(
 
         let xrplChainTranslator: XrpTranslator;
 
+        let xrplEvmAddress: string;
         let translatedXrplEvmAddress: string;
 
         let xrplTransferAmount: string;
@@ -57,13 +58,14 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
-            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[0]);
+            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[1]);
 
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
             xrplChainTranslator = new XrpTranslator();
 
-            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.accounts.addresses[0]);
+            xrplEvmAddress = xrplEvmChain.accounts.addresses[1];
+            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmAddress);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
 
@@ -108,7 +110,7 @@ describeOrSkip(
                 const amountAsDrops = xrpToDrops(amount);
                 const amountAsWei = ethers.parseEther(amount).toString();
 
-                const initialEvmBalance = await xrplEvmChainProvider.getNativeBalance(translatedXrplEvmAddress);
+                const initialEvmBalance = await xrplEvmChainProvider.getNativeBalance(xrplEvmAddress);
 
                 const tx = await xrplChainSigner.transfer(
                     amountAsDrops,
@@ -126,7 +128,7 @@ describeOrSkip(
                 const gasFeeAsWei = ethers.parseEther(dropsToXrp(gasFeeAmount).toString()).toString();
 
                 await expectBalanceUpdate(
-                    async () => (await xrplEvmChainProvider.getNativeBalance(xrplEvmChain.accounts.addresses[0])).toString(),
+                    async () => (await xrplEvmChainProvider.getNativeBalance(xrplEvmAddress)).toString(),
                     BigNumber(initialEvmBalance.toString()).plus(amountAsWei).minus(gasFeeAsWei).toString(),
                     pollingOpts,
                 );

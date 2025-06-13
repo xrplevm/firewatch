@@ -64,13 +64,13 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplChain.env as Env);
 
-            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[1], evmJsonProvider);
+            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[0], evmJsonProvider);
 
             xrplEvmChainSigner = new EthersSigner(xrplEvmChainWallet, xrplEvmChainProvider);
 
             xrplEvmChainTranslator = new EvmTranslator();
 
-            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChain.accounts.addresses[1]);
+            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChain.accounts.addresses[0]);
 
             erc20 = new Token(xrplEvmChain.erc20);
 
@@ -94,6 +94,7 @@ describeOrSkip(
                     value: gasValue,
                     gasLimit: gasLimit,
                 });
+                console.log("tx hash", tx.hash);
 
                 await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });

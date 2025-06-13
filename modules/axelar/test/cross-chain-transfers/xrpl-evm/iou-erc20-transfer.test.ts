@@ -58,18 +58,19 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplChain.env as Env);
 
-            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[1]);
+            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[0]);
 
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
             xrplChainTranslator = new XrpTranslator();
 
-            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.accounts.addresses[1]);
+            translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmChain.accounts.addresses[0]);
 
             iou = new Token(xrplChain.iou);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);
         });
+
         describe("from iou xrpl chain to evm chain", () => {
             it("should transfer the iou", async () => {
                 const tx = await xrplChainSigner.transfer(

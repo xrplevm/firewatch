@@ -62,7 +62,7 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
-            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[0], evmJsonProvider);
+            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[1], evmJsonProvider);
 
             xrplEvmChainSigner = new EthersSigner(xrplEvmChainWallet, xrplEvmChainProvider);
 
@@ -70,12 +70,13 @@ describeOrSkip(
 
             unfundedWallet = Wallet.generate();
 
-            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChain.accounts.addresses[0]);
+            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChain.accounts.addresses[1]);
 
             xrplEvmTransferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount).toString();
 
             xrplReserveAmount = xrplChain.interchainTransferOptions.reserveAmount;
         });
+
         describe("from xrpl-evm chain to xrpl chain", () => {
             it("should transfer the token", async () => {
                 const gasValue = await axelarScanProvider.estimateGasFee(
