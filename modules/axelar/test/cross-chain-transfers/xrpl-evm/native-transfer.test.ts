@@ -105,7 +105,7 @@ describeOrSkip(
                 await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });
 
-            it("should extend 6 decimal places to 18 decimals properly when transferring from XRPL to EVM", async () => {
+            it("should extend 6 decimal places to 18 decimals properly when transferring from xrpl to evm", async () => {
                 const amount = "3.123456";
                 const amountAsDrops = xrpToDrops(amount);
                 const amountAsWei = ethers.parseEther(amount).toString();

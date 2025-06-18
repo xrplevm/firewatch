@@ -48,6 +48,7 @@ describeOrSkip(
 
         let xrplEvmChainTranslator: EvmTranslator;
 
+        let xrplAddress: string;
         let translatedXrplAddress: string;
 
         let xrplEvmTransferAmount: string;
@@ -70,7 +71,8 @@ describeOrSkip(
 
             unfundedWallet = Wallet.generate();
 
-            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplChain.accounts.addresses[1]);
+            xrplAddress = xrplChain.accounts.addresses[1];
+            translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplAddress);
 
             xrplEvmTransferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount).toString();
 
@@ -254,7 +256,7 @@ describeOrSkip(
                 const amountAsWei = ethers.parseEther(amount).toString();
                 const expectedAmountAsDrops = xrpToDrops(expectedAmount);
 
-                const initialBalance = await xrplChainProvider.getNativeBalance("r");
+                const initialBalance = await xrplChainProvider.getNativeBalance(xrplAddress);
 
                 const gasValue = await axelarScanProvider.estimateGasFee(
                     xrplEvmChain.name,
@@ -276,7 +278,7 @@ describeOrSkip(
                 await expectFullExecution(receipt.hash, axelarScanProvider, pollingOpts);
 
                 await expectBalanceUpdate(
-                    async () => (await xrplChainProvider.getNativeBalance("r")).toString(),
+                    async () => (await xrplChainProvider.getNativeBalance(xrplAddress)).toString(),
                     BigNumber(initialBalance.toString()).plus(expectedAmountAsDrops).toString(),
                     pollingOpts,
                 );
@@ -286,7 +288,7 @@ describeOrSkip(
                 const amount = "1.123456";
                 const amountAsWei = ethers.parseEther(amount).toString();
 
-                const initialBalance = await xrplChainProvider.getNativeBalance("r");
+                const initialBalance = await xrplChainProvider.getNativeBalance(xrplAddress);
 
                 const gasValue = await axelarScanProvider.estimateGasFee(
                     xrplEvmChain.name,
@@ -308,7 +310,7 @@ describeOrSkip(
                 await expectFullExecution(receipt.hash, axelarScanProvider, pollingOpts);
 
                 await expectBalanceUpdate(
-                    async () => (await xrplChainProvider.getNativeBalance("r")).toString(),
+                    async () => (await xrplChainProvider.getNativeBalance(xrplAddress)).toString(),
                     BigNumber(initialBalance.toString()).plus(xrpToDrops(amount)).toString(),
                     pollingOpts,
                 );

@@ -94,7 +94,6 @@ describeOrSkip(
                     value: gasValue,
                     gasLimit: gasLimit,
                 });
-                console.log("tx hash", tx.hash);
 
                 await expectFullExecution(tx.hash, axelarScanProvider, pollingOpts);
             });
