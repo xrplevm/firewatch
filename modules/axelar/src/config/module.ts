@@ -12,7 +12,7 @@ export interface AxelarModuleConfig extends Omit<HardhatModuleConfig<AxelarBridg
         url: string;
         apiUrl: string;
         gmpUrl: string;
-        excludeTests: string[];
+        excludeTestFiles: string[];
         axelarScanOptions: PollingOptions;
         estimateGasFee: EstimateGasFeeOptions;
     };

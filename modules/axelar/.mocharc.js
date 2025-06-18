@@ -5,5 +5,5 @@ module.exports = {
     timeout: moduleConfig.axelar.pollingOptions.timeout,
     parallel: true,
     spec: "test/**/*.test.ts",
-    ignore: moduleConfig.axelar.excludeTests || [],
+    ignore: moduleConfig.axelar.excludeTestFiles || [],
 };

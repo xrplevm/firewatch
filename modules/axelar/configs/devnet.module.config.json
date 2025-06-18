@@ -3,7 +3,7 @@
         "url": "https://api.axelar.network",
         "apiUrl": "https://api.axelar.network",
         "gmpUrl": "https://gmp.axelar.network",
-        "excludeTests": ["test/**/evm-evm/**/*.test.ts"],
+        "excludeTestFiles": ["test/**/evm-evm/**/*.test.ts"],
         "pollingOptions": {
             "maxRetries": 50,
             "retryDelay": 10000,
