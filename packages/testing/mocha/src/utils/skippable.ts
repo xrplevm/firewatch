@@ -18,9 +18,7 @@ export function describeOrSkip(
         condition = condition();
     }
     if (condition) {
-        describeFn(name, () => {
-            fn();
-        });
+        describeFn(name, fn);
     } else {
         describeFn.skip(name, () => {});
     }
@@ -44,9 +42,7 @@ export function itOrSkip(
         condition = condition();
     }
     if (condition) {
-        itFn(name, () => {
-            fn();
-        });
+        itFn(name, fn);
     } else {
         itFn.skip(name, () => {});
     }

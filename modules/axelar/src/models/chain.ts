@@ -15,7 +15,7 @@ export interface AxelarBridgeChain extends Chain {
     interchainTokenServiceAddress: string;
     interchainTransferOptions: InterchainTransferOptions;
     pollingOptions: PollingOptions;
-    account: Pick<Account, "privateKey">;
+    accounts: Array<Omit<Account, "name">>;
 }
 
 export interface XrplEvmChain extends AxelarBridgeChain {

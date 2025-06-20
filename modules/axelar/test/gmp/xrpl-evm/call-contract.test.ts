@@ -48,18 +48,16 @@ describeOrSkip(
         const pollingOpts = config.xrplEvmChain as PollingOptions;
 
         before(async () => {
-            const { urls: destUrls, axelarExecutableExampleAddress, interchainTokenExecutableExampleAddress } = xrplEvmChain;
-
-            destAxExecAddress = axelarExecutableExampleAddress;
-            destIntTokenExecAddress = interchainTokenExecutableExampleAddress;
+            destAxExecAddress = xrplEvmChain.axelarExecutableExampleAddress;
+            destIntTokenExecAddress = xrplEvmChain.interchainTokenExecutableExampleAddress;
 
             xrplClient = new Client(xrplChain.urls.ws);
-            evmJsonProvider = new ethers.JsonRpcProvider(destUrls.rpc);
+            evmJsonProvider = new ethers.JsonRpcProvider(xrplEvmChain.urls.rpc);
 
             xrplChainProvider = new XrplProvider(xrplClient);
 
-            xrplChainWallet = Wallet.fromSeed(xrplChain.account.privateKey);
-            evmChainWallet = new ethers.Wallet(xrplEvmChain.account.privateKey, evmJsonProvider);
+            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts[2].privateKey);
+            evmChainWallet = new ethers.Wallet(xrplEvmChain.accounts[0].privateKey, evmJsonProvider);
 
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 

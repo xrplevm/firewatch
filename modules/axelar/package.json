@@ -6,19 +6,16 @@
     "scripts": {
         "cli": "ts-node src/cli/main.ts",
         "lint": "eslint .",
-        "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && hardhat test",
-        "test:testnet": "cp configs/testnet.module.config.json module.config.json && hardhat test",
-        "test:devnet": "cp configs/devnet.module.config.json module.config.json && hardhat test",
+        "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && mocha test",
+        "test:testnet": "cp configs/testnet.module.config.json module.config.json && mocha test",
+        "test:devnet": "cp configs/devnet.module.config.json module.config.json && mocha test",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
     "dependencies": {
-        "@nomicfoundation/hardhat-ethers": "^3.0.8",
-        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
         "bignumber.js": "^9.1.2",
         "chai": "^4.3.7",
         "ethers": "^6.13.5",
-        "hardhat": "^2.22.18",
         "xrpl": "3.0.0"
     },
     "devDependencies": {
@@ -36,6 +33,7 @@
         "@types/chai": "^5.0.1",
         "@types/mocha": "^10.0.10",
         "@types/node": "^22.13.1",
-        "dotenv": "^16.4.7"
+        "dotenv": "^16.4.7",
+        "mocha": "^11.1.0"
     }
 }
