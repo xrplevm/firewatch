@@ -78,8 +78,8 @@ describeOrSkip(
             sourceEvmProvider = new EthersProvider(sourceJsonProvider);
             destinationEvmProvider = new EthersProvider(destinationJsonProvider);
 
-            sourceWallet = new ethers.Wallet(xrplEvmAccounts.privateKeys[0], sourceJsonProvider);
-            destinationWallet = new ethers.Wallet(evmAccounts.privateKeys[0], destinationJsonProvider);
+            sourceWallet = new ethers.Wallet(xrplEvmAccounts[0].privateKey, sourceJsonProvider);
+            destinationWallet = new ethers.Wallet(evmAccounts[0].privateKey, destinationJsonProvider);
 
             sourceEvmSigner = new EthersSigner(sourceWallet, sourceEvmProvider);
             destinationEvmSigner = new EthersSigner(destinationWallet, destinationEvmProvider);

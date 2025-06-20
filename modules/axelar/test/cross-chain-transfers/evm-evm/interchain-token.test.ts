@@ -70,8 +70,8 @@ describeOrSkip(
             xrplEvmJsonProvider = new ethers.JsonRpcProvider(xrplEvmUrls.rpc);
             evmJsonProvider = new ethers.JsonRpcProvider(evmUrls.rpc);
 
-            xrplEvmWallet = new ethers.Wallet(xrplEvmAccounts.privateKeys[0], xrplEvmJsonProvider);
-            evmWallet = new ethers.Wallet(evmAccounts.privateKeys[0], evmJsonProvider);
+            xrplEvmWallet = new ethers.Wallet(xrplEvmAccounts[0].privateKey, xrplEvmJsonProvider);
+            evmWallet = new ethers.Wallet(evmAccounts[0].privateKey, evmJsonProvider);
 
             xrplEvmInterchainTokenFactory = new InterchainTokenFactory(xrplEvmFactoryAddress, xrplEvmWallet);
             evmInterchainTokenFactory = new InterchainTokenFactory(evmFactoryAddress, evmWallet);

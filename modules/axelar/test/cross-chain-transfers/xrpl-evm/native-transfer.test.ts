@@ -58,13 +58,13 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
-            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[1]);
+            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts[1].privateKey);
 
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
             xrplChainTranslator = new XrpTranslator();
 
-            xrplEvmAddress = xrplEvmChain.accounts.addresses[1];
+            xrplEvmAddress = xrplEvmChain.accounts[1].address;
             translatedXrplEvmAddress = xrplChainTranslator.translate(ChainType.EVM, xrplEvmAddress);
 
             xrplTransferAmount = xrpToDrops(xrplChain.interchainTransferOptions.amount);

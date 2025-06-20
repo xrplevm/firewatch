@@ -63,7 +63,7 @@ describeOrSkip(
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplEvmChain.env as Env);
 
-            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[1], evmJsonProvider);
+            xrplEvmChainWallet = new ethers.Wallet(xrplEvmChain.accounts[1].privateKey, evmJsonProvider);
 
             xrplEvmChainSigner = new EthersSigner(xrplEvmChainWallet, xrplEvmChainProvider);
 
@@ -71,7 +71,7 @@ describeOrSkip(
 
             unfundedWallet = Wallet.generate();
 
-            xrplAddress = xrplChain.accounts.addresses[1];
+            xrplAddress = xrplChain.accounts[1].address;
             translatedXrplAddress = xrplEvmChainTranslator.translate(ChainType.XRP, xrplAddress);
 
             xrplEvmTransferAmount = ethers.parseEther(xrplEvmChain.interchainTransferOptions.amount).toString();

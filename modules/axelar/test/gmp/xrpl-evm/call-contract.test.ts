@@ -56,8 +56,8 @@ describeOrSkip(
 
             xrplChainProvider = new XrplProvider(xrplClient);
 
-            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts.privateKeys[2]);
-            evmChainWallet = new ethers.Wallet(xrplEvmChain.accounts.privateKeys[0], evmJsonProvider);
+            xrplChainWallet = Wallet.fromSeed(xrplChain.accounts[2].privateKey);
+            evmChainWallet = new ethers.Wallet(xrplEvmChain.accounts[0].privateKey, evmJsonProvider);
 
             xrplChainSigner = new XrplSigner(xrplChainWallet, xrplChainProvider);
 
