@@ -170,7 +170,7 @@ export async function expectGasAdded(
                     (tx: any) =>
                         tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
                 );
-            } catch (e) {
+            } catch (_: unknown) {
                 return undefined;
             }
         },

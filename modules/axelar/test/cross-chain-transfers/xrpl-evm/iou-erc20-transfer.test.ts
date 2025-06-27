@@ -1,6 +1,4 @@
-import { EthersProvider } from "@firewatch/bridge/providers/evm/ethers";
 import { XrplSigner, XrplSignerErrors } from "@firewatch/bridge/signers/xrp/xrpl";
-import { ethers } from "ethers";
 import config from "../../../module.config.json";
 import { Client, Wallet, xrpToDrops } from "xrpl";
 import { XrplProvider } from "@firewatch/bridge/providers/xrp/xrpl";
@@ -33,13 +31,11 @@ describeOrSkip(
 
         let iou: Token;
 
-        let xrplEvmChainProvider: EthersProvider;
         let xrplChainProvider: XrplProvider;
         let axelarScanProvider: AxelarScanProvider;
 
         let xrplChainSigner: XrplSigner;
 
-        let evmJsonProvider: ethers.JsonRpcProvider;
         let xrplClient: Client;
 
         let xrplChainWallet: Wallet;
@@ -51,10 +47,8 @@ describeOrSkip(
         let translatedXrplEvmAddress: string;
 
         before(async () => {
-            evmJsonProvider = new ethers.JsonRpcProvider(xrplEvmChain.urls.rpc);
             xrplClient = new Client(xrplChain.urls.ws);
 
-            xrplEvmChainProvider = new EthersProvider(evmJsonProvider);
             xrplChainProvider = new XrplProvider(xrplClient);
             axelarScanProvider = new AxelarScanProvider(xrplChain.env as Env);
 
