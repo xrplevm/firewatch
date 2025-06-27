@@ -159,15 +159,20 @@ export async function expectGasAdded(
 
     const result = await polling(
         async () => {
-            const gasAddedTransactions = await axelarScanProvider.fetchGasAddedTransactions(txHash);
+            try {
+                const gasAddedTransactions = await axelarScanProvider.fetchGasAddedTransactions(txHash);
 
-            if (!gasAddedTransactions || !Array.isArray(gasAddedTransactions)) {
+                if (!gasAddedTransactions || !Array.isArray(gasAddedTransactions)) {
+                    return undefined;
+                }
+
+                return gasAddedTransactions.find(
+                    (tx: any) =>
+                        tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
+                );
+            } catch (e) {
                 return undefined;
             }
-
-            return gasAddedTransactions.find(
-                (tx: any) => tx.returnValues && tx.returnValues.gasFeeAmount && tx.returnValues.gasFeeAmount.toString() === expectedFeeStr,
-            );
         },
         (found) => !found,
         pollingOptions,
