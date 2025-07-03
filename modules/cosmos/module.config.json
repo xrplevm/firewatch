@@ -23,5 +23,50 @@
     },
     "bank": {
         "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+    },
+    "ibc": {
+        "chains": [
+            {
+                "dstChain": {
+                    "account": {
+                        "mnemonic": "harsh harsh mean pool tell oval cancel deal unit strategy deny pool",
+                        "address": "ethm1dny09udcpxg2j6440fuk2m6wajz6249tgu2znt"
+                    },
+                    "evm": true,
+                    "chainId": "xrplevm_1449000-1",
+                    "rpcUrl": "http://cosmos.testnet.xrplevm.org:26657",
+                    "prefix": "ethm",
+                    "denom": "axrp",
+                    "amount": "5000",
+                    "channel": "channel-2",
+                    "gas": {
+                        "amount": "40000000000000000",
+                        "gas": "200000"
+                    }
+                },
+                "srcChain": {
+                    "account": {
+                        "mnemonic": "harsh harsh mean pool tell oval cancel deal unit strategy deny pool",
+                        "address": "cosmos1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+                    },
+                    "evm": false,
+                    "chainId": "osmo-test-5",
+                    "rpcUrl": "https://rpc.testnet.osmosis.zone",
+                    "prefix": "osmo",
+                    "denom": "uosmo",
+                    "amount": "5000",
+                    "gas": {
+                        "amount": "200000",
+                        "gas": "200000"
+                    },
+                    "channel": "channel-10361"
+                },
+                "port": "transfer"
+            }
+        ],
+        "heightBuffer": 1000,
+        "timeoutMinutes": 10,
+        "maxIterations": 12,
+        "delay": 10000
     }
 }
