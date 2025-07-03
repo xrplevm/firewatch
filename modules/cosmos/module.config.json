@@ -63,6 +63,10 @@
                 },
                 "port": "transfer"
             }
-        ]
+        ],
+        "heightBuffer": 1000,
+        "timeoutMinutes": 10,
+        "maxIterations": 12,
+        "delay": 10000
     }
 }

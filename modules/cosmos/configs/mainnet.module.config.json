@@ -23,5 +23,48 @@
     },
     "bank": {
         "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+    },
+    "ibc": {
+        "chains": [
+            {
+                "dstChain": {
+                    "account": {
+                        "mnemonic": ""
+                    },
+                    "evm": true,
+                    "chainId": "xrplevm_1440000-1",
+                    "rpcUrl": "http://cosmos-rpc.xrplevm.org:26657",
+                    "prefix": "ethm",
+                    "denom": "axrp",
+                    "amount": "5000",
+                    "channel": "",
+                    "gas": {
+                        "amount": "40000000000000000",
+                        "gas": "200000"
+                    }
+                },
+                "srcChain": {
+                    "account": {
+                        "mnemonic": ""
+                    },
+                    "evm": false,
+                    "chainId": "osmo-mainnet-1",
+                    "rpcUrl": "https://rpc.osmosis.zone",
+                    "prefix": "osmo",
+                    "denom": "uosmo",
+                    "amount": "5000",
+                    "gas": {
+                        "amount": "200000",
+                        "gas": "200000"
+                    },
+                    "channel": ""
+                },
+                "port": "transfer"
+            }
+        ],
+        "heightBuffer": 1000,
+        "timeoutMinutes": 10,
+        "maxIterations": 12,
+        "delay": 10000
     }
 }

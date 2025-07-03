@@ -1,6 +1,5 @@
 export interface IBCAccount {
     mnemonic: string;
-    address: string;
 }
 
 export interface IBCGas {
@@ -29,4 +28,8 @@ export interface IBCChainPair {
 
 export interface IBCModuleConfig {
     chains: IBCChainPair[];
+    heightBuffer: number;
+    timeoutMinutes: number;
+    maxIterations: number;
+    delay: number;
 }

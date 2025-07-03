@@ -11,7 +11,7 @@ import {
 } from "../../../src/modules/ibc/utils";
 import { expect } from "chai";
 import { polling } from "@shared/utils";
-import { describeOrSkip } from "@testing/mocha/utils";
+import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";
 
@@ -43,15 +43,12 @@ describeOrSkip(
                     srcSender = srcChainData.sender;
                     dstClient = dstChainData.client;
                     dstSender = dstChainData.sender;
-
-                    console.log("srcSender", srcSender);
-                    console.log("dstSender", dstSender);
                 });
 
                 it(`should transfer ${srcChain.amount} ${srcChain.denom} from ${srcChain.chainId} to ${dstChain.chainId}`, async () => {
                     // Calculate dynamic timeout height and timestamp
-                    const timeoutHeight = await calculateTimeoutHeight(dstClient, 1000);
-                    const timeoutTimestamp = calculateTimeoutTimestamp(10); // 10 minutes
+                    const timeoutHeight = await calculateTimeoutHeight(dstClient, ibcConfig.heightBuffer);
+                    const timeoutTimestamp = calculateTimeoutTimestamp(ibcConfig.timeoutMinutes); // 10 minutes
 
                     const result = await srcClient.sendIbcTokens(
                         srcSender,
@@ -81,51 +78,55 @@ describeOrSkip(
                         async () => await verifyIbcPacketAcknowledgement(dstClient, dstChain.channel, sequence!),
                         (res) => !res,
                         {
-                            delay: 10000,
-                            maxIterations: 12,
+                            delay: ibcConfig.delay,
+                            maxIterations: ibcConfig.maxIterations,
                         },
                     );
                     expect(isPacketReceived).to.equal(true);
                 });
 
-                it(`should transfer ${dstChain.amount} ${dstChain.denom} from ${dstChain.chainId} to ${srcChain.chainId}`, async () => {
-                    const timeoutHeight = await calculateTimeoutHeight(srcClient, 1000);
-                    const timeoutTimestamp = calculateTimeoutTimestamp(10); // 10 minutes
+                itOrSkip(
+                    `should transfer ${dstChain.amount} ${dstChain.denom} from ${dstChain.chainId} to ${srcChain.chainId}`,
+                    !dstChain.evm,
+                    async () => {
+                        const timeoutHeight = await calculateTimeoutHeight(srcClient, ibcConfig.heightBuffer);
+                        const timeoutTimestamp = calculateTimeoutTimestamp(ibcConfig.timeoutMinutes); // 10 minutes
 
-                    const result = await dstClient.sendIbcTokens(
-                        dstSender,
-                        srcSender,
-                        {
-                            denom: dstChain.denom,
-                            amount: dstChain.amount,
-                        },
-                        "transfer",
-                        dstChain.channel,
-                        timeoutHeight,
-                        timeoutTimestamp,
-                        {
-                            amount: coins(dstChain.gas.amount, dstChain.denom),
-                            gas: dstChain.gas.gas,
-                        },
-                    );
+                        const result = await dstClient.sendIbcTokens(
+                            dstSender,
+                            srcSender,
+                            {
+                                denom: dstChain.denom,
+                                amount: dstChain.amount,
+                            },
+                            "transfer",
+                            dstChain.channel,
+                            timeoutHeight,
+                            timeoutTimestamp,
+                            {
+                                amount: coins(dstChain.gas.amount, dstChain.denom),
+                                gas: dstChain.gas.gas,
+                            },
+                        );
 
-                    assertIsDeliverTxSuccess(result);
+                        assertIsDeliverTxSuccess(result);
 
-                    const txDetails = await dstClient.getTx(result.transactionHash);
-                    const sequence = extractPacketSequenceFromLogs(txDetails.events);
+                        const txDetails = await dstClient.getTx(result.transactionHash);
+                        const sequence = extractPacketSequenceFromLogs(txDetails.events);
 
-                    expect(sequence).to.not.equal(undefined);
+                        expect(sequence).to.not.equal(undefined);
 
-                    const isPacketReceived = await polling(
-                        async () => await verifyIbcPacketAcknowledgement(srcClient, srcChain.channel, sequence!),
-                        (res) => !res,
-                        {
-                            delay: 10000,
-                            maxIterations: 12,
-                        },
-                    );
-                    expect(isPacketReceived).to.equal(true);
-                });
+                        const isPacketReceived = await polling(
+                            async () => await verifyIbcPacketAcknowledgement(srcClient, srcChain.channel, sequence!),
+                            (res) => !res,
+                            {
+                                delay: ibcConfig.delay,
+                                maxIterations: ibcConfig.maxIterations,
+                            },
+                        );
+                        expect(isPacketReceived).to.equal(true);
+                    },
+                );
             });
         }
     },
