@@ -1,0 +1,30 @@
+{
+    "name": "@firewatch/proto-evmos",
+    "author": "Peersyst",
+    "version": "0.0.0",
+    "license": "UNLICENSED",
+    "scripts": {
+        "dev": "tsup --watch",
+        "build": "tsup",
+        "clean": "rimraf .turbo dist node_modules",
+        "lint": "eslint .",
+        "check-types": "npx tsc --noEmit"
+    },
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "dependencies": {
+        "@cosmjs/stargate": "^0.33.0",
+        "@cosmjs/tendermint-rpc": "^0.33.1",
+        "@cosmjs/proto-signing": "^0.33.0",
+        "cosmjs-types": "^0.9.0",
+        "protobufjs": "^7.4.0",
+        "buffer": "^6.0.3"
+    },
+    "devDependencies": {
+        "@shared/eslint": "workspace:*",
+        "@shared/tsconfig": "workspace:*",
+        "@shared/tsup": "workspace:*",
+        "typescript": "latest"
+    }
+}
