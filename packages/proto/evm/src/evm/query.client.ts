@@ -22,9 +22,9 @@ export class EvmQueryClient {
     }
 
     /**
-     * Creates a new EvmQueryClient instance
-     * @param rpcUrl The Tendermint RPC endpoint
-     * @returns A Promise that resolves to an EvmQueryClient
+     * Creates a new EvmQueryClient instance.
+     * @param rpcUrl The Tendermint RPC endpoint.
+     * @returns A Promise that resolves to an EvmQueryClient.
      */
     static async connect(rpcUrl: string): Promise<EvmQueryClient> {
         const tendermint = await Tendermint34Client.connect(rpcUrl);
@@ -34,36 +34,42 @@ export class EvmQueryClient {
     }
 
     /**
-     * Query an Ethereum account
+     * Query an Ethereum account.
+     * @param address.
      * @param address
+     * @returns A Promise that resolves to a QueryAccountResponse.
      */
     async account(address: string): Promise<QueryAccountResponse> {
         const requestData = encodeQueryAccountRequest({ address });
-        const responseData = await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Account", requestData) as Uint8Array;
+        const responseData = (await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Account", requestData)) as Uint8Array;
         return decodeQueryAccountResponse(responseData);
     }
 
     /**
-     * Query the balance of an Ethereum account
+     * Query the balance of an Ethereum account.
+     * @param address.
      * @param address
+     * @returns A Promise that resolves to a QueryBalanceResponse.
      */
     async balance(address: string): Promise<QueryBalanceResponse> {
         const requestData = encodeQueryBalanceRequest({ address });
-        const responseData = await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Balance", requestData) as Uint8Array;
+        const responseData = (await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Balance", requestData)) as Uint8Array;
         return decodeQueryBalanceResponse(responseData);
     }
 
     /**
-     * Query the EVM module parameters
+     * Query the EVM module parameters.
+     * @returns A Promise that resolves to a QueryParamsResponse.
      */
     async params(): Promise<QueryParamsResponse> {
         const requestData = encodeQueryParamsRequest({});
-        const responseData = await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Params", requestData) as Uint8Array;
+        const responseData = (await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Params", requestData)) as Uint8Array;
         return decodeQueryParamsResponse(responseData);
     }
 
     /**
-     * Query the EVM configuration
+     * Query the EVM configuration.
+     * @returns A Promise that resolves to a QueryConfigResponse.
      */
     async config(): Promise<QueryConfigResponse> {
         const data = new Uint8Array();
@@ -71,23 +77,28 @@ export class EvmQueryClient {
     }
 
     /**
-     * Query account storage
+     * Query account storage.
+     * @param address.
+     * @param key.
      * @param address
      * @param key
+     * @returns A Promise that resolves to a QueryStorageResponse.
      */
     async storage(address: string, key: string): Promise<QueryStorageResponse> {
         const requestData = encodeQueryStorageRequest({ address, key });
-        const responseData = await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Storage", requestData) as Uint8Array;
+        const responseData = (await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Storage", requestData)) as Uint8Array;
         return decodeQueryStorageResponse(responseData);
     }
 
     /**
-     * Query account code
+     * Query account code.
+     * @param address.
      * @param address
+     * @returns A Promise that resolves to a QueryCodeResponse.
      */
     async code(address: string): Promise<QueryCodeResponse> {
         const requestData = encodeQueryCodeRequest({ address });
-        const responseData = await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Code", requestData) as Uint8Array;
+        const responseData = (await this.rpcClient.request("cosmos.evm.vm.v1.Query", "Code", requestData)) as Uint8Array;
         return decodeQueryCodeResponse(responseData);
     }
 }

@@ -7,11 +7,12 @@ export class EvmClient extends StargateClient {
     private evmQueryClient?: EvmQueryClient;
 
     /**
-     * Creates an EvmQueryClient instance if not already created
+     * Creates an EvmQueryClient instance if not already created.
+     * @returns A promise that resolves to the EvmQueryClient.
      */
     private async getEvmQueryClient(): Promise<EvmQueryClient> {
         if (!this.evmQueryClient) {
-            // We'll need to extract the RPC URL from the BaseQueryClient
+            // We'll need to extract the RPC URL from the BaseQueryClient.
             // For now, we'll create a new connection (this could be optimized)
             throw new Error("EvmQueryClient initialization not implemented - need RPC URL from BaseQueryClient");
         }
@@ -19,8 +20,8 @@ export class EvmClient extends StargateClient {
     }
 
     /**
-     * Queries the EVM module parameters
-     * @returns A promise that resolves to the EVM module parameters
+     * Queries the EVM module parameters.
+     * @returns A promise that resolves to the EVM module parameters.
      */
     async getParams(): Promise<QueryParamsResponse> {
         const client = await this.getEvmQueryClient();
@@ -28,20 +29,20 @@ export class EvmClient extends StargateClient {
     }
 
     /**
-     * Queries the EVM module code
-     * @param address The address to query the code for
-     * @returns A promise that resolves to the EVM module code
+     * Queries the EVM module code.
+     * @param address The address to query the code for.
+     * @returns A promise that resolves to the EVM module code.
      */
     async getCode(address: string): Promise<string | null> {
         const client = await this.getEvmQueryClient();
         const codeBytes = await client.code(address);
-        return !!codeBytes.code?.length ? Buffer.from(codeBytes.code).toString("hex") : null;
+        return codeBytes.code?.length ? Buffer.from(codeBytes.code).toString("hex") : null;
     }
 
     /**
-     * Queries the EVM module account
-     * @param address The address to query the account for
-     * @returns A promise that resolves to the EVM module account
+     * Queries the EVM module account.
+     * @param address The address to query the account for.
+     * @returns A promise that resolves to the EVM module account.
      */
     async getAccountObject(address: string): Promise<QueryAccountResponse> {
         const client = await this.getEvmQueryClient();
@@ -49,9 +50,9 @@ export class EvmClient extends StargateClient {
     }
 
     /**
-     * Creates a new EvmClient instance connected to the specified RPC URL
-     * @param rpcUrl The Tendermint RPC endpoint
-     * @returns A Promise that resolves to an EvmClient
+     * Creates a new EvmClient instance connected to the specified RPC URL.
+     * @param rpcUrl The Tendermint RPC endpoint.
+     * @returns A Promise that resolves to an EvmClient.
      */
     static async connect(rpcUrl: string): Promise<EvmClient> {
         const baseClient = await BaseQueryClient.connect(rpcUrl);

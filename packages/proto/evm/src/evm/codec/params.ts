@@ -4,6 +4,9 @@ import { Params } from "../evm";
 
 /**
  * Encodes QueryParamsRequest to protobuf bytes
+ * @param request The request to encode
+ * @param _
+ * @returns The encoded QueryParamsRequest
  */
 export function encodeQueryParamsRequest(_: QueryParamsRequest): Uint8Array {
     // QueryParamsRequest is empty, so we return empty bytes
@@ -13,12 +16,14 @@ export function encodeQueryParamsRequest(_: QueryParamsRequest): Uint8Array {
 
 /**
  * Decodes QueryParamsResponse from protobuf bytes
+ * @param input The input bytes to decode
+ * @returns The decoded QueryParamsResponse
  */
 export function decodeQueryParamsResponse(input: Uint8Array): QueryParamsResponse {
     const reader = Reader.create(input);
-    let end = reader.len;
+    const end = reader.len;
     const message: any = {};
-    
+
     while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -30,12 +35,14 @@ export function decodeQueryParamsResponse(input: Uint8Array): QueryParamsRespons
                 break;
         }
     }
-    
+
     return message as QueryParamsResponse;
 }
 
 /**
  * Decodes Params from protobuf
+ * @param reader The reader to decode the Params from
+ * @returns The decoded Params
  */
 function decodeParams(reader: Reader): Params {
     const length = reader.uint32();
@@ -46,9 +53,9 @@ function decodeParams(reader: Reader): Params {
         allowUnprotectedTxs: false,
         evmChannels: [],
         accessControl: { create: { accessType: 0, accessControlList: [] }, call: { accessType: 0, accessControlList: [] } },
-        activeStaticPrecompiles: []
+        activeStaticPrecompiles: [],
     };
-    
+
     while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -82,21 +89,23 @@ function decodeParams(reader: Reader): Params {
                 break;
         }
     }
-    
+
     return params as Params;
 }
 
 /**
  * Decodes AccessControl from protobuf
+ * @param reader The reader to decode the AccessControl from
+ * @returns The decoded AccessControl
  */
 function decodeAccessControl(reader: Reader): any {
     const length = reader.uint32();
     const end = reader.pos + length;
     const accessControl: any = {
         create: { accessType: 0, accessControlList: [] },
-        call: { accessType: 0, accessControlList: [] }
+        call: { accessType: 0, accessControlList: [] },
     };
-    
+
     while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -111,21 +120,23 @@ function decodeAccessControl(reader: Reader): any {
                 break;
         }
     }
-    
+
     return accessControl;
 }
 
 /**
  * Decodes AccessControlType from protobuf
+ * @param reader The reader to decode the AccessControlType from
+ * @returns The decoded AccessControlType
  */
 function decodeAccessControlType(reader: Reader): any {
     const length = reader.uint32();
     const end = reader.pos + length;
     const accessControlType: any = {
         accessType: 0,
-        accessControlList: []
+        accessControlList: [],
     };
-    
+
     while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -140,6 +151,6 @@ function decodeAccessControlType(reader: Reader): any {
                 break;
         }
     }
-    
+
     return accessControlType;
 }

@@ -1,6 +1,6 @@
 // Query types generated from cosmos.evm.vm.v1 proto definitions
 
-import { ChainConfig, Params, Log, TraceConfig } from "./evm";
+import { ChainConfig, Params } from "./evm";
 
 // Query Service RPCs
 export interface QueryAccountRequest {

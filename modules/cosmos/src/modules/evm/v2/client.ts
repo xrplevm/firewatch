@@ -7,7 +7,8 @@ export class EvmClient extends StargateClient {
     private evmQueryClient?: EvmQueryClient;
 
     /**
-     * Creates an EvmQueryClient instance if not already created
+     * Creates an EvmQueryClient instance if not already created.
+     * @returns A promise that resolves to the EvmQueryClient.
      */
     private async getEvmQueryClient(): Promise<EvmQueryClient> {
         if (!this.evmQueryClient) {
@@ -35,9 +36,14 @@ export class EvmClient extends StargateClient {
     async getCode(address: string): Promise<string | null> {
         const client = await this.getEvmQueryClient();
         const codeBytes = await client.code(address);
-        return !!codeBytes.code?.length ? Buffer.from(codeBytes.code).toString("hex") : null;
+        return codeBytes.code?.length ? Buffer.from(codeBytes.code).toString("hex") : null;
     }
 
+    /**
+     * Queries the EVM module account.
+     * @param address The address to query the account for.
+     * @returns A promise that resolves to the EVM module account.
+     */
     async getAccountObject(address: string): Promise<QueryAccountResponse> {
         const client = await this.getEvmQueryClient();
         return client.account(address);
