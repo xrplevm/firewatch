@@ -1,6 +1,6 @@
 import { StargateClient } from "@cosmjs/stargate";
 import { BaseQueryClient } from "../../common/client";
-import { EvmQueryClient, QueryAccountResponse, QueryParamsResponse } from "@firewatch/proto-evm";
+import { EvmQueryClient, QueryAccountResponse, QueryParamsResponse } from "@firewatch/proto-evm/evm";
 import { Buffer } from "buffer";
 
 export class EvmClient extends StargateClient {

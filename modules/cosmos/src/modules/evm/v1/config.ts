@@ -1,4 +1,4 @@
-import { Params } from "@firewatch/proto-evmos";
+import { Params } from "@firewatch/proto-evmos/evm";
 
 export type AccountCode = {
     address: string;
