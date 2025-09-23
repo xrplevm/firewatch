@@ -1,29 +1,34 @@
 import { expect } from "chai";
 import { describe, it, before } from "mocha";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
 import { describeOrSkip } from "@testing/mocha/utils";
 import { PoaClient } from "../../../src/modules/poa/client";
 import { PoaModuleConfig } from "../../../src/modules/poa/config";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { CosmosModuleConfig } from "../../../src/config/module";
 
 describeOrSkip(
     "PoaModule",
     () => {
-        return (
-            isChainType(["cosmos"], moduleConfig.network as unknown as Chain) &&
-            isChainEnvironment(["localnet", "devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain)
-        );
+        try {
+            const env = TestConfigLoader.getCurrentEnvironment();
+            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+        } catch (error) {
+            console.warn(`Failed to determine test environment: ${error}`);
+            return false;
+        }
     },
     () => {
         let poaClient: PoaClient;
-        const network = moduleConfig.network;
+        let moduleConfig: CosmosModuleConfig;
         let poaModule: PoaModuleConfig;
 
         before(async () => {
+            moduleConfig = await TestConfigLoader.getTestConfig();
             poaModule = moduleConfig.poa;
 
-            poaClient = await PoaClient.connect(network.urls.rpc);
+            poaClient = await PoaClient.connect(moduleConfig.network.urls.rpc!);
         });
 
         describe("Validator staking and self-delegation", () => {

@@ -5,10 +5,10 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && mocha",
-        "test:testnet": "cp configs/testnet.module.config.json module.config.json && mocha",
-        "test:devnet": "cp configs/devnet.module.config.json module.config.json && mocha",
-        "test:localnet": "cp configs/localnet.module.config.json module.config.json && mocha",
+        "test:mainnet": "COSMOS_ENV=mainnet mocha",
+        "test:testnet": "COSMOS_ENV=testnet mocha",
+        "test:devnet": "COSMOS_ENV=devnet mocha",
+        "test:localnet": "COSMOS_ENV=localnet mocha",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",

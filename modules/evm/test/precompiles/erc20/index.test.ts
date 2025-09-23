@@ -5,11 +5,12 @@ import { Interface, toBigInt, Contract } from "ethers";
 import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
-import moduleConfig from "../../../module.config.json";
 import { getEventArgs } from "@shared/evm/utils";
 import { isChainEnvironment } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";
 import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { EVMModuleConfig } from "../../../src/config/config";
 
 /**
  * Test Context:
@@ -34,14 +35,20 @@ describe("ERC20", () => {
 
     let tokenAmount: bigint;
     let burnAmount: bigint;
-
-    const { erc20 } = moduleConfig.contracts;
-    const chain = moduleConfig.chain;
-    const { owner } = moduleConfig.contracts.erc20;
+    let moduleConfig: EVMModuleConfig;
+    let erc20: any;
+    let chain: any;
+    let owner: string;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
     // to cover transaction fees and execute mint, burn, and transferOwnership (just in localnet) tests.
     before(async () => {
+        // Load configuration at runtime
+        moduleConfig = await TestConfigLoader.getTestConfig();
+        erc20 = moduleConfig.contracts.erc20;
+        chain = moduleConfig.chain;
+        owner = moduleConfig.contracts.erc20.owner;
+
         abi = erc20.abi;
         contractInterface = new Interface(erc20.abi);
         contractAddress = erc20.contractAddress;
@@ -79,7 +86,10 @@ describe("ERC20", () => {
     describe("name", () => {
         itOrSkip(
             "should return the correct name",
-            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["devnet", "testnet", "mainnet"].includes(env);
+            },
             async () => {
                 const tokenName = await ownerContract.name();
                 expect(tokenName).to.equal("XRP");
@@ -90,7 +100,10 @@ describe("ERC20", () => {
     describe("symbol", () => {
         itOrSkip(
             "should return the correct symbol",
-            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["devnet", "testnet", "mainnet"].includes(env);
+            },
             async () => {
                 const tokenSymbol = await ownerContract.symbol();
                 expect(tokenSymbol).to.equal("XRP");
@@ -101,7 +114,10 @@ describe("ERC20", () => {
     describe("decimals", () => {
         itOrSkip(
             "should return the correct decimals",
-            isChainEnvironment(["devnet", "testnet", "mainnet"], chain as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["devnet", "testnet", "mainnet"].includes(env);
+            },
             async () => {
                 const tokenDecimals = await ownerContract.decimals();
                 expect(tokenDecimals).to.equal(18);
@@ -109,7 +125,10 @@ describe("ERC20", () => {
         );
     });
 
-    describeOrSkip("mint coins", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
+    describeOrSkip("mint coins", () => {
+        const env = TestConfigLoader.getCurrentEnvironment();
+        return ["localnet"].includes(env);
+    }, () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -137,7 +156,10 @@ describe("ERC20", () => {
         });
     });
 
-    describeOrSkip("burn coins", isChainEnvironment(["localnet", "devnet", "testnet"], chain as unknown as Chain), () => {
+    describeOrSkip("burn coins", () => {
+        const env = TestConfigLoader.getCurrentEnvironment();
+        return ["localnet", "devnet", "testnet"].includes(env);
+    }, () => {
         it("should burn specified amount", async () => {
             const beforeBalance = await userContract.balanceOf(userSigner.address);
 
@@ -157,7 +179,10 @@ describe("ERC20", () => {
         });
     });
 
-    describeOrSkip("burn (owner-only burn)", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
+    describeOrSkip("burn (owner-only burn)", () => {
+        const env = TestConfigLoader.getCurrentEnvironment();
+        return ["localnet"].includes(env);
+    }, () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -179,7 +204,10 @@ describe("ERC20", () => {
         });
     });
 
-    describeOrSkip("burnFrom", isChainEnvironment(["localnet", "devnet", "testnet"], chain as unknown as Chain), () => {
+    describeOrSkip("burnFrom", () => {
+        const env = TestConfigLoader.getCurrentEnvironment();
+        return ["localnet", "devnet", "testnet"].includes(env);
+    }, () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });
@@ -209,7 +237,10 @@ describe("ERC20", () => {
         });
     });
 
-    describeOrSkip("transferOwnership", isChainEnvironment(["localnet"], chain as unknown as Chain), () => {
+    describeOrSkip("transferOwnership", () => {
+        const env = TestConfigLoader.getCurrentEnvironment();
+        return ["localnet"].includes(env);
+    }, () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
         });

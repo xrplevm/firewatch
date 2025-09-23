@@ -1,5 +1,6 @@
 import { Chain } from "@firewatch/core/chain";
 import { expect } from "chai";
+import { describe, it, before } from "mocha";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { describeOrSkip } from "@testing/mocha/utils";
 import { FeemarketClient as FeemarketClientV2 } from "../../../src/modules/feemarket/v2/client";
@@ -9,27 +10,47 @@ import {
     QueryBaseFeeResponse as QueryBaseFeeResponseV1,
 } from "@firewatch/proto-evmos/feemarket";
 import { FeemarketClient as FeemarketClientV1 } from "../../../src/modules/feemarket/v1/client";
-import moduleConfig from "../../../module.config.json";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { CosmosModuleConfig } from "../../../src/config/module";
 
 describeOrSkip(
     "FeemarketModule",
     () => {
-        return isChainType(["cosmos"], moduleConfig.network as unknown as Chain);
+        try {
+            const env = TestConfigLoader.getCurrentEnvironment();
+            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+        } catch (error) {
+            console.warn(`Failed to determine test environment: ${error}`);
+            return false;
+        }
     },
     () => {
+        let moduleConfig: CosmosModuleConfig;
+
+        before(async () => {
+            moduleConfig = await TestConfigLoader.getTestConfig();
+        });
         describeOrSkip(
             "v1 (evmos)",
-            () => isChainEnvironment(["devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["devnet", "testnet", "mainnet"].includes(env);
+            },
             () => {
                 let feemarketClientV1: FeemarketClientV1;
                 let params: QueryParamsResponseV1;
-
-                const {
-                    v1: { params: expectedParams, baseFee: expectedBaseFee },
-                } = moduleConfig.feemarket;
+                let expectedParams: any;
+                let expectedBaseFee: any;
 
                 before(async () => {
-                    feemarketClientV1 = await FeemarketClientV1.connect(moduleConfig.network.urls.rpc);
+                    // Extract the expected config after moduleConfig is loaded
+                    const {
+                        v1: { params, baseFee },
+                    } = moduleConfig.feemarket;
+                    expectedParams = params;
+                    expectedBaseFee = baseFee;
+
+                    feemarketClientV1 = await FeemarketClientV1.connect(moduleConfig.network.urls.rpc!);
                 });
 
                 describe("getParams", () => {
@@ -86,17 +107,25 @@ describeOrSkip(
 
         describeOrSkip(
             "v2 (cosmos/evm)",
-            () => isChainEnvironment(["localnet"], moduleConfig.network as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["localnet"].includes(env);
+            },
             () => {
                 let feemarketClientV2: FeemarketClientV2;
                 let params: QueryParamsResponse;
-
-                const {
-                    v2: { params: expectedParams, baseFee: expectedBaseFee },
-                } = moduleConfig.feemarket;
+                let expectedParams: any;
+                let expectedBaseFee: any;
 
                 before(async () => {
-                    feemarketClientV2 = await FeemarketClientV2.connect(moduleConfig.network.urls.rpc);
+                    // Extract the expected config after moduleConfig is loaded
+                    const {
+                        v2: { params, baseFee },
+                    } = moduleConfig.feemarket;
+                    expectedParams = params;
+                    expectedBaseFee = baseFee;
+
+                    feemarketClientV2 = await FeemarketClientV2.connect(moduleConfig.network.urls.rpc!);
                 });
 
                 describe("getParams", () => {
