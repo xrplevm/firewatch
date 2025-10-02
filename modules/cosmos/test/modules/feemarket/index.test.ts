@@ -19,7 +19,7 @@ describeOrSkip(
     () => {
         describeOrSkip(
             "v1 (evmos)",
-            () => isChainEnvironment(["devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain),
+            () => isChainEnvironment(["testnet", "mainnet"], moduleConfig.network as unknown as Chain),
             () => {
                 let feemarketClientV1: FeemarketClientV1;
                 let params: QueryParamsResponseV1;
@@ -86,7 +86,7 @@ describeOrSkip(
 
         describeOrSkip(
             "v2 (cosmos/evm)",
-            () => isChainEnvironment(["localnet"], moduleConfig.network as unknown as Chain),
+            () => isChainEnvironment(["localnet", "devnet"], moduleConfig.network as unknown as Chain),
             () => {
                 let feemarketClientV2: FeemarketClientV2;
                 let params: QueryParamsResponse;

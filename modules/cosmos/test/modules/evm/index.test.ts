@@ -17,7 +17,7 @@ describeOrSkip(
     () => {
         describeOrSkip(
             "v1 (evmos)",
-            () => isChainEnvironment(["devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain),
+            () => isChainEnvironment(["testnet", "mainnet"], moduleConfig.network as unknown as Chain),
             () => {
                 let evmClientV1: EvmClientV1;
                 const {
@@ -85,7 +85,7 @@ describeOrSkip(
 
         describeOrSkip(
             "v2 (cosmos/evm)",
-            () => isChainEnvironment(["localnet"], moduleConfig.network as unknown as Chain),
+            () => isChainEnvironment(["localnet", "devnet"], moduleConfig.network as unknown as Chain),
             () => {
                 let evmClientV2: EvmClientV2;
                 const {
