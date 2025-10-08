@@ -8,6 +8,7 @@
         "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && mocha",
         "test:testnet": "cp configs/testnet.module.config.json module.config.json && mocha",
         "test:devnet": "cp configs/devnet.module.config.json module.config.json && mocha",
+        "test:localnet": "cp configs/localnet.module.config.json module.config.json && mocha",
         "clean": "rimraf .turbo dist node_modules"
     },
     "license": "ISC",
@@ -15,9 +16,12 @@
         "@cosmjs/encoding": "^0.33.1",
         "@cosmjs/stargate": "^0.33.0",
         "@cosmjs/tendermint-rpc": "^0.33.1",
+        "@firewatch/proto-evmos": "workspace:*",
+        "@firewatch/proto-evm": "workspace:*",
         "@types/chai": "^5.0.1",
         "cosmjs-types": "^0.9.0",
-        "mocha": "^11.1.0"
+        "mocha": "^11.1.0",
+        "buffer": "^6.0.3"
     },
     "devDependencies": {
         "@firewatch/core": "workspace:*",

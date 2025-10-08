@@ -7,3 +7,4 @@ packages:
     - "packages/config"
     - "packages/core"
     - "packages/env"
+    - "packages/proto/*"

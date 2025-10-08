@@ -1,9 +1,9 @@
 {
     "network": {
-        "id": "xrplevm_testnet",
-        "name": "xrplevm_testnet",
+        "id": "xrplevm_mainnet",
+        "name": "xrplevm_mainnet",
         "symbol": "XRP",
-        "env": "testnet",
+        "env": "mainnet",
         "type": "cosmos",
         "nativeToken": {
             "name": "XRP",
@@ -11,7 +11,7 @@
             "decimals": 18
         },
         "urls": {
-            "rpc": "http://cosmos.testnet.xrplevm.org:26657"
+            "rpc": "https://cosmos-rpc.xrplevm.org"
         }
     },
     "slashing": {
@@ -23,5 +23,69 @@
     },
     "bank": {
         "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+    },
+    "evm": {
+        "v1": {
+            "accounts": [
+                {
+                    "address": "0x6F6C82025CFA145DD13B614AA4289AD6CA856E53",
+                    "code": null,
+                    "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+                },
+                {
+                    "address": "0x6F6C82025CFA145DD13B614AA4289AD6CA856E54",
+                    "code": null,
+                    "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+                }
+            ],
+            "params": {
+                "evmDenom": "axrp",
+                "extraEips": [
+                  "ethereum_3855"
+                ],
+                "allowUnprotectedTxs": false,
+                "evmChannels": [],
+                "accessControl": {
+                  "create": {
+                    "accessType": 0,
+                    "accessControlList": []
+                  },
+                  "call": {
+                    "accessType": 0,
+                    "accessControlList": []
+                  }
+                },
+                "activeStaticPrecompiles": [
+                    "0x0000000000000000000000000000000000000100",
+                    "0x0000000000000000000000000000000000000400",
+                    "0x0000000000000000000000000000000000000804",
+                    "0x0000000000000000000000000000000000000805"
+                ]
+            }
+        },
+        "v2": {
+            "accounts": [{
+                "address": "",
+                "code": "",
+                "codeHash": ""
+            }],
+            "params": {
+                "evmDenom": "",
+                "allowUnprotectedTxs": false,
+                "evmChannels": [],
+                "extraEips": [],
+                "accessControl": {
+                    "create": {
+                        "accessType": 0,
+                        "accessControlList": []
+                    },
+                    "call": {
+                        "accessType": 0,
+                        "accessControlList": []
+                    }
+                },
+                "activeStaticPrecompiles": []
+            }
+        }
     }
 }
