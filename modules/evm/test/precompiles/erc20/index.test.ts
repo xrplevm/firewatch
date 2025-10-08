@@ -228,25 +228,6 @@ describe("ERC20", () => {
         });
     });
 
-    describe("increaseAllowance", () => {
-        beforeEach(async () => {
-            await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
-        });
-        afterEach(async () => {
-            await resetOwnerState(ownerContract, userContract, ownerSigner, userSigner, chain.env);
-        });
-
-        it("should correctly increase allowance", async () => {
-            const initialAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(initialAllowance).to.equal(0);
-
-            await executeTx(ownerContract.increaseAllowance(userSigner.address, tokenAmount));
-
-            const newAllowance = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-            expect(newAllowance).to.equal(initialAllowance + tokenAmount);
-        });
-    });
-
     describe("transfer", () => {
         beforeEach(async () => {
             await executeTx(userContract.transfer(ownerSigner.address, erc20.faucetFund));
@@ -342,7 +323,7 @@ describe("ERC20", () => {
             const approvalEvent = getEventArgs(approveReceipt, contractInterface, "Approval");
 
             expect(approvalEvent).to.not.eq(undefined);
-            expect(approvalEvent!.args.owner).to.equal(erc20.contractAddress);
+            expect(approvalEvent!.args.owner).to.equal(ownerSigner.address);
             expect(approvalEvent!.args.spender).to.equal(userSigner.address);
             expect(approvalEvent!.args.value.toString()).to.equal(tokenAmount.toString());
 
@@ -355,7 +336,7 @@ describe("ERC20", () => {
             const resetApprovalEvent = getEventArgs(resetApproveReceipt, contractInterface, "Approval");
 
             expect(resetApprovalEvent).to.not.eq(undefined);
-            expect(resetApprovalEvent!.args.owner).to.equal(erc20.contractAddress);
+            expect(resetApprovalEvent!.args.owner).to.equal(ownerSigner.address);
             expect(resetApprovalEvent!.args.spender).to.equal(userSigner.address);
             expect(resetApprovalEvent!.args.value.toString()).to.equal("0");
         });

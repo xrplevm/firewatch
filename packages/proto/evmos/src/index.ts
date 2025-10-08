@@ -1,1 +1,2 @@
-export * from "./evm";
+export * as evm from "./evm";
+export * as feemarket from "./feemarket";

@@ -10,7 +10,8 @@
         "check-types": "npx tsc --noEmit"
     },
     "exports": {
-        ".": "./src/index.ts"
+        "./evm": "./src/evm/index.ts",
+        "./feemarket": "./src/feemarket/index.ts"
     },
     "dependencies": {
         "@cosmjs/stargate": "^0.33.0",

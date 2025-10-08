@@ -6,8 +6,8 @@ import { describeOrSkip } from "@testing/mocha/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
-import { QueryParamsResponse } from "@firewatch/proto-evmos";
-import { QueryParamsResponse as QueryParamsResponseV2 } from "@firewatch/proto-evm";
+import { QueryParamsResponse } from "@firewatch/proto-evmos/evm";
+import { QueryParamsResponse as QueryParamsResponseV2 } from "@firewatch/proto-evm/evm";
 
 describeOrSkip(
     "EvmModule",
