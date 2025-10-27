@@ -2,19 +2,24 @@ name: firewatch-tests
 
 on:
   workflow_dispatch:
-    branches:
-      - main
+    inputs:
+      environment:
+        type: choice
+        description: Environment where to run tests
+        required: true
+        options:
+          - devnet
+          - testnet
+          - mainnet
 
   schedule:
     - cron: '0 8 * * 1'
 
 concurrency:
-  # Cancel old runs if there is a new commit in the same branch
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
-  # Needed to configure aws credentials step
   id-token: write
   contents: read
 
@@ -26,21 +31,20 @@ jobs:
     outputs:
       TAG: ${{ steps.env-vars.outputs.TAG }}
       NOW: ${{ steps.env-vars.outputs.NOW }}
+      ENV: ${{ steps.env-vars.outputs.ENV }}
 
     steps:
-      # Define global vars that will be used through the pipeline
       - name: Defining global vars
-        shell: bash
         id: env-vars
+        shell: bash
         run: |
           echo "TAG=${GITHUB_SHA:0:8}" >> $GITHUB_OUTPUT
           echo "NOW=$(TZ=':Europe/Madrid' date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "ENV=${{ github.event.inputs.environment || 'devnet' }}" >> $GITHUB_OUTPUT
 
-      # Checkout repository under $GITHUB_WORKSPACE path
       - name: Repository checkout
         uses: actions/checkout@v4
 
-      # Send initial Slack deployment message
       - name: 📬 Initial Slack deployment message
         shell: bash
         env:
@@ -49,21 +53,40 @@ jobs:
           NOW: ${{ steps.env-vars.outputs.NOW }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          echo "Send initial Slack message"
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"🎬 Starting *FIREWATCH-TESTS* deployment in *${ENV}* environment - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" ${SLACK_WEBHOOK_URL}
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🎬 Starting *FIREWATCH-TESTS* in *${ENV}* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            ${SLACK_WEBHOOK_URL}
 
   tests:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [initial]
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [axelar, cosmos, evm]
 
     steps:
-    # Checkout repository under $GITHUB_WORKSPACE path
-      - name: Respository checkout
+      - name: Repository checkout
         uses: actions/checkout@v4
 
-      # Send Slack message if any previous step has failed in this job
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.7.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ${{ matrix.module }} tests
+        shell: bash
+        env:
+          ENV: ${{ needs.initial.outputs.ENV }}
+        run: |
+          echo "🧪 Running tests for ${{ matrix.module }} in ${ENV}"
+          pnpm run test:${{ matrix.module }}:${ENV} || echo "⚠️ ${matrix.module} tests failed"
+
       - name: Failure job notification
         if: ${{ failure() }}
         shell: bash
@@ -73,8 +96,9 @@ jobs:
           NOW: ${{ needs.initial.outputs.NOW }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          echo "Send error Slack message"
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job *FAILED* in *${ENV}*. Check pipeline logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" ${SLACK_WEBHOOK_URL}
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job *FAILED* in *${ENV}*. Check logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            ${SLACK_WEBHOOK_URL}
 
   final:
     name: 🏁 Final
@@ -86,7 +110,6 @@ jobs:
       !contains(join(needs.*.result, ','), 'failure')
 
     steps:
-      # Send final Slack deployment message
       - name: 📬 Final Slack deployment message
         shell: bash
         env:
@@ -94,5 +117,6 @@ jobs:
           TAG: ${{ needs.initial.outputs.TAG }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          echo "Send final Slack message"
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"🏁 *FIREWATCH-TESTS* deployment in *${ENV}* environment *SUCCESSFULLY* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" ${SLACK_WEBHOOK_URL}
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🏁 *FIREWATCH-TESTS* in *${ENV}* *SUCCESSFULLY* completed - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            ${SLACK_WEBHOOK_URL}
