@@ -13,7 +13,7 @@ on:
           - mainnet
 
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 8 * * 1,4'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -40,7 +40,12 @@ jobs:
         run: |
           echo "TAG=${GITHUB_SHA:0:8}" >> $GITHUB_OUTPUT
           echo "NOW=$(TZ=':Europe/Madrid' date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
-          echo "ENV=${{ github.event.inputs.environment || 'devnet' }}" >> $GITHUB_OUTPUT
+          # Si es manual -> usa el input, si es schedule -> ejecutará todos los entornos
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "ENV=all" >> $GITHUB_OUTPUT
+          fi
 
       - name: Repository checkout
         uses: actions/checkout@v4
@@ -53,6 +58,7 @@ jobs:
           NOW: ${{ steps.env-vars.outputs.NOW }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          echo "Send initial Slack message"
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"🎬 Starting *FIREWATCH-TESTS* in *${ENV}* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
             ${SLACK_WEBHOOK_URL}
@@ -65,6 +71,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        environment: [devnet, testnet, mainnet]
         module: [axelar, cosmos, evm]
 
     steps:
@@ -79,13 +86,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run ${{ matrix.module }} tests
+      - name: Run ${{ matrix.module }} tests for ${{ matrix.environment }}
+        if: |
+          github.event_name == 'schedule' ||
+          matrix.environment == needs.initial.outputs.ENV
         shell: bash
-        env:
-          ENV: ${{ needs.initial.outputs.ENV }}
         run: |
-          echo "🧪 Running tests for ${{ matrix.module }} in ${ENV}"
-          pnpm run test:${{ matrix.module }}:${ENV} || echo "⚠️ ${matrix.module} tests failed"
+          echo "🧪 Running tests for ${{ matrix.module }} in ${{ matrix.environment }}"
+          pnpm run test:${{ matrix.module }}:${{ matrix.environment }} || echo "⚠️ ${{ matrix.module }}:${{ matrix.environment }} failed"
 
       - name: Failure job notification
         if: ${{ failure() }}
@@ -96,8 +104,9 @@ jobs:
           NOW: ${{ needs.initial.outputs.NOW }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          echo "Send error Slack message"
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job *FAILED* in *${ENV}*. Check logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job *FAILED*. Check logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
             ${SLACK_WEBHOOK_URL}
 
   final:
@@ -117,6 +126,7 @@ jobs:
           TAG: ${{ needs.initial.outputs.TAG }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          echo "Send final Slack message"
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"🏁 *FIREWATCH-TESTS* in *${ENV}* *SUCCESSFULLY* completed - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            --data "{\"text\":\"🏁 *FIREWATCH-TESTS* in *${ENV}* *SUCCESSFULLY* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
             ${SLACK_WEBHOOK_URL}
