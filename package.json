@@ -7,7 +7,7 @@
         "test": "npx turbo run test && echo '🧪 Test completed'",
         "test:packages": "npx turbo run test --filter=\"./packages/**/*\" && echo '🧪 Test packages completed'",
         "test:axelar:devnet": "cd modules/axelar && pnpm run test:devnet",
-        "test:axelar:testnet": "echo 'Disabled: cd modules/axelar && pnpm run test:testnet'",
+        "test:axelar:testnet": "cd modules/axelar && pnpm run test:testnet",
         "test:axelar:mainnet": "cd modules/axelar && pnpm run test:mainnet",
         "test:cosmos:devnet": "cd modules/cosmos && pnpm run test:devnet",
         "test:cosmos:testnet": "cd modules/cosmos && pnpm run test:testnet",

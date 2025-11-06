@@ -6,8 +6,6 @@ import { ERC20Errors } from "../../../src/precompiles/erc20/errors/errors";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expectRevert, executeTx } from "@testing/hardhat/utils";
 import { getEventArgs } from "@shared/evm/utils";
-import { isChainEnvironment } from "@testing/mocha/assertions";
-import { Chain } from "@firewatch/core/chain";
 import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 import { TestConfigLoader } from "../../../src/test-utils/config";
 import { EVMModuleConfig } from "../../../src/config/config";
