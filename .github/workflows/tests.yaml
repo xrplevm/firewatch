@@ -117,7 +117,8 @@ jobs:
     needs: [initial, tests]
     if: |
       always() &&
-      !contains(join(needs.*.result, ','), 'failure')
+      !contains(join(needs.*.result, ','), 'failure') &&
+      !contains(join(needs.*.result, ','), 'cancelled')
 
     steps:
       - name: 📬 Final Slack deployment message
