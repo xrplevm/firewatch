@@ -18,7 +18,7 @@ describeOrSkip(
     () => {
         try {
             const env = TestConfigLoader.getCurrentEnvironment();
-            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+            return ["localnet", "mainnet"].includes(env);
         } catch (error) {
             console.warn(`Failed to determine test environment: ${error}`);
             return false;
@@ -34,7 +34,7 @@ describeOrSkip(
             "v1 (evmos)",
             () => {
                 const env = TestConfigLoader.getCurrentEnvironment();
-                return ["devnet", "testnet", "mainnet"].includes(env);
+                return ["mainnet"].includes(env);
             },
             () => {
                 let feemarketClientV1: FeemarketClientV1;
@@ -109,7 +109,7 @@ describeOrSkip(
             "v2 (cosmos/evm)",
             () => {
                 const env = TestConfigLoader.getCurrentEnvironment();
-                return ["localnet"].includes(env);
+                return ["localnet", "devnet", "testnet"].includes(env);
             },
             () => {
                 let feemarketClientV2: FeemarketClientV2;

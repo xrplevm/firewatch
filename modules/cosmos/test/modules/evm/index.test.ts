@@ -3,8 +3,6 @@ import { expect } from "chai";
 import { EvmClient as EvmClientV2 } from "../../../src/modules/evm/v2/client";
 import { EvmClient as EvmClientV1 } from "../../../src/modules/evm/v1/client";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import { Chain } from "@firewatch/core/chain";
 import { QueryParamsResponse } from "@firewatch/proto-evmos/evm";
 import { QueryParamsResponse as QueryParamsResponseV2 } from "@firewatch/proto-evm/evm";
 import { TestConfigLoader } from "../../../src/test-utils/config";
@@ -32,7 +30,7 @@ describeOrSkip(
             "v1 (evmos)",
             () => {
                 const env = TestConfigLoader.getCurrentEnvironment();
-                return ["devnet", "testnet", "mainnet"].includes(env);
+                return ["mainnet"].includes(env);
             },
             () => {
                 let evmClientV1: EvmClientV1;
@@ -108,7 +106,7 @@ describeOrSkip(
             "v2 (cosmos/evm)",
             () => {
                 const env = TestConfigLoader.getCurrentEnvironment();
-                return ["localnet"].includes(env);
+                return ["localnet", "devnet", "testnet"].includes(env);
             },
             () => {
                 let evmClientV2: EvmClientV2;
