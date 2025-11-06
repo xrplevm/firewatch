@@ -87,9 +87,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run ${{ matrix.module }} tests for ${{ matrix.environment }}
-        if: |
-          github.event_name == 'schedule' ||
-          matrix.environment == needs.initial.outputs.ENV
+        if: ${{ github.event_name == 'schedule' || matrix.environment == needs.initial.outputs.ENV }}
         shell: bash
         run: |
           echo "🧪 Running tests for ${{ matrix.module }} in ${{ matrix.environment }}"
