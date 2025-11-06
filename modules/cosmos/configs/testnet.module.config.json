@@ -25,7 +25,7 @@
         "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
     },
     "evm": {
-        "v1": {
+        "v2": {
             "accounts": [
                 {
                     "address": "0x6F6C82025CFA145DD13B614AA4289AD6CA856E53",
@@ -41,7 +41,7 @@
             "params": {
                 "evmDenom": "axrp",
                 "extraEips": [
-                  "ethereum_3855"
+                  "3855"
                 ],
                 "allowUnprotectedTxs": false,
                 "evmChannels": [],
@@ -63,7 +63,7 @@
                 ]
             }
         },
-        "v2": {
+        "v1": {
             "accounts": [{
                 "address": "",
                 "code": "",
@@ -89,7 +89,7 @@
         }
     },
     "feemarket": {
-        "v1": {
+        "v2": {
             "params": {
                 "noBaseFee": false,
                 "baseFeeChangeDenominator": 8,
@@ -101,7 +101,7 @@
             },
             "baseFee": "200000000000"
         },
-        "v2": {
+        "v1": {
             "params": {
                 "noBaseFee": false,
                 "baseFeeChangeDenominator": 1,

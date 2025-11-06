@@ -1,31 +1,51 @@
-import { describe, it } from "mocha";
+import { describe, it, before } from "mocha";
 import { expect } from "chai";
 import { EvmClient as EvmClientV2 } from "../../../src/modules/evm/v2/client";
 import { EvmClient as EvmClientV1 } from "../../../src/modules/evm/v1/client";
 import { describeOrSkip } from "@testing/mocha/utils";
-import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
-import moduleConfig from "../../../module.config.json";
-import { Chain } from "@firewatch/core/chain";
 import { QueryParamsResponse } from "@firewatch/proto-evmos/evm";
 import { QueryParamsResponse as QueryParamsResponseV2 } from "@firewatch/proto-evm/evm";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { CosmosModuleConfig } from "../../../src/config/module";
 
 describeOrSkip(
     "EvmModule",
     () => {
-        return isChainType(["cosmos"], moduleConfig.network as unknown as Chain);
+        try {
+            const env = TestConfigLoader.getCurrentEnvironment();
+            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+        } catch (error) {
+            console.warn(`Failed to determine test environment: ${error}`);
+            return false;
+        }
     },
     () => {
+        let moduleConfig: CosmosModuleConfig;
+
+        before(async () => {
+            moduleConfig = await TestConfigLoader.getTestConfig();
+        });
+
         describeOrSkip(
             "v1 (evmos)",
-            () => isChainEnvironment(["devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["mainnet"].includes(env);
+            },
             () => {
                 let evmClientV1: EvmClientV1;
-                const {
-                    v1: { params: expectedParams, accounts: expectedAccounts },
-                } = moduleConfig.evm;
+                let expectedParams: any;
+                let expectedAccounts: any;
 
                 before(async () => {
-                    evmClientV1 = await EvmClientV1.connect(moduleConfig.network.urls.rpc);
+                    // Extract the expected config after moduleConfig is loaded
+                    const {
+                        v1: { params, accounts },
+                    } = moduleConfig.evm;
+                    expectedParams = params;
+                    expectedAccounts = accounts;
+
+                    evmClientV1 = await EvmClientV1.connect(moduleConfig.network.urls.rpc!);
                 });
 
                 describe("getParams", () => {
@@ -63,37 +83,45 @@ describeOrSkip(
                 });
 
                 describe("code", () => {
-                    for (const account of expectedAccounts) {
-                        it(`should match expected code for address ${account.address}`, async () => {
+                    it("should match expected code for all accounts", async () => {
+                        for (const account of expectedAccounts) {
                             const code = await evmClientV1.getCode(account.address);
-
                             expect(code).to.deep.equal(account.code);
-                        });
-                    }
+                        }
+                    });
                 });
 
                 describe("account", () => {
-                    for (const expectedAccount of expectedAccounts) {
-                        it(`should return account info for address ${expectedAccount.address}`, async () => {
+                    it("should return account info for all accounts", async () => {
+                        for (const expectedAccount of expectedAccounts) {
                             const account = await evmClientV1.getAccountObject(expectedAccount.address);
                             expect(account.codeHash).to.deep.equal(expectedAccount.codeHash);
-                        });
-                    }
+                        }
+                    });
                 });
             },
         );
 
         describeOrSkip(
             "v2 (cosmos/evm)",
-            () => isChainEnvironment(["localnet"], moduleConfig.network as unknown as Chain),
+            () => {
+                const env = TestConfigLoader.getCurrentEnvironment();
+                return ["localnet", "devnet", "testnet"].includes(env);
+            },
             () => {
                 let evmClientV2: EvmClientV2;
-                const {
-                    v2: { params: expectedParams, accounts: expectedAccounts },
-                } = moduleConfig.evm;
+                let expectedParams: any;
+                let expectedAccounts: any;
 
                 before(async () => {
-                    evmClientV2 = await EvmClientV2.connect(moduleConfig.network.urls.rpc);
+                    // Extract the expected config after moduleConfig is loaded
+                    const {
+                        v2: { params, accounts },
+                    } = moduleConfig.evm;
+                    expectedParams = params;
+                    expectedAccounts = accounts;
+
+                    evmClientV2 = await EvmClientV2.connect(moduleConfig.network.urls.rpc!);
                 });
 
                 describe("getParams", () => {
@@ -131,23 +159,21 @@ describeOrSkip(
                 });
 
                 describe("code", () => {
-                    for (const account of expectedAccounts) {
-                        it(`should match expected code for address ${account.address}`, async () => {
+                    it("should match expected code for all accounts", async () => {
+                        for (const account of expectedAccounts) {
                             const code = await evmClientV2.getCode(account.address);
-
                             expect(code).to.deep.equal(account.code);
-                        });
-                    }
+                        }
+                    });
                 });
 
                 describe("account", () => {
-                    for (const expectedAccount of expectedAccounts) {
-                        it(`should return account info for address ${expectedAccount.address}`, async () => {
+                    it("should return account info for all accounts", async () => {
+                        for (const expectedAccount of expectedAccounts) {
                             const account = await evmClientV2.getAccountObject(expectedAccount.address);
-
                             expect(account.codeHash).to.deep.equal(expectedAccount.codeHash);
-                        });
-                    }
+                        }
+                    });
                 });
             },
         );

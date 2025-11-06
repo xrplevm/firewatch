@@ -2,29 +2,33 @@ import { expect } from "chai";
 import { describe, it, before } from "mocha";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { SlashingClient } from "../../../src/modules/slashing/client";
-import moduleConfig from "../../../module.config.json";
 import { Chain } from "@firewatch/core/chain";
 import { SlashingModuleConfig } from "../../../src/modules/slashing/config";
 import { describeOrSkip } from "@testing/mocha/utils";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { CosmosModuleConfig } from "../../../src/config/module";
 
 describeOrSkip(
     "SlashingModule",
     () => {
-        return (
-            isChainType(["cosmos"], moduleConfig.network as unknown as Chain) &&
-            isChainEnvironment(["localnet", "devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain)
-        );
+        try {
+            const env = TestConfigLoader.getCurrentEnvironment();
+            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+        } catch (error) {
+            console.warn(`Failed to determine test environment: ${error}`);
+            return false;
+        }
     },
     () => {
         let slashingClient: SlashingClient;
         let slashingModule: SlashingModuleConfig;
-
-        const network = moduleConfig.network;
+        let moduleConfig: CosmosModuleConfig;
 
         before(async () => {
+            moduleConfig = await TestConfigLoader.getTestConfig();
             slashingModule = moduleConfig.slashing;
 
-            slashingClient = await SlashingClient.connect(network.urls.rpc);
+            slashingClient = await SlashingClient.connect(moduleConfig.network.urls.rpc!);
         });
 
         describe("Slash fractions", () => {

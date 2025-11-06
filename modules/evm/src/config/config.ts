@@ -1,8 +1,21 @@
-import { ERC20PrecompileConfig } from "../precompiles/erc20/config/config";
-import { HardhatModuleConfig } from "@testing/hardhat/config";
-import { Chain } from "@firewatch/core/chain";
-import { Account } from "@firewatch/core/account";
+import { Chain, ChainObject } from "@firewatch/core/chain";
+import { HardhatConfig } from "hardhat/types";
 
-export interface EVMModuleConfig extends Omit<HardhatModuleConfig<Chain, Account>, "network" | "accounts"> {
-    erc20: ERC20PrecompileConfig;
+export interface ERC20ContractConfig {
+    abi: string[];
+    contractAddress: string;
+    owner: string;
+    amount: string;
+    burnAmount: string;
+    faucetFund: string;
+}
+
+export interface ContractsConfig {
+    erc20: ERC20ContractConfig;
+}
+
+export interface EVMModuleConfig {
+    hardhat: HardhatConfig;
+    contracts: ContractsConfig;
+    chain: ChainObject;
 }
