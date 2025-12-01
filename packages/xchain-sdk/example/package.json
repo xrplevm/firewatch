@@ -1,0 +1,23 @@
+{
+    "name": "example",
+    "version": "0.0.0",
+    "type": "module",
+    "bin": "src/index.ts",
+    "scripts": {
+        "example": "./src/index.ts",
+        "example:create-bridge-request": "./src/create-bridge-request.ts"
+    },
+    "author": "Peersyst",
+    "devDependencies": {
+        "@types/inquirer": "^9.0.7",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "ethers": "5.7",
+        "inquirer": "^9.2.12",
+        "ora": "^7.0.1",
+        "xchain-sdk": "../dist",
+        "xrpl": "3.0.0"
+    }
+}
