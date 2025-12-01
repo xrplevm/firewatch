@@ -7,4 +7,6 @@ packages:
     - "packages/config"
     - "packages/core"
     - "packages/env"
+    - "packages/xchain-sdk"
+    - "packages/bridge-contracts"
     - "packages/proto/*"

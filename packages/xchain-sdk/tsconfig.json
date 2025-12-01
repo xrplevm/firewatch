@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2022",
+        "lib": ["dom", "ES2022", "ES6"],
+        "removeComments": false,
+        "allowSyntheticDefaultImports": true,
+        "strictPropertyInitialization": false,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "incremental": true,
+        "skipLibCheck": true,
+        "declaration": true,
+        "outDir": "./dist/lib"
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*",
+        "../portal-frontend/src/common/constants/token.contants.ts",
+        "../portal-frontend/src/ui/common/utils/token"
+    ],
+    "exclude": ["dist", "node_modules", "example/**/*"]
+}
