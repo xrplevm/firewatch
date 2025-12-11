@@ -39,7 +39,23 @@
             "amount": "1",
             "burnAmount": "1",
             "faucetFund": "10000000000000000000"
-        }
+        },
+        "rpc": [
+            {
+                "label": "v8.0.0",
+                "block": {
+                    "number": 3521556,
+                    "hash": "0x856632b7be8d89337f9675e5828e7d4ffb286b541d3e3f1dbb5d2bd2d42e3161"
+                },
+                "transaction": {
+                    "hash": "0xd1d82250ce64b2076c9c02b87539c3306bb4872d733de82c0a765de3c36cf8ce",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_getBlockReceipts"
+                ]
+            }
+        ]
     },
     "chain": {
         "id": "xrpl-evm",

@@ -6,8 +6,8 @@
             "xrplevm_localnet": {
                 "url": "http://localhost:8545",
                 "accounts": [
-                    "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
-                    "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
+                    "1bacb3ef3d80d8f148299bd21a56d9a78048dc2e20ddab25713a408f2d1f4d5e",
+                    "d8161fd5fdf4eb216a6556dc639a2543b0ed9abdbceb9971fe08cfba56f588c8"
                 ]
             }
         }
@@ -39,7 +39,38 @@
             "amount": "1",
             "burnAmount": "1",
             "faucetFund": "10000000000000000000"
-        }
+        },
+        "rpc": [
+            {
+                "label": "v9.0.0",
+                "block": {
+                    "number": 504,
+                    "hash": "0x9571f62a6e9bdb4dbc87f2aeec9214d416dcc1332c86475ed9b554d363858fc3"
+                },
+                "transaction": {
+                    "hash": "0x02258daf4eff825687c71676469bb66bbf384d35cbf13863738f8a9185c079cc",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_gasPrice",
+                    "eth_feeHistory"
+                ]
+            },
+            {
+                "label": "v8.0.0",
+                "block": {
+                    "number": 84,
+                    "hash": "0x25b60b46dd51369334124938cf4190a315bcbf21cacd65ec60605d5ccb86f83b"
+                },
+                "transaction": {
+                    "hash": "0x4e73cb2059b1578d684a5781397854f86aadc1e340c8bb132ac2af1e60dd90e0",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_gasPrice"
+                ]
+            }
+        ] 
     },
     "chain": {
         "id": "xrplevm_localnet",

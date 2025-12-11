@@ -39,7 +39,38 @@
             "amount": "1",
             "burnAmount": "1",
             "faucetFund": "10000000000000000000"
-        }
+        },
+        "rpc": [
+            {
+                "label": "v9.0.0",
+                "block": {
+                    "number": 504,
+                    "hash": "0x9571f62a6e9bdb4dbc87f2aeec9214d416dcc1332c86475ed9b554d363858fc3"
+                },
+                "transaction": {
+                    "hash": "0x02258daf4eff825687c71676469bb66bbf384d35cbf13863738f8a9185c079cc",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_gasPrice",
+                    "eth_feeHistory"
+                ]
+            },
+            {
+                "label": "v8.0.0",
+                "block": {
+                    "number": 84,
+                    "hash": "0x25b60b46dd51369334124938cf4190a315bcbf21cacd65ec60605d5ccb86f83b"
+                },
+                "transaction": {
+                    "hash": "0x4e73cb2059b1578d684a5781397854f86aadc1e340c8bb132ac2af1e60dd90e0",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_gasPrice"
+                ]
+            }
+        ] 
     },
     "chain": {
         "id": "xrplevm_localnet",
