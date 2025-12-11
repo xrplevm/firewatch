@@ -39,7 +39,44 @@
             "amount": "1",
             "burnAmount": "1",
             "faucetFund": "10000000000000000000"
-        }
+        },
+        "rpc": [
+            {
+                "label": "v9.0.0",
+                "block": {
+                    "number": 21158660,
+                    "hash": "0x90864febaf829431f133302877128e3e4c7c214a4d050b29d5dcd3d8b50c07d6"
+                },
+                "transaction": {
+                    "hash": "0x19f98122077c54ea8be201c987a5772565214da43d4ec806cd371772db7bd3e0",
+                    "index": 0
+                },
+                "disabledCalls": []
+            },
+            {
+                "label": "v8.0.0",
+                "block": {
+                    "number": 16601480,
+                    "hash": "0x0a8aa9d2f91d6e5a26793801de3d213eace28afda78d61dcaf35e67a2681a844"
+                },
+                "transaction": {
+                    "hash": "0xf7f5f3819ef820f869720986d6441f40d2d3b2a18ca08dbe18faecbed06d063d",
+                    "index": 0
+                },
+                "disabledCalls": [
+                    "eth_getBlockByNumber",
+                    "eth_getBlockByHash",
+                    "eth_getTransactionByHash",
+                    "eth_getTransactionReceipt",
+                    "eth_getBlockReceipts",
+                    "eth_getTransactionByBlockHashAndIndex",
+                    "eth_getTransactionByBlockNumberAndIndex",
+                    "eth_getBlockTransactionCountByHash",
+                    "eth_getBlockTransactionCountByNumber",
+                    "eth_getTransactionCount"
+                ]
+            }
+        ] 
     },
     "chain": {
         "id": "xrpl-evm-devnet",
