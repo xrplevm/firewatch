@@ -1,0 +1,11 @@
+artifacts/
+cache/
+dist/
+node_modules/
+typechain/
+
+.dockerignore
+.env
+.env.example
+.gitignore
+Dockerfile

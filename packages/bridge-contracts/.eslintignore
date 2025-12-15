@@ -1,0 +1,9 @@
+artifacts
+cache
+dist
+node_modules
+yarn.lock
+tsconfig.json
+slither.db.json
+coverage
+coverage.json
