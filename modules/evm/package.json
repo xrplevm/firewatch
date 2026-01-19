@@ -26,6 +26,7 @@
         "@testing/mocha": "workspace:*",
         "@testing/hardhat": "workspace:*",
         "@firewatch/core": "workspace:*",
-        "@types/chai": "^5.0.1"
+        "@types/chai": "^5.0.1",
+        "dotenv": "^16.4.7"
     }
 }

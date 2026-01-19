@@ -5,6 +5,7 @@
         "networks": {
             "xrplevm_testnet": {
                 "url": "https://rpc.testnet.xrplevm.org",
+                "archivalUrl": "https://full-history-0.testnet.xrplevm.org",
                 "accounts": [
                     "f81159b8509dbabec1fb48fbbae0bd51153105bb5d39f061192096c40274d100",
                     "25ed64e00aefb0081cc5c799e4abc916b16961a54a7c97138f7e98b357a60161"
@@ -63,18 +64,7 @@
                     "hash": "0x5c995ca814cce1043928b1901efebcc67a364ba819428ea709c27c1ac1fef0d7",
                     "index": 0
                 },
-                "disabledCalls": [
-                    "eth_getBlockByNumber",
-                    "eth_getBlockByHash",
-                    "eth_getTransactionByHash",
-                    "eth_getTransactionReceipt",
-                    "eth_getBlockReceipts",
-                    "eth_getTransactionByBlockHashAndIndex",
-                    "eth_getTransactionByBlockNumberAndIndex",
-                    "eth_getBlockTransactionCountByHash",
-                    "eth_getBlockTransactionCountByNumber",
-                    "eth_getTransactionCount"
-                ]
+                "disabledCalls": []
             }
         ] 
     },
