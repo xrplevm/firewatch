@@ -68,6 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [initial]
+    env:
+      XRPLEVM_TESTNET_RPC_USERNAME: ${{ secrets.XRPLEVM_TESTNET_RPC_USERNAME }}
+      XRPLEVM_TESTNET_RPC_PASSWORD: ${{ secrets.XRPLEVM_TESTNET_RPC_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
