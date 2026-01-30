@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import moduleConfig from "../../module.config.json";
-import { ethers } from "hardhat";
 import { JsonRpcProvider } from "ethers";
 import { RPCFixtureConfig } from "../../src/rpc/config/config";
 import { isDisabledCall } from "../../src/rpc/utils/disabled-calls";
 import { describeOrSkip } from "@testing/mocha/utils";
+import { AuthenticatedJsonRpcProvider } from "../../src/rpc/providers/authenticated-jsonrpc-provider";
+import { getRpcCredentials } from "../../src/rpc/utils/env";
 
 describe("Ethereum RPC", () => {
     let rpcProvider: JsonRpcProvider;
@@ -13,10 +14,13 @@ describe("Ethereum RPC", () => {
         // Get the RPC URL from hardhat network configuration
         const defaultNetwork = moduleConfig.hardhat.defaultNetwork;
         const networkConfig = moduleConfig.hardhat.networks[defaultNetwork as keyof typeof moduleConfig.hardhat.networks];
-        const rpcUrl = networkConfig.url;
+        const rpcUrl = networkConfig.archivalUrl || networkConfig.url;
 
-        // Create a JsonRpcProvider for direct RPC calls
-        rpcProvider = new JsonRpcProvider(rpcUrl);
+        // Get username and password from environment variables
+        const credentials = getRpcCredentials(defaultNetwork as string);
+
+        // Create an authenticated JsonRpcProvider if credentials are provided, otherwise use regular provider
+        rpcProvider = new AuthenticatedJsonRpcProvider(rpcUrl, credentials?.username, credentials?.password);
     });
 
     // Get fixtures from config - handle both old structure (rpc.block/transaction) and new structure (fixtures array)
@@ -40,7 +44,7 @@ describe("Ethereum RPC", () => {
 
             describeOrSkip("eth_getBlockByHash", !isDisabledCall("eth_getBlockByHash", fixture.disabledCalls), () => {
                 it("should return the block by hash", async () => {
-                    const block = await ethers.provider.getBlock(blockHash);
+                    const block = await rpcProvider.getBlock(blockHash);
                     expect(block?.hash).to.equal(blockHash);
                     expect(block?.number).to.equal(blockNumber);
                 });
@@ -60,7 +64,7 @@ describe("Ethereum RPC", () => {
 
             describeOrSkip("eth_getTransactionByHash", !isDisabledCall("eth_getTransactionByHash", fixture.disabledCalls), () => {
                 it("should return the transaction by hash", async () => {
-                    const transaction = await ethers.provider.getTransaction(txHash);
+                    const transaction = await rpcProvider.getTransaction(txHash);
                     expect(transaction?.hash).to.equal(txHash);
                     expect(transaction?.blockNumber).to.equal(blockNumber);
                     expect(transaction?.blockHash).to.equal(blockHash);
@@ -69,7 +73,7 @@ describe("Ethereum RPC", () => {
 
             describeOrSkip("eth_getTransactionReceipt", !isDisabledCall("eth_getTransactionReceipt", fixture.disabledCalls), () => {
                 it("should return the transaction receipt by hash", async () => {
-                    const receipt = await ethers.provider.getTransactionReceipt(txHash);
+                    const receipt = await rpcProvider.getTransactionReceipt(txHash);
                     expect(receipt?.hash).to.equal(txHash);
                     expect(receipt?.blockNumber).to.equal(blockNumber);
                     expect(receipt?.blockHash).to.equal(blockHash);
