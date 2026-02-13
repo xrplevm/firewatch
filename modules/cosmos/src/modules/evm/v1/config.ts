@@ -2,10 +2,11 @@ import { Params } from "@firewatch/proto-evmos/evm";
 
 export type AccountCode = {
     address: string;
-    code: string;
+    code: string | null;
+    codeHash: string;
 };
 
 export type EvmModuleConfig = {
     params: Params;
-    code: AccountCode[];
+    accounts: AccountCode[];
 };

@@ -1,30 +1,36 @@
 import { expect } from "chai";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { describe, it, before } from "mocha";
-import moduleConfig from "../../../module.config.json";
 import { BankClient } from "../../../src/modules/bank/client";
 import { Chain } from "@firewatch/core/chain";
 import { BankModuleConfig } from "../../../src/modules/bank/config";
 import { describeOrSkip } from "@testing/mocha/utils";
+import { TestConfigLoader } from "../../../src/test-utils/config";
+import { CosmosModuleConfig } from "../../../src/config/module";
 
 describeOrSkip(
     "BankModule",
     () => {
-        return (
-            isChainType(["cosmos"], moduleConfig.network as unknown as Chain) &&
-            isChainEnvironment(["localnet", "devnet", "testnet", "mainnet"], moduleConfig.network as unknown as Chain)
-        );
+        try {
+            // We can't use async here, so we'll validate the environment name instead
+            const env = TestConfigLoader.getCurrentEnvironment();
+            return ["localnet", "devnet", "testnet", "mainnet"].includes(env);
+        } catch (error) {
+            console.warn(`Failed to determine test environment: ${error}`);
+            return false;
+        }
     },
     () => {
         let bankClient: BankClient;
-        const network = moduleConfig.network;
+        let moduleConfig: CosmosModuleConfig;
         let bankModule: BankModuleConfig;
         let testAccountAddress: string;
 
         before(async () => {
+            moduleConfig = await TestConfigLoader.getTestConfig();
             bankModule = moduleConfig.bank;
 
-            bankClient = await BankClient.connect(network.urls.rpc);
+            bankClient = await BankClient.connect(moduleConfig.network.urls.rpc!);
             testAccountAddress = bankModule.account;
         });
 
