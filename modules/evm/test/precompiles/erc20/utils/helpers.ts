@@ -3,58 +3,55 @@ import { TransactionReceipt, Log, Interface, Contract } from "ethers";
 import { expect } from "chai";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { executeTx } from "@testing/hardhat/utils";
-import BigNumber from "bignumber.js";
 
 /**
  * Resets the owner's contract state. Transferring tokens back to "faucet account".
  * For "localnet", restores ownership if needed.
- * @param ownerContract Contract instance for the owner.
- * @param userContract Contract instance for user operations.
+ *   1. Check owner balance — if the owner has no tokens, nothing to clean up, return early
+ *   2. Restore ownership (localnet only) — if a test transferred ownership away from the owner (e.g.
+ *   the transferOwnership tests), it transfers it back.
+ *   3. Approve full balance — the owner approves the user to spend their entire token balance. After
+ *   this tx, the owner's balance is slightly less (gas cost deducted).
+ *   4. Query actual remaining balance — instead of estimating gas, it reads the real post-approve
+ *   balance. This is the exact amount safe to transfer.
+ *   5. Transfer back to user — the user calls transferFrom to pull all remaining tokens from the
+ *   owner back to themselves (acting as the "faucet").
+ *   6. Assert owner balance is 0 — verifies the cleanup work
+ * @param contractAsOwner Contract instance connected with the owner signer.
+ * @param contractAsUser Contract instance connected with the user signer.
  * @param ownerSigner Owner signer.
  * @param userSigner User signer.
  * @param chainEvn Network environment.
  */
 export async function resetOwnerState(
-    ownerContract: Contract,
-    userContract: Contract,
+    contractAsOwner: Contract,
+    contractAsUser: Contract,
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
     chainEvn: string,
 ): Promise<void> {
-    const ownerBalance: bigint = await ownerContract.balanceOf(ownerSigner.address);
+    const ownerBalance: bigint = await contractAsOwner.balanceOf(ownerSigner.address);
     if (ownerBalance <= 0n) return;
 
     if (chainEvn === "localnet") {
-        const currentOwner = await ownerContract.owner();
+        // Restore ownership if needed
+        const currentOwner = await contractAsOwner.owner();
         if (currentOwner !== ownerSigner.address) {
-            await executeTx(userContract.transferOwnership(ownerSigner.address));
+            await executeTx(contractAsUser.transferOwnership(ownerSigner.address));
         }
     }
 
-    const provider = ethers.provider;
-    const gas = await provider.getFeeData();
-    const burnGasEstimate: string = (await userContract.approve.estimateGas(ownerSigner.address, ownerBalance)).toString();
+    // Approve the full balance.
+    await executeTx(contractAsOwner.approve(userSigner.address, ownerBalance));
 
-    const gasPriceBN = chainEvn === "localnet" ? new BigNumber("1") : new BigNumber(gas.gasPrice!.toString());
+    // Query the actual remaining balance after the approve gas cost was deducted.
+    const transferAmount: bigint = await contractAsOwner.balanceOf(ownerSigner.address);
+    if (transferAmount <= 0n) return;
 
-    const gasUsedBN = new BigNumber(burnGasEstimate);
-    const gasCostCalculatedBN = gasPriceBN.multipliedBy(gasUsedBN);
-    const gasCostCalculated = BigInt(gasCostCalculatedBN.toFixed(0));
-    const transferAmount: bigint = ownerBalance - gasCostCalculated;
+    await executeTx(contractAsUser.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
 
-    if (transferAmount < 0n) return;
-
-    const approveTx = await executeTx(ownerContract.approve(userSigner.address, transferAmount));
-    const realGasUsed = approveTx.gasCost;
-
-    await executeTx(userContract.transferFrom(ownerSigner.address, userSigner.address, transferAmount));
-
-    const ownerBalanceAfter: bigint = await ownerContract.balanceOf(ownerSigner.address);
-    const remainingAllowance: bigint = await ownerContract.allowance(ownerSigner.address, userSigner.address);
-    const expectedRemainingBalance = gasCostCalculated - BigInt(realGasUsed);
-
-    expect(ownerBalanceAfter).to.equal(expectedRemainingBalance);
-    expect(remainingAllowance).to.equal(0n);
+    const ownerBalanceAfter: bigint = await contractAsOwner.balanceOf(ownerSigner.address);
+    expect(ownerBalanceAfter).to.equal(0n);
 }
 
 /**
