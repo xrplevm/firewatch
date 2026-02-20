@@ -36,9 +36,9 @@
             ],
             "contractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             "owner": "0x10CDF544aeeEbadA19198a21a38D653A95e32272",
-            "amount": "10",
-            "burnAmount": "10",
-            "faucetFund": "10000000000000000000"
+            "amount": "1",
+            "burnAmount": "1",
+            "faucetFund": "1000000000000000000"
         }
     },
     "chain": {
