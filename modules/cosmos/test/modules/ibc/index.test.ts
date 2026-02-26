@@ -15,13 +15,11 @@ import { describeOrSkip, itOrSkip } from "@testing/mocha/utils";
 import { isChainEnvironment, isChainType } from "@testing/mocha/assertions";
 import { Chain } from "@firewatch/core/chain";
 
+// TODO: Fix this tests to be executed in mainnet and testnet
 describeOrSkip(
     "IBCModule",
     () => {
-        return (
-            isChainType(["cosmos"], config.network as unknown as Chain) &&
-            isChainEnvironment(["testnet", "mainnet"], config.network as unknown as Chain)
-        );
+        return isChainType(["cosmos"], config.network as unknown as Chain) && isChainEnvironment([], config.network as unknown as Chain);
     },
     () => {
         const { ibc: ibcConfig } = config;

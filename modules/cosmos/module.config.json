@@ -1,9 +1,9 @@
 {
     "network": {
-        "id": "xrplevm_mainnet",
-        "name": "xrplevm_mainnet",
+        "id": "xrplevm_devnet",
+        "name": "xrplevm_devnet",
         "symbol": "XRP",
-        "env": "mainnet",
+        "env": "devnet",
         "type": "cosmos",
         "nativeToken": {
             "name": "XRP",
@@ -11,7 +11,7 @@
             "decimals": 18
         },
         "urls": {
-            "rpc": "https://cosmos-rpc.xrplevm.org"
+            "rpc": "https://cosmos-rpc.devnet.xrplevm.org"
         }
     },
     "slashing": {
@@ -34,7 +34,7 @@
                     },
                     "evm": true,
                     "chainId": "xrplevm_1449000-1",
-                    "rpcUrl": "http://cosmos.testnet.xrplevm.org:26657",
+                    "rpcUrl": "https://cosmos-rpc.testnet.xrplevm.org",
                     "prefix": "ethm",
                     "denom": "axrp",
                     "amount": "5000",
@@ -110,13 +110,13 @@
         },
         "v2": {
             "accounts": [{
-                "address": "",
-                "code": "",
-                "codeHash": ""
+                "address": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+                "code": null,
+                "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
             }],
             "params": {
-                "evmDenom": "",
-                "allowUnprotectedTxs": false,
+                "evmDenom": "axrp",
+                "allowUnprotectedTxs": true,
                 "evmChannels": [],
                 "extraEips": [],
                 "accessControl": {
@@ -129,7 +129,12 @@
                         "accessControlList": []
                     }
                 },
-                "activeStaticPrecompiles": []
+                "activeStaticPrecompiles": [
+                    "0x0000000000000000000000000000000000000100",
+                    "0x0000000000000000000000000000000000000400",
+                    "0x0000000000000000000000000000000000000804",
+                    "0x0000000000000000000000000000000000000805"
+                ]
             }
         }
     },
@@ -149,14 +154,14 @@
         "v2": {
             "params": {
                 "noBaseFee": false,
-                "baseFeeChangeDenominator": 1,
-                "elasticityMultiplier": 1,
-                "enableHeight": "",
-                "baseFee": "",
-                "minGasPrice": "",
-                "minGasMultiplier": ""
+                "baseFeeChangeDenominator": 8,
+                "elasticityMultiplier": 4,
+                "enableHeight": 0,
+                "baseFee": "200000000000000000000000000000",
+                "minGasPrice": "200000000000000000000000000000",
+                "minGasMultiplier": "500000000000000000"
             },
-            "baseFee": ""
+            "baseFee": "200000000000000000000000000000"
         }
     }
 }
