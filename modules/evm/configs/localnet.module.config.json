@@ -34,11 +34,11 @@
                 "event Transfer(address indexed from, address indexed to, uint256 value)",
                 "event Approval(address indexed owner, address indexed spender, uint256 value)"
             ],
-            "contractAddress": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517",
+            "contractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             "owner": "0x10CDF544aeeEbadA19198a21a38D653A95e32272",
             "amount": "1",
             "burnAmount": "1",
-            "faucetFund": "10000000000000000000"
+            "faucetFund": "1000000000000000000"
         },
         "rpc": [
             {
@@ -70,7 +70,7 @@
                     "eth_gasPrice"
                 ]
             }
-        ] 
+        ]
     },
     "chain": {
         "id": "xrplevm_localnet",
@@ -80,7 +80,7 @@
         "type": "evm",
         "symbol": "XRP",
         "nativeToken": {
-            "address": "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+            "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
         }
     }
 }
