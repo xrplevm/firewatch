@@ -1,0 +1,2 @@
+export const VALIDATION_POLLING_INTERVAL = 3000;
+export const MAX_VALIDATION_TRIES = 100;

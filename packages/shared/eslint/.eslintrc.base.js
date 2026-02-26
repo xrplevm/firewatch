@@ -56,17 +56,6 @@ module.exports = {
         ],
         "jsdoc/require-hyphen-before-param-description": ["error", "never"],
         "jsdoc/require-jsdoc": ["error", jsdocConfig],
-        "jsdoc/match-description": [
-            "error",
-            {
-                message: "Needs to begin with a capital letter and end with an end mark.",
-                matchDescription: "^(?:[A-Z]|`).*\\.(?:\n.*)*",
-                tags: {
-                    param: true,
-                    returns: true,
-                },
-            },
-        ],
         "jsdoc/check-tag-names": [
             "error",
             {
