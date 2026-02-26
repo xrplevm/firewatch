@@ -11,7 +11,7 @@
             "decimals": 18
         },
         "urls": {
-            "rpc": "http://cosmos.testnet.xrplevm.org:26657"
+            "rpc": "https://cosmos-rpc.testnet.xrplevm.org"
         }
     },
     "slashing": {
@@ -23,6 +23,51 @@
     },
     "bank": {
         "account": "ethm1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+    },
+    "ibc": {
+        "chains": [
+            {
+                "dstChain": {
+                    "account": {
+                        "mnemonic": "harsh harsh mean pool tell oval cancel deal unit strategy deny pool",
+                        "address": "ethm1dny09udcpxg2j6440fuk2m6wajz6249tgu2znt"
+                    },
+                    "evm": true,
+                    "chainId": "xrplevm_1449000-1",
+                    "rpcUrl": "https://cosmos-rpc.testnet.xrplevm.org",
+                    "prefix": "ethm",
+                    "denom": "axrp",
+                    "amount": "5000",
+                    "channel": "channel-2",
+                    "gas": {
+                        "amount": "40000000000000000",
+                        "gas": "200000"
+                    }
+                },
+                "srcChain": {
+                    "account": {
+                        "mnemonic": "harsh harsh mean pool tell oval cancel deal unit strategy deny pool",
+                        "address": "cosmos1dakgyqjulg29m5fmv992g2y66m9g2mjn6hahwg"
+                    },
+                    "evm": false,
+                    "chainId": "osmo-test-5",
+                    "rpcUrl": "https://rpc.testnet.osmosis.zone",
+                    "prefix": "osmo",
+                    "denom": "uosmo",
+                    "amount": "5000",
+                    "gas": {
+                        "amount": "200000",
+                        "gas": "200000"
+                    },
+                    "channel": "channel-10361"
+                },
+                "port": "transfer"
+            }
+        ],
+        "heightBuffer": 1000,
+        "timeoutMinutes": 10,
+        "maxIterations": 12,
+        "delay": 10000
     },
     "evm": {
         "v1": {
@@ -65,15 +110,15 @@
         },
         "v2": {
             "accounts": [{
-                "address": "",
-                "code": "",
-                "codeHash": ""
+                "address": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+                "code": "6080604052600436106100385760003560e01c80633e35487c146100915780635c60da1b146100d85780639ded06df1461012c5761003f565b3661003f57005b60006100697f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b90503660008037600080366000845af43d6000803e80801561008a573d6000f35b3d6000fd5b005b34801561009d57600080fd5b506100c57fd10cce6f0e3f6dc9eb8280c32952dc6e4759d0519c550c55d0f8747d13a64bfd81565b6040519081526020015b60405180910390f35b3480156100e457600080fd5b507f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5460405173ffffffffffffffffffffffffffffffffffffffff90911681526020016100cf565b34801561013857600080fd5b5061008f61014736600461014b565b5050565b6000806020838503121561015e57600080fd5b823567ffffffffffffffff8082111561017657600080fd5b818501915085601f83011261018a57600080fd5b81358181111561019957600080fd5b8660208285010111156101ab57600080fd5b6020929092019691955090935050505056fea264697066735822122048cf09e223a1bd27520b20e79507d7de6a036b11d95e1368da36c89f0c67f6a764736f6c63430008170033",
+                "codeHash": "0xb517e33d0b0a195c9689f81879dc551f8cc0d09ace8e2ed2a9377208527ede18"
             }],
             "params": {
-                "evmDenom": "",
+                "evmDenom": "axrp",
                 "allowUnprotectedTxs": false,
                 "evmChannels": [],
-                "extraEips": [],
+                "extraEips": ["3855"],
                 "accessControl": {
                     "create": {
                         "accessType": 0,
@@ -84,7 +129,12 @@
                         "accessControlList": []
                     }
                 },
-                "activeStaticPrecompiles": []
+                "activeStaticPrecompiles": [
+                    "0x0000000000000000000000000000000000000100",
+                    "0x0000000000000000000000000000000000000400",
+                    "0x0000000000000000000000000000000000000804",
+                    "0x0000000000000000000000000000000000000805"
+                ]
             }
         }
     },
@@ -104,14 +154,14 @@
         "v2": {
             "params": {
                 "noBaseFee": false,
-                "baseFeeChangeDenominator": 1,
-                "elasticityMultiplier": 1,
-                "enableHeight": "",
-                "baseFee": "",
-                "minGasPrice": "",
-                "minGasMultiplier": ""
+                "baseFeeChangeDenominator": 8,
+                "elasticityMultiplier": 4,
+                "enableHeight": 0,
+                "baseFee": "200000000000000000000000000000",
+                "minGasPrice": "200000000000000000000000000000",
+                "minGasMultiplier": "500000000000000000"
             },
-            "baseFee": ""
+            "baseFee": "200000000000000000000000000000"
         }
     }
 }
