@@ -88,7 +88,7 @@ describe("ERC20", () => {
     describe("allowance", () => {
         it("should check that allowance is 0 after approve 0", async () => {
             await executeTx(contractAsUser.approve(ownerSigner.address, 0n));
-            const allowance = await contractAsUser.allowance(ownerSigner.address, userSigner.address);
+            const allowance = await contractAsUser.allowance(userSigner.address, ownerSigner.address);
             expect(allowance).to.equal(0n);
         });
     });
