@@ -28,18 +28,9 @@ export async function resetOwnerState(
     contractAsUser: Contract,
     ownerSigner: HardhatEthersSigner,
     userSigner: HardhatEthersSigner,
-    chainEvn: string,
 ): Promise<void> {
     const ownerBalance: bigint = await contractAsOwner.balanceOf(ownerSigner.address);
     if (ownerBalance <= 0n) return;
-
-    if (chainEvn === "localnet") {
-        // Restore ownership if needed
-        const currentOwner = await contractAsOwner.owner();
-        if (currentOwner !== ownerSigner.address) {
-            await executeTx(contractAsUser.transferOwnership(ownerSigner.address));
-        }
-    }
 
     // Approve the full balance.
     await executeTx(contractAsOwner.approve(userSigner.address, ownerBalance));
