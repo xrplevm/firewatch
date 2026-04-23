@@ -25,7 +25,6 @@ import { describeOrSkip } from "@testing/mocha/utils";
  * - transferFrom(owner, to, amount) — the spender exercises the allowance, moving tokens from owner to to
  * Token exchange functionalities:
  * - transfer(to, amount) — the owner transfers tokens to another account
- * - transferOwnership(newOwner) — the owner transfers ownership to a new account
  * Token query functionalities:
  * - balanceOf(account) — returns the balance of an account
  * Token creation/destruction functionalities:
@@ -51,7 +50,7 @@ describe("ERC20", () => {
     const chain = moduleConfig.chain;
 
     // Notice: user is acting as a faucet, providing the owner with enough tokens
-    // to cover transaction fees and execute mint, burn, and transferOwnership (just in localnet) tests.
+    // to cover transaction fees and execute mint and burn tests.
     before(async () => {
         abi = erc20.abi;
         contractInterface = new Interface(erc20.abi);

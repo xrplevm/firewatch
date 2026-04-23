@@ -5,23 +5,19 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { executeTx } from "@testing/hardhat/utils";
 
 /**
- * Resets the owner's contract state. Transferring tokens back to "faucet account".
- * For "localnet", restores ownership if needed.
- *   1. Check owner balance — if the owner has no tokens, nothing to clean up, return early
- *   2. Restore ownership (localnet only) — if a test transferred ownership away from the owner (e.g.
- *   the transferOwnership tests), it transfers it back.
- *   3. Approve full balance — the owner approves the user to spend their entire token balance. After
- *   this tx, the owner's balance is slightly less (gas cost deducted).
- *   4. Query actual remaining balance — instead of estimating gas, it reads the real post-approve
+ * Resets the owner's contract state by transferring tokens back to the "faucet account".
+ *   1. Check owner balance, if the owner has no tokens, nothing to clean up, return early.
+ *   2. Approve full balance, the owner approves the user to spend their entire token balance.
+ *   After this tx, the owner's balance is slightly less (gas cost deducted).
+ *   3. Query actual remaining balance, instead of estimating gas, it reads the real post-approve
  *   balance. This is the exact amount safe to transfer.
- *   5. Transfer back to user — the user calls transferFrom to pull all remaining tokens from the
+ *   4. Transfer back to user, the user calls transferFrom to pull all remaining tokens from the
  *   owner back to themselves (acting as the "faucet").
- *   6. Assert owner balance is 0 — verifies the cleanup work
+ *   5. Assert owner balance is 0, verifies the cleanup work.
  * @param contractAsOwner Contract instance connected with the owner signer.
  * @param contractAsUser Contract instance connected with the user signer.
  * @param ownerSigner Owner signer.
  * @param userSigner User signer.
- * @param chainEvn Network environment.
  */
 export async function resetOwnerState(
     contractAsOwner: Contract,
@@ -43,6 +39,33 @@ export async function resetOwnerState(
 
     const ownerBalanceAfter: bigint = await contractAsOwner.balanceOf(ownerSigner.address);
     expect(ownerBalanceAfter).to.equal(0n);
+}
+
+/**
+ * Runs a mint/burn round-trip signed by `minterContract` against `recipient` and asserts
+ * the recipient balance returns to its starting value.
+ * @param minterContract Contract instance connected with the minter signer.
+ * @param recipientContract Contract instance connected with a signer that can read balances.
+ * @param recipient Address receiving the mint and then losing it to burn.
+ * @param amount Amount to mint and burn.
+ */
+export async function expectMinterCanMintAndBurn(
+    minterContract: Contract,
+    recipientContract: Contract,
+    recipient: string,
+    amount: bigint,
+): Promise<void> {
+    const recipientBeforeBalance: bigint = await recipientContract.balanceOf(recipient);
+
+    await executeTx(minterContract.mint(recipient, amount));
+
+    const recipientAfterMintBalance: bigint = await recipientContract.balanceOf(recipient);
+    expect(recipientAfterMintBalance).to.equal(recipientBeforeBalance + amount);
+
+    await executeTx(minterContract["burn(address,uint256)"](recipient, amount));
+
+    const recipientAfterBurnBalance: bigint = await recipientContract.balanceOf(recipient);
+    expect(recipientAfterBurnBalance).to.equal(recipientBeforeBalance);
 }
 
 /**
