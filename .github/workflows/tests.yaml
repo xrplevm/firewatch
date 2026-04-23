@@ -22,6 +22,7 @@ concurrency:
 permissions:
   id-token: write
   contents: read
+  actions: read
 
 jobs:
   initial:
@@ -94,7 +95,7 @@ jobs:
         shell: bash
         run: |
           echo "🧪 Running tests for ${{ matrix.module }} in ${{ matrix.environment }}"
-          pnpm run test:${{ matrix.module }}:${{ matrix.environment }} || echo "⚠️ ${{ matrix.module }}:${{ matrix.environment }} failed"
+          pnpm run test:${{ matrix.module }}:${{ matrix.environment }}
 
       - name: Failure job notification
         if: ${{ failure() || cancelled() }}
@@ -108,18 +109,15 @@ jobs:
           STATUS="${{ job.status }}"
           echo "Send error Slack message"
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job *${STATUS^^}*. Check logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            --data "{\"text\":\"❌ *FIREWATCH-TESTS* ${GITHUB_JOB} job - *${{ matrix.module }}* on *${{ matrix.environment }}* *${STATUS^^}*. Check logs <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
             ${SLACK_WEBHOOK_URL}
 
   final:
     name: 🏁 Final
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     needs: [initial, tests]
-    if: |
-      always() &&
-      !contains(join(needs.*.result, ','), 'failure') &&
-      !contains(join(needs.*.result, ','), 'cancelled')
+    if: always() && needs.initial.result == 'success'
 
     steps:
       - name: 📬 Final Slack deployment message
@@ -127,9 +125,23 @@ jobs:
         env:
           ENV: ${{ needs.initial.outputs.ENV }}
           TAG: ${{ needs.initial.outputs.TAG }}
+          TESTS_RESULT: ${{ needs.tests.result }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          FAILED=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs" --paginate \
+            -q '.jobs[] | select(.conclusion=="failure" or .conclusion=="cancelled") | select(.name | startswith("Tests")) | .name' \
+            | sed -E 's/^Tests \(([^,]+), *([^)]+)\)$/• \2 \/ \1/')
+
+          NL=$'\n'
+          if [ -z "$FAILED" ] && [ "$TESTS_RESULT" = "success" ]; then
+            MSG="🏁 *FIREWATCH-TESTS* in *${ENV}* *SUCCESSFULLY* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}"
+          else
+            [ -z "$FAILED" ] && FAILED="• unknown"
+            MSG="🏁 *FIREWATCH-TESTS* in *${ENV}* *FINISHED WITH FAILURES*${NL}${FAILED}${NL}Logs: <https://github.com/xrplevm/firewatch/actions/runs/${GITHUB_RUN_ID}|here> - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}"
+          fi
+
           echo "Send final Slack message"
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"🏁 *FIREWATCH-TESTS* in *${ENV}* *SUCCESSFULLY* - Commit: <https://github.com/xrplevm/firewatch/commit/${TAG}|${TAG}> by ${GITHUB_ACTOR}\"}" \
+            --data "$(jq -nc --arg t "$MSG" '{text:$t}')" \
             ${SLACK_WEBHOOK_URL}
