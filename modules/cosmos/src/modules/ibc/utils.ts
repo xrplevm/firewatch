@@ -2,7 +2,7 @@ import { SigningStargateClient, StargateClient } from "@cosmjs/stargate";
 import { IBCChain, IBCChainPair } from "./config";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { IBCEvmSignerClient } from "./client";
-import { DirectSecp256k1HdWallet as EvmDirectSecp256k1HdWallet } from "./signer";
+import { DirectSecp256k1HdWallet as EvmDirectSecp256k1HdWallet } from "../ethermint/signer";
 import { makeCosmoshubPath } from "@cosmjs/amino";
 import { stringToPath } from "@cosmjs/crypto";
 

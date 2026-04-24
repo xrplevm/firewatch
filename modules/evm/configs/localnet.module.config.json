@@ -25,8 +25,6 @@
                 "function burn(uint256 amount) external",
                 "function burn(address account, uint256 amount) external",
                 "function burnFrom(address account, uint256 amount) external",
-                "function transferOwnership(address newOwner) external",
-                "function owner() external view returns (address)",
                 "function totalSupply() external view returns (uint256)",
                 "function name() external view returns (string)",
                 "function symbol() external view returns (string)",
@@ -72,10 +70,17 @@
             }
         ]
     },
+    "cosmos": {
+        "rpcUrl": "http://localhost:26657",
+        "mnemonic": "birth rebuild refuse area aisle language bullet pride place clutch paddle drama",
+        "denom": "axrp",
+        "prefix": "ethm",
+        "govModuleAddress": "ethm10d07y265gmmuvt4z0w9aw880jnsr700jpva843"
+    },
     "chain": {
         "id": "xrplevm_localnet",
         "name": "xrplevm_localnet",
-        "chainId": 100,
+        "chainId": 1449999,
         "env": "localnet",
         "type": "evm",
         "symbol": "XRP",

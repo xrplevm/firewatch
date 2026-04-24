@@ -3,6 +3,11 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
+    "exports": {
+        "./gov": "./src/modules/gov/index.ts",
+        "./ethermint": "./src/modules/ethermint/index.ts",
+        "./query": "./src/modules/query/index.ts"
+    },
     "scripts": {
         "lint": "eslint .",
         "test:mainnet": "cp configs/mainnet.module.config.json module.config.json && mocha",

@@ -1,3 +1,7 @@
 {
-    "extends": "@shared/tsconfig/package"
+    "extends": "@shared/tsconfig/package",
+    "compilerOptions": {
+        "declaration": false,
+        "rootDir": "../.."
+    }
 }

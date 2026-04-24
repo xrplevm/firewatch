@@ -1,4 +1,5 @@
 import { Account, accountFromAny } from "@cosmjs/stargate";
+import { BaseAccount } from "cosmjs-types/cosmos/auth/v1beta1/auth";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { parseEthAccount } from "./parser";
 
@@ -18,28 +19,31 @@ import { parseEthAccount } from "./parser";
  * @throws Error if parsing fails for both EthAccount and standard account formats.
  */
 export function ethermintAccountParser(input: Any): Account {
-    try {
-        // Handle EthAccount specifically
-        if (input.typeUrl === "/ethermint.types.v1.EthAccount") {
-            const ethAccount = parseEthAccount(input);
-            if (ethAccount?.baseAccount) {
-                return {
-                    address: ethAccount.baseAccount.address,
-                    accountNumber: Number(ethAccount.baseAccount.accountNumber),
-                    sequence: Number(ethAccount.baseAccount.sequence),
-                    pubkey: null, // EthAccount doesn't store pubkey in the account
-                } as Account;
-            }
-            // If EthAccount parsing fails, fall through to standard parsing
+    if (input.typeUrl === "/ethermint.types.v1.EthAccount") {
+        const ethAccount = parseEthAccount(input);
+        if (ethAccount?.baseAccount) {
+            return {
+                address: ethAccount.baseAccount.address,
+                accountNumber: Number(ethAccount.baseAccount.accountNumber),
+                sequence: Number(ethAccount.baseAccount.sequence),
+                pubkey: null,
+            } as Account;
         }
-
-        // For all other account types or if EthAccount parsing failed, use standard parsing
-        return accountFromAny(input);
-    } catch (error) {
-        console.error("Failed to parse account with ethermintAccountParser:", error);
-        // Final fallback to standard parsing, let it throw if it fails
-        return accountFromAny(input);
     }
+
+    // BaseAccount may carry a non-cosmos pubkey (e.g. ethsecp256k1) that accountFromAny cannot decode.
+    // Decode fields directly and drop the pubkey to avoid the failure.
+    if (input.typeUrl === "/cosmos.auth.v1beta1.BaseAccount") {
+        const base = BaseAccount.decode(input.value);
+        return {
+            address: base.address,
+            accountNumber: Number(base.accountNumber),
+            sequence: Number(base.sequence),
+            pubkey: null,
+        } as Account;
+    }
+
+    return accountFromAny(input);
 }
 
 /**
